@@ -1,0 +1,3 @@
+[submodule "EasyLib"]
+	path = EasyLib
+	url = https://github.com/unitn-software-engineering/EasyLib.git
