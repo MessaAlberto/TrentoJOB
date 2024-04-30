@@ -1,0 +1,21 @@
+{
+  "name": "trentojob",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node index.js",
+    "start_local": "echo use: $ npm run dev",
+    "dev": "node -r dotenv/config index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongodb": "^6.5.0",
+    "mongoose": "^8.3.3",
+    "vite": "^5.2.10"
+  }
+}
