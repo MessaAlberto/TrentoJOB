@@ -1,10 +1,9 @@
+// Allows to use environment variables
 require('dotenv').config();
 
-const express = require('express');
-const app = express();
-//const app = require('./app/app.js');
+const app = require('./app/app.js');
 const mongoose = require('mongoose');
-console.log(process.env.MONGODBURI);
+// console.log(process.env.MONGODBURI);
 
 /**
  * https://devcenter.heroku.com/articles/preparing-a-codebase-for-heroku-deployment#4-listen-on-the-correct-port
