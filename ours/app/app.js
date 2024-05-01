@@ -40,8 +40,11 @@ app.use((req,res,next) => {
 
 
 
+/**
+ * Resource routing
+ */
 
-
+app.use('/admin', admin);
 
 
 
