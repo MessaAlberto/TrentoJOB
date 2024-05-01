@@ -10,7 +10,8 @@ router.post('/events', async (req, res) => {
         date: req.body.date,
         time: req.body.time,
         location: req.body.location,
-        organizerID: req.body.organizerID
+        organizerID: req.body.organizerID,
+        participantsID: req.body.participantsID
     });
 
     if (event.title === undefined || event.title === '' || event.title === null || typeof event.title !== 'string') {
