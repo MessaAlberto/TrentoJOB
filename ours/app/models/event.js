@@ -8,6 +8,5 @@ module.exports = mongoose.model('Event', new Schema({
     date: String,
     time: String,
     location: String,
-    organizerID: String,
-    partecipantsID: [String]
+    organizerID: String
 }));
