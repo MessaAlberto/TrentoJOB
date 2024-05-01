@@ -5,130 +5,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column; /* Align items vertically */
-      align-items: center;
-      background-color: #f0f0f0;
-    }
-
-    .buttons-container {
-      display: flex;
-      flex-direction: row; /* Arrange buttons horizontally */
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-
-    .button {
-      display: inline-block;
-      padding: 10px 20px;
-      margin: 10px;
-      font-size: 18px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .list-container {
-      margin-top: 20px; /* Add margin to create space between buttons and list */
-    }
-
-    .list {
-      list-style-type: none; /* Remove default list styles */
-      padding: 0;
-    }
-
-    .list-item {
-      background-color: #f0f0f0;
-      padding: 10px;
-      margin: 5px 0;
-    }
-  </style>
+  <script src="./script/admin.js"></script>
+  <link rel="stylesheet" href="./style/admin.css">
 </head>
 
 <body>
   <div class="buttons-container">
     <button class="button" onclick="fetchEvents()">Events</button>
-    <button class="button" onclick="redirectToAnnouncements()">Announcements</button>
-    <button class="button" onclick="redirectToUsers()">Users</button>
-    <button class="button" onclick="redirectToOrganisations()">Organisations</button>
+    <button class="button" onclick="fetchAnnouncements()">Announcements</button>
+    <button class="button" onclick="fetchUsers()">Users</button>
+    <button class="button" onclick="fetchOrganisations()">Organisations</button>
   </div>
 
   <div class="list-container" id="listContainer">
     <!-- Your dynamic list items will be added here -->
   </div>
-</body>
-
-<script>
-  function fetchEvents() {
-    fetch('../admin/events')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch events');
-        }
-        return response.json();
-      })
-      .then(events => {
-        // Handle the events data and update the DOM
-        const eventsContainer = document.getElementById('listContainer');
-        events.forEach(event => {
-          const eventElement = document.createElement('div');
-          eventElement.classList.add('event-item');
-
-          const titleElement = document.createElement('h2');
-          titleElement.textContent = `Title: ${event.title}`;
-          eventElement.appendChild(titleElement);
-
-          const descriptionElement = document.createElement('p');
-          descriptionElement.textContent = `Description: ${event.description}`;
-          eventElement.appendChild(descriptionElement);
-
-          const dateElement = document.createElement('p');
-          dateElement.textContent = `Date: ${event.date}`;
-          eventElement.appendChild(dateElement);
-
-          const timeElement = document.createElement('p');
-          timeElement.textContent = `Time: ${event.time}`;
-          eventElement.appendChild(timeElement);
-
-          const locationElement = document.createElement('p');
-          locationElement.textContent = `Location: ${event.location}`;
-          eventElement.appendChild(locationElement);
-
-          const organizerElement = document.createElement('p');
-          organizerElement.textContent = `Organizer ID: ${event.organizerID}`;
-          eventElement.appendChild(organizerElement);
-
-          const participantsElement = document.createElement('p');
-          participantsElement.textContent = `Participants ID: ${event.participantsID.join(', ')}`;
-          eventElement.appendChild(participantsElement);
-
-          eventsContainer.appendChild(eventElement);
-          })})
-      .catch (error => {
-      console.error('Error fetching events:', error);
-    });
-  }
-
-  function redirectToAnnouncements() {
-    window.location.href = '/admin/announcements';
-  }
-
-  function redirectToUsers() {
-    window.location.href = '/admin/users';
-  }
-
-  function redirectToOrganisations() {
-    window.location.href = '/admin/organisations';
-  }
-</script>
 </body>
 
 </html>
