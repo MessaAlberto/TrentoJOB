@@ -1,3 +1,6 @@
+// Call setParagraphHeights when window is resized
+window.addEventListener('resize', setParagraphHeights);
+
 function fetchEvents() {
     fetch('../admin/events')
         .then(response => {
@@ -9,6 +12,10 @@ function fetchEvents() {
         .then(events => {
             // Handle the events data and update the DOM
             const eventsContainer = document.getElementById('listContainer');
+
+            // Clear the eventsContainer before adding new elements
+            eventsContainer.innerHTML = '';
+
             events.forEach(event => {
                 const eventElement = document.createElement('div');
                 // it needs a class to run
@@ -80,6 +87,8 @@ function fetchEvents() {
 
                 eventsContainer.appendChild(eventElement);
             })
+            // Adjust the height of the paragraphs
+            setParagraphHeights();
         })
         .catch(error => {
             console.error('Error fetching events:', error);
@@ -96,4 +105,18 @@ function fetchUsers() {
 
 function fetchOrganisations() {
     // to do
+}
+
+// Function to set paragraph heights
+function setParagraphHeights() {
+    const paragraphs = document.querySelectorAll('.event-list p');
+    paragraphs.forEach(paragraph => {
+        const valueElements = paragraph.querySelectorAll('.value');
+        let maxHeight = 0;
+        valueElements.forEach(valueElement => {
+            const height = valueElement.offsetHeight;
+            maxHeight = Math.max(maxHeight, height);
+        });
+        paragraph.style.height = maxHeight + 'px';
+    });
 }

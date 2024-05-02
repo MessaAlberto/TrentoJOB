@@ -71,3 +71,15 @@ p {
     left: 120px;
     min-height: 20px;
 }
+
+
+@media (max-width: 600px) {
+    .buttons-container {
+        flex-direction: column;
+        /* Arrange buttons vertically */
+    }
+
+    .list-container {
+        margin-top: 260px;
+    }
+}
