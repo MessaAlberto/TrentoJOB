@@ -49,17 +49,27 @@ body {
     margin-right: auto;
 }
 
-.event-list,
+.container {
+    display: flex;
+    flex-direction: row;
+    border: 2px solid black;
+    align-items: center;
+}
+
+.event-element,
 .announcement-list,
 .user-list,
 .organisations-list {
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    width: 100%;
+    padding: 10px;
 }
 
-.event-list>* {
-    margin: 10px;
+.button-list {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
 }
 
 p {

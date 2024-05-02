@@ -19,7 +19,7 @@ function fetchEvents() {
             events.forEach(event => {
                 const eventElement = document.createElement('div');
                 // it needs a class to run
-                eventElement.classList.add('event-list');
+                eventElement.classList.add('event-element');
 
                 const titleElement = document.createElement('h2');
                 titleElement.textContent = event.title;
@@ -85,7 +85,18 @@ function fetchEvents() {
                 participantsElement.appendChild(valueParticipants);
                 eventElement.appendChild(participantsElement);
 
-                eventsContainer.appendChild(eventElement);
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+
+                const buttonList = document.createElement('div');
+                buttonList.classList.add('button-list');
+                buttonList.appendChild(deleteButton);
+
+                const container = document.createElement('span');
+                container.classList.add('container');
+                container.appendChild(eventElement);
+                container.appendChild(buttonList);
+                eventsContainer.appendChild(container);
             })
             // Adjust the height of the paragraphs
             setParagraphHeights();
@@ -109,7 +120,7 @@ function fetchOrganisations() {
 
 // Function to set paragraph heights
 function setParagraphHeights() {
-    const paragraphs = document.querySelectorAll('.event-list p');
+    const paragraphs = document.querySelectorAll('.event-element p');
     paragraphs.forEach(paragraph => {
         const valueElements = paragraph.querySelectorAll('.value');
         let maxHeight = 0;
