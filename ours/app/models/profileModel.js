@@ -6,7 +6,7 @@ module.exports = mongoose.model('Profile', new Schema({
     name: {
         type: String,
         required: true,
-        minlength: 5,
+        minlength: 4,
         maxlength: 255,
     },
     email: {
@@ -18,7 +18,7 @@ module.exports = mongoose.model('Profile', new Schema({
     password: {
         type: String,
         required: true,
-        minlength: 5,
+        minlength: 8,
         maxlength: 255,
     },
     phone: {

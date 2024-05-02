@@ -4,7 +4,8 @@ const express = require('express');
 const app = express();
 const cors = require('cors')
 
-const admin = require('./admin.js');
+const adminURL = require('./admin.js');
+const eventURL = require('./event.js');
 
 
 
@@ -44,7 +45,8 @@ app.use((req,res,next) => {
  * Resource routing
  */
 
-app.use('/admin', admin);
+app.use('/admin', adminURL);
+app.use('/events', eventURL);
 
 
 

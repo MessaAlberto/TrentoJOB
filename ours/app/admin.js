@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Event = require('./models/event'); // get our mongoose model
+const Event = require('./models/eventModel'); // get our mongoose model
 
 const eventRouter = require('./adminEvents.js');
 

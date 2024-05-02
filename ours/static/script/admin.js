@@ -1,6 +1,20 @@
 // Call setParagraphHeights when window is resized
 window.addEventListener('resize', setParagraphHeights);
 
+// Function to set paragraph heights
+function setParagraphHeights() {
+    const paragraphs = document.querySelectorAll('.event-element p');
+    paragraphs.forEach(paragraph => {
+        const valueElements = paragraph.querySelectorAll('.value');
+        let maxHeight = 0;
+        valueElements.forEach(valueElement => {
+            const height = valueElement.offsetHeight;
+            maxHeight = Math.max(maxHeight, height);
+        });
+        paragraph.style.height = maxHeight + 'px';
+    });
+}
+
 function fetchEvents() {
     fetch('../admin/events')
         .then(response => {
@@ -87,6 +101,9 @@ function fetchEvents() {
 
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => {
+                    fetchDeleteButton('/events', event._id);
+                });
 
                 const buttonList = document.createElement('div');
                 buttonList.classList.add('button-list');
@@ -118,16 +135,24 @@ function fetchOrganisations() {
     // to do
 }
 
-// Function to set paragraph heights
-function setParagraphHeights() {
-    const paragraphs = document.querySelectorAll('.event-element p');
-    paragraphs.forEach(paragraph => {
-        const valueElements = paragraph.querySelectorAll('.value');
-        let maxHeight = 0;
-        valueElements.forEach(valueElement => {
-            const height = valueElement.offsetHeight;
-            maxHeight = Math.max(maxHeight, height);
-        });
-        paragraph.style.height = maxHeight + 'px';
+
+// baseURL is the URL to send the DELETE request to
+function fetchDeleteButton(baseURL, eventId) {
+    fetch(`${baseURL}/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ eventId: eventId })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to delete event');
+        }
+        console.log('Event deleted successfully');
+        fetchEvents();
+    })
+    .catch(error => {
+        console.error('Error deleting event:', error);
     });
 }

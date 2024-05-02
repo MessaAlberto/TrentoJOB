@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Event = require('./models/event');
+const Event = require('./models/eventModel');
 
 // Route to handle requests for /admin/events
 router.get('/', printf, async (req, res) => {
