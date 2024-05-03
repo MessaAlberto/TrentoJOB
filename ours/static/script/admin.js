@@ -1,3 +1,5 @@
+let clickedMenu = 'events';
+
 // Call setParagraphHeights when window is resized
 window.addEventListener('resize', setParagraphHeights);
 
@@ -15,8 +17,46 @@ function setParagraphHeights() {
     });
 }
 
-function fetchEvents() {
-    fetch('../admin/events')
+// Function to handle Enter key button on search input
+function handleSearchKeyPress(event) {
+    // Check if the pressed key is Enter (key code 13)
+    if (event.keyCode === 13) {
+        event.preventDefault();
+        // Trigger the search function
+        searchButtonFunction();
+    }
+}
+
+
+// Call fetch whit search bar input
+function searchButtonFunction() {
+    const searchInput = document.getElementById('searchInput').value;
+    switch (clickedMenu) {
+        case 'events':
+            fetchEvents(searchInput);
+            break;
+        case 'announcements':
+            fetchAnnouncements(searchInput);
+            break;
+        case 'users':
+            fetchUsers(searchInput);
+            break;
+        case 'organisations':
+            fetchOrganisations(searchInput);
+            break;
+        default:
+            console.error('Invalid action:', clickedMenu);
+    }
+}
+
+
+// Fetch events from the server
+function fetchEvents(title = '') {
+    clickedMenu = 'events';
+    // Construct the URL with optional query parameters
+    const url = `../events${title ? `?title=${title}` : ''}`;
+    
+    fetch(url)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch events');
@@ -124,15 +164,97 @@ function fetchEvents() {
 }
 
 function fetchAnnouncements() {
-    // to do
+    clickedMenu = 'announcements';
+    // Construct the URL with optional query parameters
+    const url = `../announcements${title ? `?title=${title}` : ''}`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch announcements');
+            }
+            return response.json();
+        })
+        .then(announcements => {
+            // Handle the announcements data and update the DOM
+            const announcementsContainer = document.getElementById('listContainer');
+
+            // Clear the announcementsContainer before adding new elements
+            announcementsContainer.innerHTML = '';
+
+            announcements.forEach(announcement => {
+                // to do
+            })
+            // Adjust the height of the paragraphs
+            setParagraphHeights();
+        })
+        .catch(error => {
+            console.error('Error fetching announcements:', error);
+        });
 }
 
+
+// which url to use? the problem is on title
 function fetchUsers() {
-    //to do
+    clickedMenu = 'users';
+    // Construct the URL with optional query parameters
+    const url = `../users${title ? `?title=${title}` : ''}`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch users');
+            }
+            return response.json();
+        })
+        .then(users => {
+            // Handle the users data and update the DOM
+            const usersContainer = document.getElementById('listContainer');
+
+            // Clear the usersContainer before adding new elements
+            usersContainer.innerHTML = '';
+
+            users.forEach(user => {
+                // to do
+            })
+            // Adjust the height of the paragraphs
+            setParagraphHeights();
+        })
+        .catch(error => {
+            console.error('Error fetching users:', error);
+        });
 }
 
+
+// which url to use? the problem is on title
 function fetchOrganisations() {
-    // to do
+    clickedMenu = 'organisations';
+    // Construct the URL with optional query parameters
+    const url = `../organisations${title ? `?title=${title}` : ''}`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch organisations');
+            }
+            return response.json();
+        })
+        .then(organisations => {
+            // Handle the organisations data and update the DOM
+            const organisationsContainer = document.getElementById('listContainer');
+
+            // Clear the organisationsContainer before adding new elements
+            organisationsContainer.innerHTML = '';
+
+            organisations.forEach(organisation => {
+                // to do
+            })
+            // Adjust the height of the paragraphs
+            setParagraphHeights();
+        })
+        .catch(error => {
+            console.error('Error fetching organisations:', error);
+        });
 }
 
 

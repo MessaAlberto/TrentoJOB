@@ -17,6 +17,12 @@
     <button class="button" onclick="fetchOrganisations()">Organisations</button>
   </div>
 
+  <!-- Search bar -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search by name..." onkeypress="handleSearchKeyPress(event)">
+    <button class="button" onclick="searchButtonFunction()">Search</button>
+  </div>
+
   <div class="list-container" id="listContainer">
     <!-- Your dynamic list items will be added here -->
   </div>
