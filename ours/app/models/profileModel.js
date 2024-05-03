@@ -1,30 +1,32 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
-// set up a mongoose model
-module.exports = mongoose.model('Profile', new Schema({
-    name: {
+// set up a mongoose model for profile
+module.exports = mongoose.model('Profile', new mongoose.Schema({
+    username: {
         type: String,
         required: true,
-        minlength: 4,
-        maxlength: 255,
     },
     email: {
         type: String,
         required: true,
-        minlength: 5,
-        maxlength: 255,
+        unique: true,
     },
     password: {
         type: String,
         required: true,
-        minlength: 8,
-        maxlength: 255,
+    },
+    role: {
+        type: String,
+        required: true,
+        enum: ['utente', 'ente', 'amministratore'],
+        default: 'utente',
+    },
+    date: {
+        type: Date,
+        default: Date.now,
     },
     phone: {
         type: String,
         required: false,
-        minlength: 3,
-        maxlength: 15,
-    },
+    }
 }));
