@@ -3,6 +3,8 @@ const User = require("../models/profileModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {registerValidation, loginValidation} = require("./validation");
+const express = require("express");
+const app = express();
 
 // register
 router.post("/register", async (req, res) => {
@@ -26,7 +28,7 @@ router.post("/register", async (req, res) => {
     try {
         const  savedUser = await user.save();
         res.status(201).send({user: savedUser._id});
-        // TODO redirect user
+        app.redirect('/login.html');
     } catch (err) {
         res.status(400).send(err)
     }
@@ -49,5 +51,6 @@ router.post('/login', async (req, res) => {
     // logged
     const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET); // TODO jwt_secret save
     res.header('auth-token').send(token);
-    // TODO redirecting + role handling
+    app.redirect('/home.html');
+    // TODO role handling
 });
