@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Event = require('./models/eventModel'); // get our mongoose model
+const { route } = require('./admin');
 
 
 router.get('/', printf, async (req, res) => {
@@ -28,6 +29,19 @@ router.get('/', printf, async (req, res) => {
     }
 });
 
+router.get('/:id', printf, async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (event) {
+            res.status(200).send(event);
+        } else {
+            res.status(404).json({ error: 'Event not found' });
+        }
+    } catch (error) {
+        console.error('Error retrieving event:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 router.post('/', printf, async (req, res) => {
     let event = new Event(req.body);

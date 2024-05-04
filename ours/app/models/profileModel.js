@@ -18,7 +18,7 @@ module.exports = mongoose.model('Profile', new mongoose.Schema({
     role: {
         type: String,
         required: true,
-        enum: ['utente', 'ente', 'amministratore'],
+        enum: ['user', 'organisation', 'admin'],
         default: 'utente',
     },
     birthday: {
