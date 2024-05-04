@@ -6,6 +6,7 @@ const cors = require('cors')
 
 const adminURL = require('./admin.js');
 const eventURL = require('./event.js');
+const profileURL = require('./profile.js');
 
 
 
@@ -47,7 +48,7 @@ app.use((req,res,next) => {
 
 app.use('/admin', adminURL);
 app.use('/events', eventURL);
-
+app.use('/profiles', profileURL);
 
 
 /* Default 404 handler */

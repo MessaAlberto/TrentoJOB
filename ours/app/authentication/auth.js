@@ -40,7 +40,7 @@ router.post('/login', async (req, res) => {
     const validation = loginValidation(req.body);
     if (validation.error) return res.status(400).send('Email or password is wrong'); // {err: validation.error.details[0].message}
 
-    // email doesnt exist
+    // email doesn't exist
     const user = await User.findOne({email: req.body.email}, {_id: 1, password: 1}, null);
     if (!user) return res.status(400).send('Email or password is wrong');
 

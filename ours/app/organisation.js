@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Profile = require('./models/profileModel'); // get our mongoose model
+const User = require('./models/profileModel'); // get our mongoose model
 
 
 router.get('/', printf, async (req, res) => {

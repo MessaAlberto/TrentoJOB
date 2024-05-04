@@ -21,9 +21,9 @@ module.exports = mongoose.model('Profile', new mongoose.Schema({
         enum: ['utente', 'ente', 'amministratore'],
         default: 'utente',
     },
-    date: {
+    birthday: {
         type: Date,
-        default: Date.now,
+        required: false,
     },
     phone: {
         type: String,

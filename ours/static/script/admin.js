@@ -3,6 +3,22 @@ let clickedMenu = 'events';
 // Call setParagraphHeights when window is resized
 window.addEventListener('resize', setParagraphHeights);
 
+
+function toggleActive(button) {
+    // Remove 'active' class from all buttons
+    const buttons = document.querySelectorAll('.button');
+    buttons.forEach(btn => {
+        if (btn !== button) {
+            console.log("btn remove active", btn);
+            btn.classList.remove('active');
+        }
+    });
+    
+    // Add 'active' class to the clicked button
+    button.classList.add('active');
+    console.log("button add active", button);
+}
+
 // Function to set paragraph heights
 function setParagraphHeights() {
     const paragraphs = document.querySelectorAll('.event-element p');
@@ -93,7 +109,7 @@ function fetchEvents(title = '') {
                 const keyDate = document.createElement('span');
                 const valueDate = document.createElement('span');
                 keyDate.innerHTML = `Date:`;
-                valueDate.innerHTML = event.date;
+                valueDate.innerHTML = new Date(event.date).toLocaleDateString();
                 valueDate.className = 'value';
                 dateElement.appendChild(keyDate);
                 dateElement.appendChild(valueDate);
@@ -163,7 +179,7 @@ function fetchEvents(title = '') {
         });
 }
 
-function fetchAnnouncements() {
+function fetchAnnouncements(title = '') {
     clickedMenu = 'announcements';
     // Construct the URL with optional query parameters
     const url = `../announcements${title ? `?title=${title}` : ''}`;
@@ -194,11 +210,10 @@ function fetchAnnouncements() {
 }
 
 
-// which url to use? the problem is on title
-function fetchUsers() {
+function fetchUsers(username = '') {
     clickedMenu = 'users';
     // Construct the URL with optional query parameters
-    const url = `../users${title ? `?title=${title}` : ''}`;
+    const url = `../profiles/users${username ? `?username=${username}` : ''}`;
 
     fetch(url)
         .then(response => {
@@ -215,7 +230,79 @@ function fetchUsers() {
             usersContainer.innerHTML = '';
 
             users.forEach(user => {
-                // to do
+                const userElement = document.createElement('div');
+                // it needs a class to run
+                userElement.classList.add('user-element');
+
+                const usernameElement = document.createElement('h2');
+                usernameElement.textContent = user.username;
+                userElement.appendChild(usernameElement);
+
+                const emailElement = document.createElement('p');
+                const keyEmail = document.createElement('span');
+                const valueEmail = document.createElement('span');
+                keyEmail.innerHTML = `Email:`;
+                valueEmail.innerHTML = user.email;
+                valueEmail.className = 'value';
+                emailElement.appendChild(keyEmail);
+                emailElement.appendChild(valueEmail);
+                userElement.appendChild(emailElement);
+
+                const passwordElement = document.createElement('p');
+                const keyPassword = document.createElement('span');
+                const valuePassword = document.createElement('span');
+                keyPassword.innerHTML = `Password:`;
+                valuePassword.innerHTML = user.password;
+                valuePassword.className = 'value';
+                passwordElement.appendChild(keyPassword);
+                passwordElement.appendChild(valuePassword);
+                userElement.appendChild(passwordElement);
+
+                const roleElement = document.createElement('p');
+                const keyRole = document.createElement('span');
+                const valueRole = document.createElement('span');
+                keyRole.innerHTML = `Role:`;
+                valueRole.innerHTML = user.role;
+                valueRole.className = 'value';
+                roleElement.appendChild(keyRole);
+                roleElement.appendChild(valueRole);
+                userElement.appendChild(roleElement);
+
+                const birthdayElement = document.createElement('p');
+                const keyBirthday = document.createElement('span');
+                const valueBirthday = document.createElement('span');
+                keyBirthday.innerHTML = `Birthday:`;
+                valueBirthday.innerHTML = new Date(user.birthday).toLocaleDateString();
+                valueBirthday.className = 'value';
+                birthdayElement.appendChild(keyBirthday);
+                birthdayElement.appendChild(valueBirthday);
+                userElement.appendChild(birthdayElement);
+
+                const phoneElement = document.createElement('p');
+                const keyPhone = document.createElement('span');
+                const valuePhone = document.createElement('span');
+                keyPhone.innerHTML = `Phone:`;
+                valuePhone.innerHTML = user.phone;
+                valuePhone.className = 'value';
+                phoneElement.appendChild(keyPhone);
+                phoneElement.appendChild(valuePhone);
+                userElement.appendChild(phoneElement);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => {
+                    fetchDeleteButton('/users', user._id);
+                });
+
+                const buttonList = document.createElement('div');
+                buttonList.classList.add('button-list');
+                buttonList.appendChild(deleteButton);
+
+                const container = document.createElement('span');
+                container.classList.add('container');
+                container.appendChild(userElement);
+                container.appendChild(buttonList);
+                usersContainer.appendChild(container);
             })
             // Adjust the height of the paragraphs
             setParagraphHeights();
@@ -227,10 +314,10 @@ function fetchUsers() {
 
 
 // which url to use? the problem is on title
-function fetchOrganisations() {
+function fetchOrganisations(username = '') {
     clickedMenu = 'organisations';
     // Construct the URL with optional query parameters
-    const url = `../organisations${title ? `?title=${title}` : ''}`;
+    const url = `../profiles/organisations${username ? `?username=${username}` : ''}`;
 
     fetch(url)
         .then(response => {

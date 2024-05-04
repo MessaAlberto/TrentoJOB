@@ -11,10 +11,10 @@
 
 <body>
   <div class="buttons-container">
-    <button class="button" onclick="fetchEvents()">Events</button>
-    <button class="button" onclick="fetchAnnouncements()">Announcements</button>
-    <button class="button" onclick="fetchUsers()">Users</button>
-    <button class="button" onclick="fetchOrganisations()">Organisations</button>
+    <button class="button" onclick="fetchEvents(); toggleActive(this)">Events</button>
+    <button class="button" onclick="fetchAnnouncements(); toggleActive(this)">Announcements</button>
+    <button class="button" onclick="fetchUsers(); toggleActive(this)">Users</button>
+    <button class="button" onclick="fetchOrganisations(); toggleActive(this)">Organisations</button>
   </div>
 
   <!-- Search bar -->

@@ -16,7 +16,11 @@ module.exports = mongoose.model('Event', new Schema({
     },
     date: {
         type: Date,
-        default: Date.now,
+        required: true,
+    },
+    time: {
+        type: String,
+        required: true,
     },
     location: {
         type: String,
