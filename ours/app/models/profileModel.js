@@ -11,6 +11,10 @@ module.exports = mongoose.model('Profile', new mongoose.Schema({
         required: true,
         unique: true,
     },
+    confirmed: {
+        type: Boolean,
+        default: false,
+    },
     password: {
         type: String,
         required: true,
