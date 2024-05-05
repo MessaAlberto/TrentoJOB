@@ -1,4 +1,5 @@
 let clickedMenu = 'events';
+let searchContainerHidden = false;
 
 // Call setParagraphHeights when window is resized
 window.addEventListener('resize', setParagraphHeights);
@@ -19,13 +20,13 @@ function toggleActive(button) {
 function toggleSearchContainer() {
     const searchContainer = document.getElementById('searchContainer');
     const listContainer = document.getElementById('listContainer');
-    // Toggle the 'hidden' class on the search container
-    if (searchContainer.classList.contains('hidden')) {
-        searchContainer.classList.remove('hidden');
-        listContainer.classList.remove('center-page');
-    } else {
+
+    if (searchContainerHidden) {
         searchContainer.classList.add('hidden');
         listContainer.classList.add('center-page');
+    } else {
+        searchContainer.classList.remove('hidden');
+        listContainer.classList.remove('center-page');
     }
 }
 
@@ -81,6 +82,8 @@ async function searchButtonFunction() {
 // Fetch events from the server
 async function fetchEvents(title = '') {
     clickedMenu = 'events';
+    searchContainerHidden = false;
+    toggleSearchContainer();
     // Construct the URL with optional query parameters
     const url = `../events${title ? `?title=${title}` : ''}`;
 
@@ -145,13 +148,13 @@ async function fetchEvents(title = '') {
 
 
             // Fetch and set organizer username
-            const organizerUsername = await fetchIdUsername('profiles/organisations', event.organizerID);
+            const organizerIdUsername = await fetchIdUsername('profiles/organisations', event.organizerID);
             const organizerElement = document.createElement('p');
             const keyOrganizer = document.createElement('span');
             const valueOrganizer = document.createElement('span'); // Changed to anchor tag
             keyOrganizer.innerHTML = `Organizer:`;
-            valueOrganizer.innerHTML = organizerUsername.username;
-            valueOrganizer.className = 'value';
+            valueOrganizer.innerHTML = organizerIdUsername.username;
+            valueOrganizer.classList.add('value', 'clickable-span');
             organizerElement.appendChild(keyOrganizer);
             organizerElement.appendChild(valueOrganizer);
             eventElement.appendChild(organizerElement);
@@ -159,18 +162,56 @@ async function fetchEvents(title = '') {
             // Add click event listener to valueOrganizer
             valueOrganizer.addEventListener('click', () => {
                 // Send fetch request with organization ID
-                fetchOrganisationById(organizerUsername.id, 'events');
+                fetchOrganisationById(organizerIdUsername.id, 'events');
             });
+
+            const maxParticipantsElement = document.createElement('p');
+            const keyMaxParticipants = document.createElement('span');
+            const valueMaxParticipants = document.createElement('span');
+            keyMaxParticipants.innerHTML = `Max Participants:`;
+            valueMaxParticipants.innerHTML = event.maxNumberParticipants;
+            valueMaxParticipants.className = 'value';
+            maxParticipantsElement.appendChild(keyMaxParticipants);
+            maxParticipantsElement.appendChild(valueMaxParticipants);
+            eventElement.appendChild(maxParticipantsElement);
+
+
+            // Fetch and set participants usernames
+            const participantsIdUsernames = [];
+            for (const participantID of event.participantsID) {
+                const participantIdUsername = await fetchIdUsername('profiles/users', participantID);
+                participantsIdUsernames.push({ id: participantIdUsername.id, username: participantIdUsername.username });
+            }
 
             const participantsElement = document.createElement('p');
             const keyParticipants = document.createElement('span');
-            const valueParticipants = document.createElement('span');
             keyParticipants.innerHTML = `Participants ID:`;
-            valueParticipants.innerHTML = event.participantsID.join(', ');
-            valueParticipants.className = 'value';
             participantsElement.appendChild(keyParticipants);
-            participantsElement.appendChild(valueParticipants);
+
+            // Create clickable span elements for each participant username
+            const participantList = document.createElement('span');
+            participantList.classList.add('value');
+            participantsIdUsernames.forEach(participant => {
+                const valueParticipant = document.createElement('span');
+                valueParticipant.innerHTML = participant.username;
+                valueParticipant.classList.add('clickable-span-list');
+
+                // Add click event listener to each participant username
+                valueParticipant.addEventListener('click', () => {
+                    // Send fetch request with the clicked user's ID
+                    fetchUserById(participant.id, 'events');
+                });
+
+                participantList.appendChild(valueParticipant);
+
+                // Add a comma after each username except the last one
+                if (participant !== participantsIdUsernames[participantsIdUsernames.length - 1]) {
+                    participantList.appendChild(document.createTextNode(', '));
+                }
+            });
+            participantsElement.appendChild(participantList);
             eventElement.appendChild(participantsElement);
+
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
@@ -198,6 +239,8 @@ async function fetchEvents(title = '') {
 
 async function fetchAnnouncements(title = '') {
     clickedMenu = 'announcements';
+    searchContainerHidden = false;
+    toggleSearchContainer();
     // Construct the URL with optional query parameters
     const url = `../announcements${title ? `?title=${title}` : ''}`;
 
@@ -225,6 +268,8 @@ async function fetchAnnouncements(title = '') {
 
 async function fetchUsers(username = '') {
     clickedMenu = 'users';
+    searchContainerHidden = false;
+    toggleSearchContainer();
     // Construct the URL with optional query parameters
     const url = `../profiles/users${username ? `?username=${username}` : ''}`;
 
@@ -324,6 +369,8 @@ async function fetchUsers(username = '') {
 
 async function fetchOrganisations(username = '') {
     clickedMenu = 'organisations';
+    searchContainerHidden = false;
+    toggleSearchContainer();
     // Construct the URL with optional query parameters
     const url = `../profiles/organisations${username ? `?username=${username}` : ''}`;
 
@@ -465,6 +512,7 @@ async function fetchOrganisationById(organizationId, backUrl) {
         }
 
         // Call toggleSearchContainer() function to hide the search container
+        searchContainerHidden = true;
         toggleSearchContainer();
 
         const organisationData = await response.json();
@@ -537,7 +585,6 @@ async function fetchOrganisationById(organizationId, backUrl) {
         const backButton = document.createElement('button');
         backButton.textContent = 'Back';
         backButton.addEventListener('click', () => {
-            toggleSearchContainer();
             switch (backUrl) {
                 case 'events':
                     fetchEvents();
@@ -572,3 +619,117 @@ async function fetchOrganisationById(organizationId, backUrl) {
     }
 }
 
+async function fetchUserById(userId, backUrl) {
+    try {
+        const response = await fetch(`../profiles/users/${userId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch user');
+        }
+
+        // Call toggleSearchContainer() function to hide the search container
+        searchContainerHidden = true;
+        toggleSearchContainer();
+
+        const userData = await response.json();
+        const userContainer = document.getElementById('listContainer');
+        userContainer.innerHTML = '';
+
+        const userElement = document.createElement('div');
+        userElement.classList.add('user-element');
+
+        const usernameElement = document.createElement('h2');
+        usernameElement.textContent = userData.username;
+        userElement.appendChild(usernameElement);
+
+        const emailElement = document.createElement('p');
+        const keyEmail = document.createElement('span');
+        const valueEmail = document.createElement('span');
+        keyEmail.innerHTML = `Email:`;
+        valueEmail.innerHTML = userData.email;
+        valueEmail.className = 'value';
+        emailElement.appendChild(keyEmail);
+        emailElement.appendChild(valueEmail);
+        userElement.appendChild(emailElement);
+
+        const passwordElement = document.createElement('p');
+        const keyPassword = document.createElement('span');
+        const valuePassword = document.createElement('span');
+        keyPassword.innerHTML = `Password:`;
+        valuePassword.innerHTML = userData.password;
+        valuePassword.className = 'value';
+        passwordElement.appendChild(keyPassword);
+        passwordElement.appendChild(valuePassword);
+        userElement.appendChild(passwordElement);
+
+        const roleElement = document.createElement('p');
+        const keyRole = document.createElement('span');
+        const valueRole = document.createElement('span');
+        keyRole.innerHTML = `Role:`;
+        valueRole.innerHTML = userData.role;
+        valueRole.className = 'value';
+        roleElement.appendChild(keyRole);
+        roleElement.appendChild(valueRole);
+        userElement.appendChild(roleElement);
+
+        const birthdayElement = document.createElement('p');
+        const keyBirthday = document.createElement('span');
+        const valueBirthday = document.createElement('span');
+        keyBirthday.innerHTML = `Birthday:`;
+        valueBirthday.innerHTML = new Date(userData.birthday).toLocaleDateString();
+        valueBirthday.className = 'value';
+        birthdayElement.appendChild(keyBirthday);
+        birthdayElement.appendChild(valueBirthday);
+        userElement.appendChild(birthdayElement);
+
+        const phoneElement = document.createElement('p');
+        const keyPhone = document.createElement('span');
+        const valuePhone = document.createElement('span');
+        keyPhone.innerHTML = `Phone:`;
+        valuePhone.innerHTML = userData.phone;
+        valuePhone.className = 'value';
+        phoneElement.appendChild(keyPhone);
+        phoneElement.appendChild(valuePhone);
+        userElement.appendChild(phoneElement);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', () => {
+            fetchDeleteButton('/users', userData._id);
+        });
+
+        const backButton = document.createElement('button');
+        backButton.textContent = 'Back';
+        backButton.addEventListener('click', () => {
+            switch (backUrl) {
+                case 'events':
+                    fetchEvents();
+                    break;
+                case 'announcements':
+                    fetchAnnouncements();
+                    break;
+                case 'users':
+                    fetchUsers();
+                    break;
+                case 'organisations':
+                    fetchOrganisations();
+                    break;
+                default:
+                    console.error('Invalid action:', backUrl);
+            }
+        });
+
+        const buttonList = document.createElement('div');
+        buttonList.classList.add('button-list');
+        buttonList.appendChild(deleteButton);
+        buttonList.appendChild(backButton);
+
+        const container = document.createElement('span');
+        container.classList.add('container');
+        container.appendChild(userElement);
+        container.appendChild(buttonList);
+        userContainer.appendChild(container);
+
+    } catch (error) {
+        console.error('Error fetching user:', error);
+    }
+}

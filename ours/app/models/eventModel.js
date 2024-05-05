@@ -30,6 +30,9 @@ module.exports = mongoose.model('Event', new Schema({
         type: String,
         required: true,
     },
+    maxNumberParticipants: {
+        type: Number,
+    },
     participantsID: {
         type: [String],
     }

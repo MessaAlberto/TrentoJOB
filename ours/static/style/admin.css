@@ -96,7 +96,6 @@ p {
 .value {
     position: absolute;
     left: 120px;
-    min-height: 20px;
 }
 
 .hidden {
@@ -106,12 +105,30 @@ p {
 .center-page {
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    width: 80%;
-    max-width: calc(100% - 20px);
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 20px; /* Adjust the margin to create space below the search container */
+    margin-top: 80px;
+}
+
+.clickable-span {
+    position: absolute;
+    cursor: pointer;
+    color: blue; /* Default text color */
+    text-decoration: none; /* Remove default underline */
+}
+
+.clickable-span-list {
+    position: relative;
+    cursor: pointer;
+    color: blue; /* Default text color */
+    text-decoration: none; /* Remove default underline */
+}
+
+.clickable-span:hover {
+    text-decoration: underline; /* Underline text on hover */
+    color: darkblue; /* Darker text color on hover */
+}
+
+.clickable-span:active {
+    color: red; /* Change text color when span is clicked */
 }
 
 
@@ -123,9 +140,5 @@ p {
 
     .search-container {
         margin-top: 240px;
-    }
-
-    .list-container {
-        margin-top: 260px;
     }
 }
