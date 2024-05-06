@@ -15,5 +15,4 @@ npm install express mongoose mongodb
 /organisation
 
 
-son samy
 
