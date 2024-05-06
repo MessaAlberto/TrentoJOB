@@ -1,14 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homepage</title>
+  <script src="./script/index.js"></script>
+  <link rel="stylesheet" href="./style/home.css">
 </head>
 
 <body>
-
-<h1>TrentoJOB</h1>
-
+  <div class="header">
+    <div class="header-left">
+        <h1>TrentoJOB</h1>
+    </div>
+    <div class="header-right">
+        <button class="button" onclick="signUp(); toggleActive(this)">Sign Up</button>
+        <button class="button" onclick="logIn(); toggleActive(this)">Log In</button>
+    </div>
     
+  </div>
+  
 </body>
 
 </html>
