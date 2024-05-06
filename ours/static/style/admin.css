@@ -75,7 +75,7 @@ body {
 .event-element,
 .announcement-element,
 .user-element,
-.organisations-element {
+.organisation-element {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -86,6 +86,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 10px;
+    gap: 10px;
 }
 
 p {
@@ -95,7 +96,39 @@ p {
 .value {
     position: absolute;
     left: 120px;
-    min-height: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.center-page {
+    justify-content: center;
+    align-items: center;
+    margin-top: 80px;
+}
+
+.clickable-span {
+    position: absolute;
+    cursor: pointer;
+    color: blue; /* Default text color */
+    text-decoration: none; /* Remove default underline */
+}
+
+.clickable-span-list {
+    position: relative;
+    cursor: pointer;
+    color: blue; /* Default text color */
+    text-decoration: none; /* Remove default underline */
+}
+
+.clickable-span:hover {
+    text-decoration: underline; /* Underline text on hover */
+    color: darkblue; /* Darker text color on hover */
+}
+
+.clickable-span:active {
+    color: red; /* Change text color when span is clicked */
 }
 
 
@@ -107,9 +140,5 @@ p {
 
     .search-container {
         margin-top: 240px;
-    }
-
-    .list-container {
-        margin-top: 260px;
     }
 }

@@ -11,6 +11,10 @@ module.exports = mongoose.model('Profile', new mongoose.Schema({
         required: true,
         unique: true,
     },
+    confirmed: {
+        type: Boolean,
+        default: false,
+    },
     password: {
         type: String,
         required: true,
@@ -18,7 +22,7 @@ module.exports = mongoose.model('Profile', new mongoose.Schema({
     role: {
         type: String,
         required: true,
-        enum: ['utente', 'ente', 'amministratore'],
+        enum: ['user', 'organisation', 'admin'],
         default: 'utente',
     },
     birthday: {

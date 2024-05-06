@@ -7,7 +7,7 @@ router.get('/', printf, async (req, res) => {
     try {
         const { username } = req.query;
         let query = {
-            role: 'utente' // Only search for profiles with role 'utente'
+            role: 'user' // Only search for profiles with role 'utente'
         };
 
         // Check if the username query parameter exists
@@ -29,6 +29,19 @@ router.get('/', printf, async (req, res) => {
     }
 });
 
+router.get('/:id', printf, async (req, res) => {
+    try {
+        const profile = await Profile.findById(req.params.id);
+        if (profile) {
+            res.status(200).send(profile);
+        } else {
+            res.status(404).json({ error: 'Profile not found' });
+        }
+    } catch (error) {
+        console.error('Error retrieving profile:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 router.post('/', printf, async (req, res) => {
     let profile = new Profile(req.body);
@@ -45,7 +58,7 @@ router.post('/', printf, async (req, res) => {
 
 
 function printf(req, res, next) {
-    console.log("event.js")
+    console.log("user.js")
     next()
 }
 
