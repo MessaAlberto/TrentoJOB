@@ -4,19 +4,11 @@ const express = require('express');
 const app = express();
 const cors = require('cors')
 
-const adminURL = require('./admin.js');
-const eventURL = require('./event.js');
-const profileURL = require('./profile.js');
-
-
-
 /**
  * Configure Express.js parsing middleware
  */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-
 
 /**
  * CORS requests
@@ -45,10 +37,15 @@ app.use((req,res,next) => {
 /**
  * Resource routing
  */
+const adminURL = require('./admin');
+const eventURL = require('./event');
+const profileURL = require('./profile');
+const authURL = require('./authentication/auth');
 
 app.use('/admin', adminURL);
 app.use('/events', eventURL);
 app.use('/profiles', profileURL);
+app.use('/auth', authURL);
 
 
 /* Default 404 handler */
