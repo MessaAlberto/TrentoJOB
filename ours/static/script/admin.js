@@ -468,23 +468,23 @@ async function fetchOrganisations(username = '') {
 
 
 // baseURL is the URL to send the DELETE request to
-function fetchDeleteButton(baseURL, eventId) {
-    fetch(`${baseURL}/${eventId}`, {
+function fetchDeleteButton(baseURL, objectId) {
+    fetch(`${baseURL}/${objectId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ eventId: eventId })
+        body: JSON.stringify({ objectId: objectId })
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Failed to delete event');
+                throw new Error('Failed to delete');
             }
-            console.log('Event deleted successfully');
+            console.log('Deleted successfully');
             fetchEvents();
         })
         .catch(error => {
-            console.error('Error deleting event:', error);
+            console.error('Error deleting:', error);
         });
 }
 

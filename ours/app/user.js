@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const Profile = require('./models/profileModel'); // get our mongoose model
+const {User, Organisation, Admin} = require('./models/profileModel'); // get our mongoose model
 
 
 router.get('/', printf, async (req, res) => {
     try {
         const { username } = req.query;
         let query = {
-            role: 'user' // Only search for profiles with role 'utente'
+            role: 'user'
         };
 
         // Check if the username query parameter exists
@@ -19,10 +19,10 @@ router.get('/', printf, async (req, res) => {
         }
 
         // Query the database with the constructed query object
-        const profiles = await Profile.find(query);
+        const user = await User.find(query);
 
         // Return JSON response containing the profiles
-        res.status(200).json(profiles);
+        res.status(200).json(user);
     } catch (error) {
         console.error('Error retrieving profiles:', error);
         res.status(500).send('Internal Server Error');
@@ -31,11 +31,11 @@ router.get('/', printf, async (req, res) => {
 
 router.get('/:id', printf, async (req, res) => {
     try {
-        const profile = await Profile.findById(req.params.id);
+        const profile = await User.findById(req.params.id);
         if (profile) {
             res.status(200).send(profile);
         } else {
-            res.status(404).json({ error: 'Profile not found' });
+            res.status(404).json({ error: 'User not found' });
         }
     } catch (error) {
         console.error('Error retrieving profile:', error);
@@ -44,7 +44,7 @@ router.get('/:id', printf, async (req, res) => {
 });
 
 router.post('/', printf, async (req, res) => {
-    let profile = new Profile(req.body);
+    let profile = new User(req.body);
 
     if (profile.username === undefined || profile.username === '' || profile.username === null || typeof profile.username !== 'string') {
         res.status(400).json({ error: 'The field "username" must be a non-empty string' });
