@@ -1,4 +1,4 @@
-const {Profile} = require("../models/profileModel");
+const {Profile, User, Organisation} = require("../models/profileModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {registerValidation, loginValidation} = require("./validation");
@@ -7,8 +7,6 @@ const mail = require("../nodeMail");
 
 // register
 router.post("/register", async (req, res) => {
-    // role add TODO
-
     // validate data
     const validation = registerValidation(req.body);
     if (validation.error) return res.status(400).send('err1');
@@ -19,11 +17,11 @@ router.post("/register", async (req, res) => {
 
     // salt
     const salt = await bcrypt.genSalt(10);
-    // hash
-    const hash = await bcrypt.hash(req.body.password, salt);
+    // hashing
+    req.body.password = await bcrypt.hash(req.body.password, salt);
 
-    let user = new Profile(req.body);
-    user.password = hash;
+    let user = new (req.body.taxIdCode ? Organisation : User)(req.body);
+    user.role = req.body.taxIdCode ? 'organization' : 'user';
 
     // save
     await user.save().
@@ -42,6 +40,33 @@ router.post("/register", async (req, res) => {
         return res.status(400).send('err4');
     });
 });
+
+// confirm mail
+router.get('/confirmation/:token', async (req, res) => {
+    const token = req.params.token;
+    try {
+        const data = jwt.verify(token, process.env.JWT_MAIL_SECRET);
+        res.status(200).send('You have been verified');
+        await Profile.findByIdAndUpdate(data._id, {confirmed: true});
+        await Profile.findById(data._id, {email: 1, role: 1}).
+        then(user => {
+            if (user.role === 'user') {
+                mail(user.email, "Welcome to TrentoJob", `welcome to our platform, our crew is happy to have you on board. We hope you'll have great opportunities`);
+            } else {
+                mail(user.email, "almost there", "Welcome to TrentoJOB, our crew is verifing your data, we'll notify you when your account is ready");
+            }
+        }).catch(() => {
+            res.status(401).send('Access denied');
+        })
+    } catch (err) {
+        res.status(401).send('somthing went wrong');
+        // delete document since it wasn't verified  before deadline
+        if (err === 'TokenExpiredError') {
+            let id = jwt.decode(token, process.env.JWT_MAIL_SECRET).payload._id;
+            await Profile.findByIdAndDelete(id);
+        }
+    }
+})
 
 // login
 router.post('/login', async (req, res) => {
@@ -63,29 +88,5 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET);
     res.header('auth-token').send(token);
 });
-
-// confirm mail
-router.get('/confirmation/:token', async (req, res) => {
-    const token = req.params.token;
-    try {
-        const data = jwt.verify(token, process.env.JWT_MAIL_SECRET);
-        res.status(200).send('You have been verified');
-        await Profile.findByIdAndUpdate(data._id, {confirmed: true});
-        await Profile.findById(data._id, {email: 1}).
-        then(user_email => {
-            mail(user_email, "Welcome to TrentoJob", `welcome to our platform,\nour crew is happy to have you on board.\nwe hope you'll have great opportunities`);
-        }).catch(() => {
-            res.status(401).send('Access denied');
-        })
-    } catch (err) {
-        res.status(401).send('somthing went wrong');
-        // delete document since it wasn't verified  before deadline
-        if (err === 'TokenExpiredError') {
-            let id = jwt.decode(token, process.env.JWT_MAIL_SECRET).payload._id;
-            await Profile.findByIdAndDelete(id);
-        }
-    }
-})
-
 
 module.exports = router;
