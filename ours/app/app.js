@@ -43,6 +43,7 @@ const adminURL = require('./admin');
 const eventURL = require('./event');
 const profileURL = require('./profile');
 const authURL = require('./authentication/auth');
+const announcementURL = require('./announcement.js');
 
 app.use('/admin', adminURL);
 app.use('/events', eventURL);
