@@ -4,6 +4,8 @@ const Profile = mongoose.models.Profile || mongoose.model('Profile', new mongoos
     username: {
         type: String,
         required: true,
+        minlength: 4,
+        maxlength: 255,
     },
     email: {
         type: String,
@@ -13,6 +15,8 @@ const Profile = mongoose.models.Profile || mongoose.model('Profile', new mongoos
     password: {
         type: String,
         required: true,
+        minlength: 8,
+        maxlength: 255,
     },
     role: {
         type: String,
@@ -30,9 +34,27 @@ const User = Profile.discriminator('User', new mongoose.Schema({
     phone: {
         type: String,
         required: false,
+        minlength: 3,
+        maxlength: 15,
     },
     sex: {
         type: String,
+        required: false,
+    },
+    taxIdCode: {
+        type: String,
+        required: false,
+    },
+    bio: {
+        type: String,
+        required: false,
+    },
+    subscribedEventsId: {
+        type: [mongoose.Schema.Types.ObjectId],
+        required: false,
+    },
+    subscribedExpiredEventsId: {
+        type: [mongoose.Schema.Types.ObjectId],
         required: false,
     },
     activeAnnouncementsId: {
@@ -50,6 +72,10 @@ const Organisation = Profile.discriminator('Organisation', new mongoose.Schema({
         type: String,
         required: true,
     },
+    followersId: {
+        type: [mongoose.Schema.Types.ObjectId],
+        required: false,
+    },
     activeEventsId: {
         type: [mongoose.Schema.Types.ObjectId],
         required: false,
@@ -61,9 +87,18 @@ const Organisation = Profile.discriminator('Organisation', new mongoose.Schema({
 }));
 
 const Admin = Profile.discriminator('Admin', new mongoose.Schema({
-    beautiful: { // fixed typo: 'beatiful' to 'beautiful'
-        type: Boolean,
-        required: false,
+    // some joke fields
+    beautifulnessLevel: {
+        type: Number,
+        required: true,
+    },
+    coolnessLevel: {
+        type: Number,
+        required: true,
+    },
+    cm: {
+        type: Number,
+        required: true,
     }
 }));
 
