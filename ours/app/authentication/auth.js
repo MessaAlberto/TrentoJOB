@@ -1,12 +1,9 @@
-const User = require("../models/profileModel");
+const {Profile} = require("../models/profileModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {registerValidation, loginValidation} = require("./validation");
-const express = require("express");
-const app = express();
 const router = require("express").Router();
 const mail = require("../nodeMail");
-const mongoose = require("mongoose");
 
 // register
 router.post("/register", async (req, res) => {
@@ -17,7 +14,7 @@ router.post("/register", async (req, res) => {
     if (validation.error) return res.status(400).send('err1');
 
     // check if email already exists
-    const emailExists = await User.findOne({email: req.body.email}, 'email', null);
+    const emailExists = await Profile.findOne({email: req.body.email})
     if (emailExists) return res.status(400).send('Email already exists');
 
     // salt
@@ -25,7 +22,7 @@ router.post("/register", async (req, res) => {
     // hash
     const hash = await bcrypt.hash(req.body.password, salt);
 
-    let user = new User(req.body);
+    let user = new Profile(req.body);
     user.password = hash;
 
     // save
@@ -44,7 +41,6 @@ router.post("/register", async (req, res) => {
         console.log(err);
         return res.status(400).send('err4');
     });
-
 });
 
 // login
@@ -53,7 +49,10 @@ router.post('/login', async (req, res) => {
     const validation = loginValidation(req.body);
     if (validation.error) return res.status(400).send('Email or password is wrong'); // {err: validation.error.details[0].message}
 
-    const user = await User.findOne({email: req.body.email}, {_id: 1, password: 1, confirmed: 1}, null);
+    const user = await Profile.findOne({email: req.body.email}).
+    catch(() => {
+        return res.status(400).send('Email or password is wrong');
+    });
     const validPassword = await bcrypt.compare(req.body.password, user.password);
     // email doesn't exist or password is wrong
     if (!user || !validPassword) return res.status(400).send('Email or password is wrong');
@@ -61,7 +60,7 @@ router.post('/login', async (req, res) => {
     if (!user.confirmed) return  res.status(400).send('Email was not confirmed');
 
     // logged
-    const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET); // TODO jwt_secret save
+    const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET);
     res.header('auth-token').send(token);
 });
 
@@ -71,18 +70,19 @@ router.get('/confirmation/:token', async (req, res) => {
     try {
         const data = jwt.verify(token, process.env.JWT_MAIL_SECRET);
         res.status(200).send('You have been verified');
-        User.findByIdAndUpdate(data._id, {confirmed: true}).exec();
-        User.findById(data._id, {email: 1}).exec().then(user_email => {
+        await Profile.findByIdAndUpdate(data._id, {confirmed: true});
+        await Profile.findById(data._id, {email: 1}).
+        then(user_email => {
             mail(user_email, "Welcome to TrentoJob", `welcome to our platform,\nour crew is happy to have you on board.\nwe hope you'll have great opportunities`);
-        }).catch(err => {
+        }).catch(() => {
             res.status(401).send('Access denied');
-        }) ;
+        })
     } catch (err) {
         res.status(401).send('somthing went wrong');
         // delete document since it wasn't verified  before deadline
         if (err === 'TokenExpiredError') {
             let id = jwt.decode(token, process.env.JWT_MAIL_SECRET).payload._id;
-            User.findByIdAndDelete(id).exec();
+            await Profile.findByIdAndDelete(id);
         }
     }
 })
