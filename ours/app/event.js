@@ -2,7 +2,6 @@
 const express = require('express');
 const router = express.Router();
 const Event = require('./models/eventModel'); // get our mongoose model
-const { route } = require('./admin');
 
 
 router.get('/', printf, async (req, res) => {

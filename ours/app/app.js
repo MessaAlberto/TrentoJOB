@@ -6,6 +6,7 @@ const cors = require('cors')
 
 const adminURL = require('./admin.js');
 const eventURL = require('./event.js');
+const announcementURL = require('./announcement.js');
 const profileURL = require('./profile.js');
 
 
@@ -48,6 +49,7 @@ app.use((req,res,next) => {
 
 app.use('/admin', adminURL);
 app.use('/events', eventURL);
+app.use('/announcements', announcementURL);
 app.use('/profiles', profileURL);
 
 

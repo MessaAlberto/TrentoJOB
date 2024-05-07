@@ -43,6 +43,25 @@ router.get('/:id', printf, async (req, res) => {
     }
 });
 
+router.get('/:id/:expired', printf, async (req, res) => {
+    try {
+        const profileId = req.params.id;
+        const expired = req.params.expired;
+        // Your logic using both profileId and expired parameters
+        // For example:
+        const profile = await User.findById(profileId);
+        if (profile) {
+            res.status(200).send({ profile, expired });
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error retrieving profile:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
 router.post('/', printf, async (req, res) => {
     let profile = new User(req.body);
 

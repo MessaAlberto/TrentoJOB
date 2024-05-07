@@ -54,6 +54,59 @@ function handleSearchKeyPress(event) {
     }
 }
 
+
+function createKeyValueElement(keyText, valueText) {
+    const paragraph = document.createElement('p');
+    const keySpan = document.createElement('span');
+    const valueSpan = document.createElement('span');
+    keySpan.textContent = `${keyText}:`;
+    valueSpan.textContent = valueText;
+    valueSpan.classList.add('value');
+    paragraph.appendChild(keySpan);
+    paragraph.appendChild(valueSpan);
+    return paragraph;
+}
+
+async function createKeyValueClickableElement(keyText, valueText, baseURL) {
+    const listIdUsername = [];
+    for (const id of valueText) {
+        const idUsername = await fetchIdUsername(baseURL, id);
+        listIdUsername.push({ id: idUsername.id, username: idUsername.username });
+    }
+
+    const paragraph = document.createElement('p');
+    const keySpan = document.createElement('span');
+    keySpan.textContent = `${keyText}:`;
+    paragraph.appendChild(keySpan);
+
+    const valueSpan = document.createElement('span');
+    valueSpan.classList.add('value');
+    listIdUsername.forEach(idUsername => {
+        const span = document.createElement('span');
+        span.textContent = idUsername.username;
+
+        // Add class to make the span clickable
+        span.classList.add('clickable-span-list');
+        
+        // Add click event listener to each username
+        span.addEventListener('click', () => {
+            // Send fetch request with the clicked user's ID
+            fetchUserById(idUsername.id);
+        });
+
+        valueSpan.appendChild(span);
+
+        // Add a comma after each username except the last one
+        if (idUsername !== listIdUsername[listIdUsername.length - 1]) {
+            valueSpan.appendChild(document.createTextNode(', '));
+        }
+    });
+    paragraph.appendChild(valueSpan);
+    return paragraph;
+}
+    
+
+
 // Call fetch with search bar input
 async function searchButtonFunction() {
     const searchInput = document.getElementById('searchInput').value;
@@ -106,111 +159,14 @@ async function fetchEvents(title = '') {
             titleElement.textContent = event.title;
             eventElement.appendChild(titleElement);
 
-            const descriptionElement = document.createElement('p');
-            const keyDesc = document.createElement('span');
-            const valueDesc = document.createElement('span');
-            keyDesc.innerHTML = `Description:`;
-            valueDesc.innerHTML = event.description;
-            valueDesc.className = 'value';
-            descriptionElement.appendChild(keyDesc);
-            descriptionElement.appendChild(valueDesc);
-            eventElement.appendChild(descriptionElement);
-
-            const dateElement = document.createElement('p');
-            const keyDate = document.createElement('span');
-            const valueDate = document.createElement('span');
-            keyDate.innerHTML = `Date:`;
-            valueDate.innerHTML = new Date(event.date).toLocaleDateString();
-            valueDate.className = 'value';
-            dateElement.appendChild(keyDate);
-            dateElement.appendChild(valueDate);
-            eventElement.appendChild(dateElement);
-
-            const timeElement = document.createElement('p');
-            const keyTime = document.createElement('span');
-            const valueTime = document.createElement('span');
-            keyTime.innerHTML = `Time:`;
-            valueTime.innerHTML = event.time;
-            valueTime.className = 'value';
-            timeElement.appendChild(keyTime);
-            timeElement.appendChild(valueTime);
-            eventElement.appendChild(timeElement);
-
-            const locationElement = document.createElement('p');
-            const keyLocation = document.createElement('span');
-            const valueLocation = document.createElement('span');
-            keyLocation.innerHTML = `Location:`;
-            valueLocation.innerHTML = event.location;
-            valueLocation.className = 'value';
-            locationElement.appendChild(keyLocation);
-            locationElement.appendChild(valueLocation);
-            eventElement.appendChild(locationElement);
-
-
-            // Fetch and set organizer username
-            const organizerIdUsername = await fetchIdUsername('profiles/organisations', event.organizerID);
-            const organizerElement = document.createElement('p');
-            const keyOrganizer = document.createElement('span');
-            const valueOrganizer = document.createElement('span'); // Changed to anchor tag
-            keyOrganizer.innerHTML = `Organizer:`;
-            valueOrganizer.innerHTML = organizerIdUsername.username;
-            valueOrganizer.classList.add('value', 'clickable-span');
-            organizerElement.appendChild(keyOrganizer);
-            organizerElement.appendChild(valueOrganizer);
-            eventElement.appendChild(organizerElement);
-
-            // Add click event listener to valueOrganizer
-            valueOrganizer.addEventListener('click', () => {
-                // Send fetch request with organization ID
-                fetchOrganisationById(organizerIdUsername.id, 'events');
-            });
-
-            const maxParticipantsElement = document.createElement('p');
-            const keyMaxParticipants = document.createElement('span');
-            const valueMaxParticipants = document.createElement('span');
-            keyMaxParticipants.innerHTML = `Max Participants:`;
-            valueMaxParticipants.innerHTML = event.maxNumberParticipants;
-            valueMaxParticipants.className = 'value';
-            maxParticipantsElement.appendChild(keyMaxParticipants);
-            maxParticipantsElement.appendChild(valueMaxParticipants);
-            eventElement.appendChild(maxParticipantsElement);
-
-
-            // Fetch and set participants usernames
-            const participantsIdUsernames = [];
-            for (const participantID of event.participantsID) {
-                const participantIdUsername = await fetchIdUsername('profiles/users', participantID);
-                participantsIdUsernames.push({ id: participantIdUsername.id, username: participantIdUsername.username });
-            }
-
-            const participantsElement = document.createElement('p');
-            const keyParticipants = document.createElement('span');
-            keyParticipants.innerHTML = `Participants ID:`;
-            participantsElement.appendChild(keyParticipants);
-
-            // Create clickable span elements for each participant username
-            const participantList = document.createElement('span');
-            participantList.classList.add('value');
-            participantsIdUsernames.forEach(participant => {
-                const valueParticipant = document.createElement('span');
-                valueParticipant.innerHTML = participant.username;
-                valueParticipant.classList.add('clickable-span-list');
-
-                // Add click event listener to each participant username
-                valueParticipant.addEventListener('click', () => {
-                    // Send fetch request with the clicked user's ID
-                    fetchUserById(participant.id, 'events');
-                });
-
-                participantList.appendChild(valueParticipant);
-
-                // Add a comma after each username except the last one
-                if (participant !== participantsIdUsernames[participantsIdUsernames.length - 1]) {
-                    participantList.appendChild(document.createTextNode(', '));
-                }
-            });
-            participantsElement.appendChild(participantList);
-            eventElement.appendChild(participantsElement);
+            eventElement.appendChild(createKeyValueElement('Description', event.description));
+            eventElement.appendChild(createKeyValueElement('Date', new Date(event.date).toLocaleDateString()));
+            eventElement.appendChild(createKeyValueElement('Time', event.time));
+            eventElement.appendChild(createKeyValueElement('Location', event.location));
+            eventElement.appendChild(createKeyValueElement('Expired', event.expired));
+            eventElement.appendChild(createKeyValueClickableElement('Organizer', event.organizerID, 'profiles/organisations'));
+            eventElement.appendChild(createKeyValueElement('Max Participants', event.maxNumberParticipants));
+            eventElement.appendChild(createKeyValueClickableElement('Participants', event.participantsID, 'profiles/users'));
 
 
             const deleteButton = document.createElement('button');
@@ -293,55 +249,16 @@ async function fetchUsers(username = '') {
             usernameElement.textContent = user.username;
             userElement.appendChild(usernameElement);
 
-            const emailElement = document.createElement('p');
-            const keyEmail = document.createElement('span');
-            const valueEmail = document.createElement('span');
-            keyEmail.innerHTML = `Email:`;
-            valueEmail.innerHTML = user.email;
-            valueEmail.className = 'value';
-            emailElement.appendChild(keyEmail);
-            emailElement.appendChild(valueEmail);
-            userElement.appendChild(emailElement);
+            userElement.appendChild(createKeyValueElement('Email', user.email));
+            userElement.appendChild(createKeyValueElement('Password', user.password));
+            userElement.appendChild(createKeyValueElement('Role', user.role));
+            userElement.appendChild(createKeyValueElement('Birthday', new Date(user.birthday).toLocaleDateString()));
+            userElement.appendChild(createKeyValueElement('Phone', user.phone));
+            userElement.appendChild(createKeyValueElement('Sex', user.sex));
+            userElement.appendChild(createKeyValueElement('Tax ID Code', user.taxIdCode));
+            userElement.appendChild(createKeyValueElement('Bio', user.bio));
+            userElement.appendChild(createKeyValueClickableElement('Subscribed Events', user.subscribedEventsId, 'events/'));
 
-            const passwordElement = document.createElement('p');
-            const keyPassword = document.createElement('span');
-            const valuePassword = document.createElement('span');
-            keyPassword.innerHTML = `Password:`;
-            valuePassword.innerHTML = user.password;
-            valuePassword.className = 'value';
-            passwordElement.appendChild(keyPassword);
-            passwordElement.appendChild(valuePassword);
-            userElement.appendChild(passwordElement);
-
-            const roleElement = document.createElement('p');
-            const keyRole = document.createElement('span');
-            const valueRole = document.createElement('span');
-            keyRole.innerHTML = `Role:`;
-            valueRole.innerHTML = user.role;
-            valueRole.className = 'value';
-            roleElement.appendChild(keyRole);
-            roleElement.appendChild(valueRole);
-            userElement.appendChild(roleElement);
-
-            const birthdayElement = document.createElement('p');
-            const keyBirthday = document.createElement('span');
-            const valueBirthday = document.createElement('span');
-            keyBirthday.innerHTML = `Birthday:`;
-            valueBirthday.innerHTML = new Date(user.birthday).toLocaleDateString();
-            valueBirthday.className = 'value';
-            birthdayElement.appendChild(keyBirthday);
-            birthdayElement.appendChild(valueBirthday);
-            userElement.appendChild(birthdayElement);
-
-            const phoneElement = document.createElement('p');
-            const keyPhone = document.createElement('span');
-            const valuePhone = document.createElement('span');
-            keyPhone.innerHTML = `Phone:`;
-            valuePhone.innerHTML = user.phone;
-            valuePhone.className = 'value';
-            phoneElement.appendChild(keyPhone);
-            phoneElement.appendChild(valuePhone);
-            userElement.appendChild(phoneElement);
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
@@ -491,6 +408,21 @@ function fetchDeleteButton(baseURL, objectId) {
 async function fetchIdUsername(baseUrl, userID) {
     try {
         const response = await fetch(`../${baseUrl}/${userID}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch username');
+        }
+        const user = await response.json();
+        return { id: user._id, username: user.username }; // Return username and ID as an object
+    } catch (error) {
+        console.error('Object fetching username:', error);
+        return { id: null, username: null }; // Return null values if an error occurs
+    }
+}
+
+async function fetchIdUsername(baseUrl, userID, expired) {
+    try {
+        // fetch that use userID and expired
+        const response = await fetch(`../${baseUrl}/${userID}/${expired}`);
         if (!response.ok) {
             throw new Error('Failed to fetch username');
         }

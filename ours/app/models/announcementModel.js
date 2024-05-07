@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 // set up a mongoose model
-module.exports = mongoose.model('Event', new Schema({
+module.exports = mongoose.model('Announcement', new Schema({
     title: {
         type: String,
         required: true,
@@ -14,23 +14,27 @@ module.exports = mongoose.model('Event', new Schema({
         required: true,
         maxlength: 1024,
     },
-    date: {
+    date_begin: {
         type: Date,
-        required: true,
+        required: false,
     },
-    time: {
+    date_stop: {
+        type: Date,
+        required: false,
+    },
+    time_begin: {
         type: String,
-        required: true,
+        required: false,
+    },
+    time_stop: {
+        type: String,
+        required: false,
     },
     location: {
         type: String,
-        required: true,
+        required: false,
     },
-    expired: {
-        type: Boolean,
-        required: true,
-    },
-    organizerID: {
+    ownerId: {
         type: String,
         required: true,
     },
@@ -38,7 +42,6 @@ module.exports = mongoose.model('Event', new Schema({
         type: Number,
     },
     participantsID: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: 'Profile'
+        type: [String],
     }
 }));
