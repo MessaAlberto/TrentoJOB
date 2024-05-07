@@ -12,6 +12,11 @@ const Profile = mongoose.models.Profile || mongoose.model('Profile', new mongoos
         required: true,
         unique: true,
     },
+    confirmed: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
     password: {
         type: String,
         required: true,
