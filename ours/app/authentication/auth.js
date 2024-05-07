@@ -9,7 +9,8 @@ const mail = require("../nodeMail");
 router.post("/register", async (req, res) => {
     // validate data
     const validation = registerValidation(req.body);
-    if (validation.error) return res.status(400).send('err1');
+    if (validation.error) return res.status(400).send(validation.error);
+    console.log("bella");
 
     // check if email already exists
     const emailExists = await Profile.findOne({email: req.body.email})
