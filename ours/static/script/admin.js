@@ -32,7 +32,7 @@ function toggleSearchContainer() {
 
 // Function to set paragraph heights
 function setParagraphHeights() {
-    const paragraphs = document.querySelectorAll('.event-element p');
+    const paragraphs = document.querySelectorAll('p');
     paragraphs.forEach(paragraph => {
         const valueElements = paragraph.querySelectorAll('.value');
         let maxHeight = 0;
@@ -54,57 +54,6 @@ function handleSearchKeyPress(event) {
     }
 }
 
-
-function createKeyValueElement(keyText, valueText) {
-    const paragraph = document.createElement('p');
-    const keySpan = document.createElement('span');
-    const valueSpan = document.createElement('span');
-    keySpan.textContent = `${keyText}:`;
-    valueSpan.textContent = valueText;
-    valueSpan.classList.add('value');
-    paragraph.appendChild(keySpan);
-    paragraph.appendChild(valueSpan);
-    return paragraph;
-}
-
-async function createKeyValueClickableElement(keyText, valueText, baseURL) {
-    const listIdUsername = [];
-    for (const id of valueText) {
-        const idUsername = await fetchIdUsername(baseURL, id);
-        listIdUsername.push({ id: idUsername.id, username: idUsername.username });
-    }
-
-    const paragraph = document.createElement('p');
-    const keySpan = document.createElement('span');
-    keySpan.textContent = `${keyText}:`;
-    paragraph.appendChild(keySpan);
-
-    const valueSpan = document.createElement('span');
-    valueSpan.classList.add('value');
-    listIdUsername.forEach(idUsername => {
-        const span = document.createElement('span');
-        span.textContent = idUsername.username;
-
-        // Add class to make the span clickable
-        span.classList.add('clickable-span-list');
-        
-        // Add click event listener to each username
-        span.addEventListener('click', () => {
-            // Send fetch request with the clicked user's ID
-            fetchUserById(idUsername.id);
-        });
-
-        valueSpan.appendChild(span);
-
-        // Add a comma after each username except the last one
-        if (idUsername !== listIdUsername[listIdUsername.length - 1]) {
-            valueSpan.appendChild(document.createTextNode(', '));
-        }
-    });
-    paragraph.appendChild(valueSpan);
-    return paragraph;
-}
-    
 
 
 // Call fetch with search bar input
@@ -131,6 +80,81 @@ async function searchButtonFunction() {
         console.error('Error:', error);
     }
 }
+
+
+
+
+function createKeyValueElement(keyText, valueText) {
+    const paragraph = document.createElement('p');
+    const keySpan = document.createElement('span');
+    const valueSpan = document.createElement('span');
+    keySpan.textContent = `${keyText}:`;
+    valueSpan.textContent = valueText;
+    valueSpan.classList.add('value');
+    paragraph.appendChild(keySpan);
+    paragraph.appendChild(valueSpan);
+    return paragraph;
+}
+
+
+async function createKeyValueClickableElement(keyText, valueText, baseURL, backUrl) {
+    const listIdUsername = [];
+
+    if (baseURL === 'profiles/organisations' || baseURL === 'profiles/users') {
+        for (const id of valueText) {
+            const idUsername = await fetchIdUsername(baseURL, id);
+            listIdUsername.push({ id: idUsername.id, username: idUsername.username });
+        }
+    } else if (baseURL === 'events' || baseURL === 'announcements') {
+        for (const id of valueText) {
+            const idUsername = await fetchIdTitle(baseURL, id);
+            listIdUsername.push({ id: idUsername.id, username: idUsername.title });
+        }
+    }
+
+    const paragraph = document.createElement('p');
+    const keySpan = document.createElement('span');
+    keySpan.textContent = `${keyText}:`;
+    paragraph.appendChild(keySpan);
+
+    const valueSpan = document.createElement('span');
+    valueSpan.classList.add('value');
+    listIdUsername.forEach(idUsername => {
+        const span = document.createElement('span');
+        span.textContent = idUsername.username;
+
+        // Add class to make the span clickable
+        span.classList.add('clickable-span-list');
+        span.addEventListener('click', () => {
+            switch (baseURL) {
+                case 'profiles/organisations':
+                    fetchOrganisationById(idUsername.id, backUrl);
+                    break;
+                case 'profiles/users':
+                    fetchUserById(idUsername.id, backUrl);
+                    break;
+                case 'events':
+                    fetchEventById(idUsername.id, backUrl);
+                    break;
+                case 'announcements':
+                    fetchAnnouncementById(idUsername.id, backUrl);
+                    break;
+                default:
+                    console.error('Invalid action:', baseURL);
+            }
+        });
+
+        valueSpan.appendChild(span);
+
+        // Add a comma after each username except the last one
+        if (idUsername !== listIdUsername[listIdUsername.length - 1]) {
+            valueSpan.appendChild(document.createTextNode(', '));
+        }
+    });
+    paragraph.appendChild(valueSpan);
+    return paragraph;
+}
+
 
 // Fetch events from the server
 async function fetchEvents(title = '') {
@@ -164,10 +188,12 @@ async function fetchEvents(title = '') {
             eventElement.appendChild(createKeyValueElement('Time', event.time));
             eventElement.appendChild(createKeyValueElement('Location', event.location));
             eventElement.appendChild(createKeyValueElement('Expired', event.expired));
-            eventElement.appendChild(createKeyValueClickableElement('Organizer', event.organizerID, 'profiles/organisations'));
+            eventElement.appendChild(await createKeyValueClickableElement('Organizer', [event.organizerId], 'profiles/organisations', 'events'));
             eventElement.appendChild(createKeyValueElement('Max Participants', event.maxNumberParticipants));
-            eventElement.appendChild(createKeyValueClickableElement('Participants', event.participantsID, 'profiles/users'));
-
+            if (event.participantsId.length !== 0) {
+                eventElement.appendChild(await createKeyValueClickableElement('Participants', event.participantsId, 'profiles/users', 'events'));
+            } else
+                eventElement.appendChild(createKeyValueElement('Participants', ''));
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
@@ -210,10 +236,43 @@ async function fetchAnnouncements(title = '') {
         const announcementsContainer = document.getElementById('listContainer');
         announcementsContainer.innerHTML = '';
 
-        announcements.forEach(announcement => {
-            // Handle each announcement data
-            // Here you can create elements and append them to announcementsContainer
-        });
+        for (const announcement of announcements) {
+            const announcementElement = document.createElement('div');
+            announcementElement.classList.add('announcement-element');
+
+            const titleElement = document.createElement('h2');
+            titleElement.textContent = announcement.title;
+            announcementElement.appendChild(titleElement);
+
+            announcementElement.appendChild(createKeyValueElement('Description', announcement.description));
+            announcementElement.appendChild(createKeyValueElement('Date Begin', new Date(announcement.date_begin).toLocaleDateString()));
+            announcementElement.appendChild(createKeyValueElement('Date Stop', new Date(announcement.date_stop).toLocaleDateString()));
+            announcementElement.appendChild(createKeyValueElement('Time Begin', announcement.time_begin));
+            announcementElement.appendChild(createKeyValueElement('Time Stop', announcement.time_stop));
+            announcementElement.appendChild(createKeyValueElement('Location', announcement.location));
+            announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcement.ownerId], 'profiles/organisations', 'announcements'));
+            announcementElement.appendChild(createKeyValueElement('Max Participants', announcement.maxNumberParticipants));
+            if (announcement.participantsID.length !== 0)
+                announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcement.participantsID, 'profiles/users', 'announcements'));
+            else
+                announcementElement.appendChild(createKeyValueElement('Participants', ''));
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', () => {
+                fetchDeleteButton('/announcements', announcement._id);
+            });
+
+            const buttonList = document.createElement('div');
+            buttonList.classList.add('button-list');
+            buttonList.appendChild(deleteButton);
+
+            const container = document.createElement('span');
+            container.classList.add('container');
+            container.appendChild(announcementElement);
+            container.appendChild(buttonList);
+            announcementsContainer.appendChild(container);
+        }
 
         // Adjust the height of the paragraphs
         setParagraphHeights();
@@ -257,7 +316,25 @@ async function fetchUsers(username = '') {
             userElement.appendChild(createKeyValueElement('Sex', user.sex));
             userElement.appendChild(createKeyValueElement('Tax ID Code', user.taxIdCode));
             userElement.appendChild(createKeyValueElement('Bio', user.bio));
-            userElement.appendChild(createKeyValueClickableElement('Subscribed Events', user.subscribedEventsId, 'events/'));
+            if (user.subscribedEventsId.length !== 0)
+                userElement.appendChild(await createKeyValueClickableElement('Subscribed Events', user.subscribedEventsId, 'events', 'users'));
+            else
+                userElement.appendChild(createKeyValueElement('Subscribed Events', ''));
+
+            if (user.subscribedExpiredEventsId.length !== 0)
+                userElement.appendChild(await createKeyValueClickableElement('Subscribed Expired Events', user.subscribedExpiredEventsId, 'events', 'users'));
+            else
+                userElement.appendChild(createKeyValueElement('Subscribed Expired Events', ''));
+
+            if (user.activeAnnouncementsId.length !== 0)
+                userElement.appendChild(await createKeyValueClickableElement('Active Announcements', user.activeAnnouncementsId, 'announcements', 'users'));
+            else
+                userElement.appendChild(createKeyValueElement('Active Announcements', ''));
+
+            if (user.expiredAnnouncementsId.length !== 0)
+                userElement.appendChild(await createKeyValueClickableElement('Expired Announcements', user.expiredAnnouncementsId, 'announcements', 'users'));
+            else
+                userElement.appendChild(createKeyValueElement('Expired Announcements', ''));
 
 
             const deleteButton = document.createElement('button');
@@ -309,55 +386,21 @@ async function fetchOrganisations(username = '') {
             usernameElement.textContent = organisation.username;
             organisationElement.appendChild(usernameElement);
 
-            const emailElement = document.createElement('p');
-            const keyEmail = document.createElement('span');
-            const valueEmail = document.createElement('span');
-            keyEmail.innerHTML = `Email:`;
-            valueEmail.innerHTML = organisation.email;
-            valueEmail.className = 'value';
-            emailElement.appendChild(keyEmail);
-            emailElement.appendChild(valueEmail);
-            organisationElement.appendChild(emailElement);
+            organisationElement.appendChild(createKeyValueElement('Email', organisation.email));
+            organisationElement.appendChild(createKeyValueElement('Password', organisation.password));
+            organisationElement.appendChild(createKeyValueElement('Role', organisation.role));
+            organisationElement.appendChild(createKeyValueElement('Tax ID Code', organisation.taxIdCode));
+            organisationElement.appendChild(createKeyValueElement('Bio', organisation.bio));
+            if (organisation.activeEventsId.length !== 0)
+                organisationElement.appendChild(await createKeyValueClickableElement('Active Events', organisation.activeEventsId, 'events', 'organisations'));
+            else
+                organisationElement.appendChild(createKeyValueElement('Active Events', ''));
 
-            const passwordElement = document.createElement('p');
-            const keyPassword = document.createElement('span');
-            const valuePassword = document.createElement('span');
-            keyPassword.innerHTML = `Password:`;
-            valuePassword.innerHTML = organisation.password;
-            valuePassword.className = 'value';
-            passwordElement.appendChild(keyPassword);
-            passwordElement.appendChild(valuePassword);
-            organisationElement.appendChild(passwordElement);
+            if (organisation.expiredEventsId.length !== 0)
+                organisationElement.appendChild(await createKeyValueClickableElement('Expired Events', organisation.expiredEventsId, 'events', 'organisations'));
+            else
+                organisationElement.appendChild(createKeyValueElement('Expired Events', ''));
 
-            const roleElement = document.createElement('p');
-            const keyRole = document.createElement('span');
-            const valueRole = document.createElement('span');
-            keyRole.innerHTML = `Role:`;
-            valueRole.innerHTML = organisation.role;
-            valueRole.className = 'value';
-            roleElement.appendChild(keyRole);
-            roleElement.appendChild(valueRole);
-            organisationElement.appendChild(roleElement);
-
-            const birthdayElement = document.createElement('p');
-            const keyBirthday = document.createElement('span');
-            const valueBirthday = document.createElement('span');
-            keyBirthday.innerHTML = `Birthday:`;
-            valueBirthday.innerHTML = new Date(organisation.birthday).toLocaleDateString();
-            valueBirthday.className = 'value';
-            birthdayElement.appendChild(keyBirthday);
-            birthdayElement.appendChild(valueBirthday);
-            organisationElement.appendChild(birthdayElement);
-
-            const phoneElement = document.createElement('p');
-            const keyPhone = document.createElement('span');
-            const valuePhone = document.createElement('span');
-            keyPhone.innerHTML = `Phone:`;
-            valuePhone.innerHTML = organisation.phone;
-            valuePhone.className = 'value';
-            phoneElement.appendChild(keyPhone);
-            phoneElement.appendChild(valuePhone);
-            organisationElement.appendChild(phoneElement);
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
@@ -419,18 +462,172 @@ async function fetchIdUsername(baseUrl, userID) {
     }
 }
 
-async function fetchIdUsername(baseUrl, userID, expired) {
+async function fetchIdTitle(baseURL, userID) {
     try {
-        // fetch that use userID and expired
-        const response = await fetch(`../${baseUrl}/${userID}/${expired}`);
+        const response = await fetch(`../${baseURL}/${userID}`);
         if (!response.ok) {
-            throw new Error('Failed to fetch username');
+            throw new Error('Failed to fetch title');
         }
         const user = await response.json();
-        return { id: user._id, username: user.username }; // Return username and ID as an object
+        return { id: user._id, title: user.title }; // Return title and ID as an object
     } catch (error) {
-        console.error('Object fetching username:', error);
-        return { id: null, username: null }; // Return null values if an error occurs
+        console.error('Object fetching title:', error);
+        return { id: null, title: null }; // Return null values if an error occurs
+    }
+}
+
+
+async function fetchEventById(eventId, backUrl) {
+    try {
+        const response = await fetch(`../events/${eventId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch event');
+        }
+
+        // Call toggleSearchContainer() function to hide the search container
+        searchContainerHidden = true;
+        toggleSearchContainer();
+
+        const eventData = await response.json();
+        const eventContainer = document.getElementById('listContainer');
+        eventContainer.innerHTML = '';
+
+        const eventElement = document.createElement('div');
+        eventElement.classList.add('event-element');
+
+        const titleElement = document.createElement('h2');
+        titleElement.textContent = eventData.title;
+        eventElement.appendChild(titleElement);
+
+        eventElement.appendChild(createKeyValueElement('Description', eventData.description));
+        eventElement.appendChild(createKeyValueElement('Date', new Date(eventData.date).toLocaleDateString()));
+        eventElement.appendChild(createKeyValueElement('Time', eventData.time));
+        eventElement.appendChild(createKeyValueElement('Location', eventData.location));
+        eventElement.appendChild(createKeyValueElement('Expired', eventData.expired));
+        eventElement.appendChild(await createKeyValueClickableElement('Organizer', [eventData.organizerId], 'profiles/organisations', 'events'));
+        eventElement.appendChild(createKeyValueElement('Max Participants', eventData.maxNumberParticipants));
+        if (eventData.participantsId.length !== 0)
+            eventElement.appendChild(await createKeyValueClickableElement('Participants', eventData.participantsId, 'profiles/users', 'events'));
+        else
+            eventElement.appendChild(createKeyValueElement('Participants', ''));
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', () => {
+            fetchDeleteButton('/events', eventData._id);
+        });
+
+        const backButton = document.createElement('button');
+        backButton.textContent = 'Back';
+        backButton.addEventListener('click', () => {
+            switch (backUrl) {
+                case 'events':
+                    fetchEvents();
+                    break;
+                case 'announcements':
+                    fetchAnnouncements();
+                    break;
+                case 'users':
+                    fetchUsers();
+                    break;
+                case 'organisations':
+                    fetchOrganisations();
+                    break;
+                default:
+                    console.error('Invalid action:', backUrl);
+            }
+        });
+
+        const buttonList = document.createElement('div');
+        buttonList.classList.add('button-list');
+        buttonList.appendChild(deleteButton);
+        buttonList.appendChild(backButton);
+
+        const container = document.createElement('span');
+        container.classList.add('container');
+        container.appendChild(eventElement);
+        container.appendChild(buttonList);
+        eventContainer.appendChild(container);
+    } catch (error) {
+        console.error('Error fetching event:', error);
+    }
+}
+
+async function fetchAnnouncementById(announcementId, backUrl) {
+    try {
+        const response = await fetch(`../announcements/${announcementId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch announcement');
+        }
+
+        // Call toggleSearchContainer() function to hide the search container
+        searchContainerHidden = true;
+        toggleSearchContainer();
+
+        const announcementData = await response.json();
+        const announcementContainer = document.getElementById('listContainer');
+        announcementContainer.innerHTML = '';
+
+        const announcementElement = document.createElement('div');
+        announcementElement.classList.add('announcement-element');
+
+        const titleElement = document.createElement('h2');
+        titleElement.textContent = announcementData.title;
+        announcementElement.appendChild(titleElement);
+
+        announcementElement.appendChild(createKeyValueElement('Description', announcementData.description));
+        announcementElement.appendChild(createKeyValueElement('Date Begin', new Date(announcementData.date_begin).toLocaleDateString()));
+        announcementElement.appendChild(createKeyValueElement('Date Stop', new Date(announcementData.date_stop).toLocaleDateString()));
+        announcementElement.appendChild(createKeyValueElement('Time Begin', announcementData.time_begin));
+        announcementElement.appendChild(createKeyValueElement('Time Stop', announcementData.time_stop));
+        announcementElement.appendChild(createKeyValueElement('Location', announcementData.location));
+        announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcementData.ownerId], 'profiles/organisations', 'announcements'));
+        announcementElement.appendChild(createKeyValueElement('Max Participants', announcementData.maxNumberParticipants));
+        if (announcementData.participantsID.length !== 0)
+            announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcementData.participantsID, 'profiles/users', 'announcements'));
+        else
+            announcementElement.appendChild(createKeyValueElement('Participants', ''));
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', () => {
+            fetchDeleteButton('/announcements', announcementData._id);
+        });
+
+        const backButton = document.createElement('button');
+        backButton.textContent = 'Back';
+        backButton.addEventListener('click', () => {
+            switch (backUrl) {
+                case 'events':
+                    fetchEvents();
+                    break;
+                case 'announcements':
+                    fetchAnnouncements();
+                    break;
+                case 'users':
+                    fetchUsers();
+                    break;
+                case 'organisations':
+                    fetchOrganisations();
+                    break;
+                default:
+                    console.error('Invalid action:', backUrl);
+            }
+        });
+
+        const buttonList = document.createElement('div');
+        buttonList.classList.add('button-list');
+        buttonList.appendChild(deleteButton);
+        buttonList.appendChild(backButton);
+        
+        const container = document.createElement('span');
+        container.classList.add('container');
+        container.appendChild(announcementElement);
+        container.appendChild(buttonList);
+        announcementContainer.appendChild(container);
+
+    } catch (error) {
+        console.error('Error fetching announcement:', error);
     }
 }
 
@@ -458,55 +655,21 @@ async function fetchOrganisationById(organizationId, backUrl) {
         usernameElement.textContent = organisationData.username;
         organisationElement.appendChild(usernameElement);
 
-        const emailElement = document.createElement('p');
-        const keyEmail = document.createElement('span');
-        const valueEmail = document.createElement('span');
-        keyEmail.innerHTML = `Email:`;
-        valueEmail.innerHTML = organisationData.email;
-        valueEmail.className = 'value';
-        emailElement.appendChild(keyEmail);
-        emailElement.appendChild(valueEmail);
-        organisationElement.appendChild(emailElement);
+        organisationElement.appendChild(createKeyValueElement('Email', organisationData.email));
+        organisationElement.appendChild(createKeyValueElement('Password', organisationData.password));
+        organisationElement.appendChild(createKeyValueElement('Role', organisationData.role));
+        organisationElement.appendChild(createKeyValueElement('Tax ID Code', organisationData.taxIdCode));
+        organisationElement.appendChild(createKeyValueElement('Bio', organisationData.bio));
+        if (organisationData.activeEventsId.length !== 0)
+            organisationElement.appendChild(await createKeyValueClickableElement('Active Events', organisationData.activeEventsId, 'events', 'organisations'));
+        else
+            organisationElement.appendChild(createKeyValueElement('Active Events', ''));
 
-        const passwordElement = document.createElement('p');
-        const keyPassword = document.createElement('span');
-        const valuePassword = document.createElement('span');
-        keyPassword.innerHTML = `Password:`;
-        valuePassword.innerHTML = organisationData.password;
-        valuePassword.className = 'value';
-        passwordElement.appendChild(keyPassword);
-        passwordElement.appendChild(valuePassword);
-        organisationElement.appendChild(passwordElement);
+        if (organisationData.expiredEventsId.length !== 0)
+            organisationElement.appendChild(await createKeyValueClickableElement('Expired Events', organisationData.expiredEventsId, 'events', 'organisations'));
+        else
+            organisationElement.appendChild(createKeyValueElement('Expired Events', ''));
 
-        const roleElement = document.createElement('p');
-        const keyRole = document.createElement('span');
-        const valueRole = document.createElement('span');
-        keyRole.innerHTML = `Role:`;
-        valueRole.innerHTML = organisationData.role;
-        valueRole.className = 'value';
-        roleElement.appendChild(keyRole);
-        roleElement.appendChild(valueRole);
-        organisationElement.appendChild(roleElement);
-
-        const birthdayElement = document.createElement('p');
-        const keyBirthday = document.createElement('span');
-        const valueBirthday = document.createElement('span');
-        keyBirthday.innerHTML = `Birthday:`;
-        valueBirthday.innerHTML = new Date(organisationData.birthday).toLocaleDateString();
-        valueBirthday.className = 'value';
-        birthdayElement.appendChild(keyBirthday);
-        birthdayElement.appendChild(valueBirthday);
-        organisationElement.appendChild(birthdayElement);
-
-        const phoneElement = document.createElement('p');
-        const keyPhone = document.createElement('span');
-        const valuePhone = document.createElement('span');
-        keyPhone.innerHTML = `Phone:`;
-        valuePhone.innerHTML = organisationData.phone;
-        valuePhone.className = 'value';
-        phoneElement.appendChild(keyPhone);
-        phoneElement.appendChild(valuePhone);
-        organisationElement.appendChild(phoneElement);
 
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
@@ -573,55 +736,34 @@ async function fetchUserById(userId, backUrl) {
         usernameElement.textContent = userData.username;
         userElement.appendChild(usernameElement);
 
-        const emailElement = document.createElement('p');
-        const keyEmail = document.createElement('span');
-        const valueEmail = document.createElement('span');
-        keyEmail.innerHTML = `Email:`;
-        valueEmail.innerHTML = userData.email;
-        valueEmail.className = 'value';
-        emailElement.appendChild(keyEmail);
-        emailElement.appendChild(valueEmail);
-        userElement.appendChild(emailElement);
+        userElement.appendChild(createKeyValueElement('Email', userData.email));
+        userElement.appendChild(createKeyValueElement('Password', userData.password));
+        userElement.appendChild(createKeyValueElement('Role', userData.role));
+        userElement.appendChild(createKeyValueElement('Birthday', new Date(userData.birthday).toLocaleDateString()));
+        userElement.appendChild(createKeyValueElement('Phone', userData.phone));
+        userElement.appendChild(createKeyValueElement('Sex', userData.sex));
+        userElement.appendChild(createKeyValueElement('Tax ID Code', userData.taxIdCode));
+        userElement.appendChild(createKeyValueElement('Bio', userData.bio));
+        if (userData.subscribedEventsId.length !== 0)
+            userElement.appendChild(await createKeyValueClickableElement('Subscribed Events', userData.subscribedEventsId, 'events', 'users'));
+        else
+            userElement.appendChild(createKeyValueElement('Subscribed Events', ''));
 
-        const passwordElement = document.createElement('p');
-        const keyPassword = document.createElement('span');
-        const valuePassword = document.createElement('span');
-        keyPassword.innerHTML = `Password:`;
-        valuePassword.innerHTML = userData.password;
-        valuePassword.className = 'value';
-        passwordElement.appendChild(keyPassword);
-        passwordElement.appendChild(valuePassword);
-        userElement.appendChild(passwordElement);
+        if (userData.subscribedExpiredEventsId.length !== 0)
+            userElement.appendChild(await createKeyValueClickableElement('Subscribed Expired Events', userData.subscribedExpiredEventsId, 'events', 'users'));
+        else
+            userElement.appendChild(createKeyValueElement('Subscribed Expired Events', ''));
 
-        const roleElement = document.createElement('p');
-        const keyRole = document.createElement('span');
-        const valueRole = document.createElement('span');
-        keyRole.innerHTML = `Role:`;
-        valueRole.innerHTML = userData.role;
-        valueRole.className = 'value';
-        roleElement.appendChild(keyRole);
-        roleElement.appendChild(valueRole);
-        userElement.appendChild(roleElement);
+        if (userData.activeAnnouncementsId.length !== 0)
+            userElement.appendChild(await createKeyValueClickableElement('Active Announcements', userData.activeAnnouncementsId, 'announcements', 'users'));
+        else
+            userElement.appendChild(createKeyValueElement('Active Announcements', ''));
 
-        const birthdayElement = document.createElement('p');
-        const keyBirthday = document.createElement('span');
-        const valueBirthday = document.createElement('span');
-        keyBirthday.innerHTML = `Birthday:`;
-        valueBirthday.innerHTML = new Date(userData.birthday).toLocaleDateString();
-        valueBirthday.className = 'value';
-        birthdayElement.appendChild(keyBirthday);
-        birthdayElement.appendChild(valueBirthday);
-        userElement.appendChild(birthdayElement);
+        if (userData.expiredAnnouncementsId.length !== 0)
+            userElement.appendChild(await createKeyValueClickableElement('Expired Announcements', userData.expiredAnnouncementsId, 'announcements', 'users'));
+        else
+            userElement.appendChild(createKeyValueElement('Expired Announcements', ''));
 
-        const phoneElement = document.createElement('p');
-        const keyPhone = document.createElement('span');
-        const valuePhone = document.createElement('span');
-        keyPhone.innerHTML = `Phone:`;
-        valuePhone.innerHTML = userData.phone;
-        valuePhone.className = 'value';
-        phoneElement.appendChild(keyPhone);
-        phoneElement.appendChild(valuePhone);
-        userElement.appendChild(phoneElement);
 
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';

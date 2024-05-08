@@ -1,3 +1,4 @@
+const { required } = require('joi');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
@@ -40,8 +41,10 @@ module.exports = mongoose.model('Announcement', new Schema({
     },
     maxNumberParticipants: {
         type: Number,
+        required: false,
     },
     participantsID: {
         type: [String],
+        required: false,
     }
 }));

@@ -53,40 +53,46 @@ const User = Profile.discriminator('User', new mongoose.Schema({
     bio: {
         type: String,
         required: false,
+        maxlength: 255,
     },
     subscribedEventsId: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [String],
         required: false,
     },
     subscribedExpiredEventsId: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [String],
         required: false,
     },
     activeAnnouncementsId: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [String],
         required: false,
     },
     expiredAnnouncementsId: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [String],
         required: false,
     }
 }));
 
 const Organisation = Profile.discriminator('Organisation', new mongoose.Schema({
-    codiceFiscale: {
+    taxIdCode: {
         type: String,
         required: true,
     },
+    bio: {
+        type: String,
+        required: false,
+        maxlength: 255,
+    },
     followersId: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [String],
         required: false,
     },
     activeEventsId: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [String],
         required: false,
     },
     expiredEventsId: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [String],
         required: false,
     }
 }));

@@ -30,15 +30,16 @@ module.exports = mongoose.model('Event', new Schema({
         type: Boolean,
         required: true,
     },
-    organizerID: {
+    organizerId: {
         type: String,
         required: true,
     },
     maxNumberParticipants: {
         type: Number,
+        required: false,
     },
-    participantsID: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: 'Profile'
+    participantsId: {
+        type: [String],
+        required: false,
     }
 }));
