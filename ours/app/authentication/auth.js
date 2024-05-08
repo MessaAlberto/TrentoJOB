@@ -4,7 +4,7 @@ const {sign, verify, decode} = require("jsonwebtoken");
 const {Profile, User, Organisation} = require("../models/profileModel");
 const {registerValidation, loginValidation} = require("./validation");
 const mail = require("../nodeMail");
-const {verifyToken} = require("verifyToken");
+const verifyToken = require("./verifyToken");
 
 
 // register
