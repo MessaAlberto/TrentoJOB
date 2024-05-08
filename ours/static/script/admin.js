@@ -1,10 +1,17 @@
 let clickedMenu = 'events';
-let searchContainerHidden = false;
+let searchContainerHidden = true;
+// back page array of pair <backUrl, id>
+let backPage = [];
+
 
 // Call setParagraphHeights when window is resized
 window.addEventListener('resize', setParagraphHeights);
 
 function toggleActive(button) {
+    searchContainerHidden = false;
+    toggleSearchContainer();
+    // Clear the backPage array
+    backPage = [];
     // Remove 'active' class from all buttons
     const buttons = document.querySelectorAll('.button');
     buttons.forEach(btn => {
@@ -82,6 +89,40 @@ async function searchButtonFunction() {
 }
 
 
+// back switch button
+function backButtonFunction() {
+    // Get the last element from the backPage array
+    const [backUrl, backId] = backPage.pop();
+
+    switch (backUrl) {
+        case 'events':
+            fetchEvents();
+            break;
+        case 'announcements':
+            fetchAnnouncements();
+            break;
+        case 'users':
+            fetchUsers();
+            break;
+        case 'organisations':
+            fetchOrganisations();
+            break;
+        case 'eventById':
+            fetchEventById(backId);
+            break;
+        case 'announcementsById':
+            fetchAnnouncementById(backId);
+            break;
+        case 'userById':
+            fetchUserById(backId);
+            break;
+        case 'organisationById':
+            fetchOrganisationById(backId);
+            break;
+        default:
+            console.error('Invalid action:', backUrl);
+    }
+}
 
 
 function createKeyValueElement(keyText, valueText) {
@@ -97,9 +138,8 @@ function createKeyValueElement(keyText, valueText) {
 }
 
 
-async function createKeyValueClickableElement(keyText, valueText, baseURL, backUrl) {
+async function createKeyValueClickableElement(keyText, valueText, baseURL, backUrl, backId) {
     const listIdUsername = [];
-
     if (baseURL === 'profiles/organisations' || baseURL === 'profiles/users') {
         for (const id of valueText) {
             const idUsername = await fetchIdUsername(baseURL, id);
@@ -126,21 +166,23 @@ async function createKeyValueClickableElement(keyText, valueText, baseURL, backU
         // Add class to make the span clickable
         span.classList.add('clickable-span-list');
         span.addEventListener('click', () => {
+            // Push the current page to the backPage array
+            backPage.push([backUrl, backId]);
             switch (baseURL) {
                 case 'profiles/organisations':
-                    fetchOrganisationById(idUsername.id, backUrl);
+                    fetchOrganisationById(idUsername.id);
                     break;
                 case 'profiles/users':
-                    fetchUserById(idUsername.id, backUrl);
+                    fetchUserById(idUsername.id);
                     break;
                 case 'events':
-                    fetchEventById(idUsername.id, backUrl);
+                    fetchEventById(idUsername.id);
                     break;
                 case 'announcements':
-                    fetchAnnouncementById(idUsername.id, backUrl);
+                    fetchAnnouncementById(idUsername.id);
                     break;
                 default:
-                    console.error('Invalid action:', baseURL);
+                    console.error('Invalid action.');
             }
         });
 
@@ -158,9 +200,6 @@ async function createKeyValueClickableElement(keyText, valueText, baseURL, backU
 
 // Fetch events from the server
 async function fetchEvents(title = '') {
-    clickedMenu = 'events';
-    searchContainerHidden = false;
-    toggleSearchContainer();
     // Construct the URL with optional query parameters
     const url = `../events${title ? `?title=${title}` : ''}`;
 
@@ -220,9 +259,6 @@ async function fetchEvents(title = '') {
 
 
 async function fetchAnnouncements(title = '') {
-    clickedMenu = 'announcements';
-    searchContainerHidden = false;
-    toggleSearchContainer();
     // Construct the URL with optional query parameters
     const url = `../announcements${title ? `?title=${title}` : ''}`;
 
@@ -282,9 +318,6 @@ async function fetchAnnouncements(title = '') {
 }
 
 async function fetchUsers(username = '') {
-    clickedMenu = 'users';
-    searchContainerHidden = false;
-    toggleSearchContainer();
     // Construct the URL with optional query parameters
     const url = `../profiles/users${username ? `?username=${username}` : ''}`;
 
@@ -362,9 +395,6 @@ async function fetchUsers(username = '') {
 }
 
 async function fetchOrganisations(username = '') {
-    clickedMenu = 'organisations';
-    searchContainerHidden = false;
-    toggleSearchContainer();
     // Construct the URL with optional query parameters
     const url = `../profiles/organisations${username ? `?username=${username}` : ''}`;
 
@@ -477,7 +507,7 @@ async function fetchIdTitle(baseURL, userID) {
 }
 
 
-async function fetchEventById(eventId, backUrl) {
+async function fetchEventById(eventId) {
     try {
         const response = await fetch(`../events/${eventId}`);
         if (!response.ok) {
@@ -504,10 +534,10 @@ async function fetchEventById(eventId, backUrl) {
         eventElement.appendChild(createKeyValueElement('Time', eventData.time));
         eventElement.appendChild(createKeyValueElement('Location', eventData.location));
         eventElement.appendChild(createKeyValueElement('Expired', eventData.expired));
-        eventElement.appendChild(await createKeyValueClickableElement('Organizer', [eventData.organizerId], 'profiles/organisations', 'events'));
+        eventElement.appendChild(await createKeyValueClickableElement('Organizer', [eventData.organizerId], 'profiles/organisations', 'eventById', eventId));
         eventElement.appendChild(createKeyValueElement('Max Participants', eventData.maxNumberParticipants));
         if (eventData.participantsId.length !== 0)
-            eventElement.appendChild(await createKeyValueClickableElement('Participants', eventData.participantsId, 'profiles/users', 'events'));
+            eventElement.appendChild(await createKeyValueClickableElement('Participants', eventData.participantsId, 'profiles/users', 'eventById', eventId));
         else
             eventElement.appendChild(createKeyValueElement('Participants', ''));
 
@@ -520,22 +550,7 @@ async function fetchEventById(eventId, backUrl) {
         const backButton = document.createElement('button');
         backButton.textContent = 'Back';
         backButton.addEventListener('click', () => {
-            switch (backUrl) {
-                case 'events':
-                    fetchEvents();
-                    break;
-                case 'announcements':
-                    fetchAnnouncements();
-                    break;
-                case 'users':
-                    fetchUsers();
-                    break;
-                case 'organisations':
-                    fetchOrganisations();
-                    break;
-                default:
-                    console.error('Invalid action:', backUrl);
-            }
+            backButtonFunction();
         });
 
         const buttonList = document.createElement('div');
@@ -553,7 +568,7 @@ async function fetchEventById(eventId, backUrl) {
     }
 }
 
-async function fetchAnnouncementById(announcementId, backUrl) {
+async function fetchAnnouncementById(announcementId) {
     try {
         const response = await fetch(`../announcements/${announcementId}`);
         if (!response.ok) {
@@ -581,10 +596,10 @@ async function fetchAnnouncementById(announcementId, backUrl) {
         announcementElement.appendChild(createKeyValueElement('Time Begin', announcementData.time_begin));
         announcementElement.appendChild(createKeyValueElement('Time Stop', announcementData.time_stop));
         announcementElement.appendChild(createKeyValueElement('Location', announcementData.location));
-        announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcementData.ownerId], 'profiles/organisations', 'announcements'));
+        announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcementData.ownerId], 'profiles/organisations', 'announcementById', announcementId));
         announcementElement.appendChild(createKeyValueElement('Max Participants', announcementData.maxNumberParticipants));
         if (announcementData.participantsID.length !== 0)
-            announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcementData.participantsID, 'profiles/users', 'announcements'));
+            announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcementData.participantsID, 'profiles/users', 'announcementById', announcementId));
         else
             announcementElement.appendChild(createKeyValueElement('Participants', ''));
 
@@ -597,29 +612,14 @@ async function fetchAnnouncementById(announcementId, backUrl) {
         const backButton = document.createElement('button');
         backButton.textContent = 'Back';
         backButton.addEventListener('click', () => {
-            switch (backUrl) {
-                case 'events':
-                    fetchEvents();
-                    break;
-                case 'announcements':
-                    fetchAnnouncements();
-                    break;
-                case 'users':
-                    fetchUsers();
-                    break;
-                case 'organisations':
-                    fetchOrganisations();
-                    break;
-                default:
-                    console.error('Invalid action:', backUrl);
-            }
+            backButtonFunction();
         });
 
         const buttonList = document.createElement('div');
         buttonList.classList.add('button-list');
         buttonList.appendChild(deleteButton);
         buttonList.appendChild(backButton);
-        
+
         const container = document.createElement('span');
         container.classList.add('container');
         container.appendChild(announcementElement);
@@ -633,7 +633,7 @@ async function fetchAnnouncementById(announcementId, backUrl) {
 
 
 // Function to fetch organization by ID
-async function fetchOrganisationById(organizationId, backUrl) {
+async function fetchOrganisationById(organizationId) {
     try {
         const response = await fetch(`../profiles/organisations/${organizationId}`);
         if (!response.ok) {
@@ -661,12 +661,12 @@ async function fetchOrganisationById(organizationId, backUrl) {
         organisationElement.appendChild(createKeyValueElement('Tax ID Code', organisationData.taxIdCode));
         organisationElement.appendChild(createKeyValueElement('Bio', organisationData.bio));
         if (organisationData.activeEventsId.length !== 0)
-            organisationElement.appendChild(await createKeyValueClickableElement('Active Events', organisationData.activeEventsId, 'events', 'organisations'));
+            organisationElement.appendChild(await createKeyValueClickableElement('Active Events', organisationData.activeEventsId, 'events', 'organisationById', organizationId));
         else
             organisationElement.appendChild(createKeyValueElement('Active Events', ''));
 
         if (organisationData.expiredEventsId.length !== 0)
-            organisationElement.appendChild(await createKeyValueClickableElement('Expired Events', organisationData.expiredEventsId, 'events', 'organisations'));
+            organisationElement.appendChild(await createKeyValueClickableElement('Expired Events', organisationData.expiredEventsId, 'events', 'organisationById', organizationId));
         else
             organisationElement.appendChild(createKeyValueElement('Expired Events', ''));
 
@@ -680,22 +680,7 @@ async function fetchOrganisationById(organizationId, backUrl) {
         const backButton = document.createElement('button');
         backButton.textContent = 'Back';
         backButton.addEventListener('click', () => {
-            switch (backUrl) {
-                case 'events':
-                    fetchEvents();
-                    break;
-                case 'announcements':
-                    fetchAnnouncements();
-                    break;
-                case 'users':
-                    fetchUsers();
-                    break;
-                case 'organisations':
-                    fetchOrganisations();
-                    break;
-                default:
-                    console.error('Invalid action:', backUrl);
-            }
+            backButtonFunction();
         });
 
         const buttonList = document.createElement('div');
@@ -714,7 +699,7 @@ async function fetchOrganisationById(organizationId, backUrl) {
     }
 }
 
-async function fetchUserById(userId, backUrl) {
+async function fetchUserById(userId) {
     try {
         const response = await fetch(`../profiles/users/${userId}`);
         if (!response.ok) {
@@ -745,22 +730,22 @@ async function fetchUserById(userId, backUrl) {
         userElement.appendChild(createKeyValueElement('Tax ID Code', userData.taxIdCode));
         userElement.appendChild(createKeyValueElement('Bio', userData.bio));
         if (userData.subscribedEventsId.length !== 0)
-            userElement.appendChild(await createKeyValueClickableElement('Subscribed Events', userData.subscribedEventsId, 'events', 'users'));
+            userElement.appendChild(await createKeyValueClickableElement('Subscribed Events', userData.subscribedEventsId, 'events', 'userById', userId));
         else
             userElement.appendChild(createKeyValueElement('Subscribed Events', ''));
 
         if (userData.subscribedExpiredEventsId.length !== 0)
-            userElement.appendChild(await createKeyValueClickableElement('Subscribed Expired Events', userData.subscribedExpiredEventsId, 'events', 'users'));
+            userElement.appendChild(await createKeyValueClickableElement('Subscribed Expired Events', userData.subscribedExpiredEventsId, 'events', 'userById', userId));
         else
             userElement.appendChild(createKeyValueElement('Subscribed Expired Events', ''));
 
         if (userData.activeAnnouncementsId.length !== 0)
-            userElement.appendChild(await createKeyValueClickableElement('Active Announcements', userData.activeAnnouncementsId, 'announcements', 'users'));
+            userElement.appendChild(await createKeyValueClickableElement('Active Announcements', userData.activeAnnouncementsId, 'announcements', 'userById', userId));
         else
             userElement.appendChild(createKeyValueElement('Active Announcements', ''));
 
         if (userData.expiredAnnouncementsId.length !== 0)
-            userElement.appendChild(await createKeyValueClickableElement('Expired Announcements', userData.expiredAnnouncementsId, 'announcements', 'users'));
+            userElement.appendChild(await createKeyValueClickableElement('Expired Announcements', userData.expiredAnnouncementsId, 'announcements', 'userById', userId));
         else
             userElement.appendChild(createKeyValueElement('Expired Announcements', ''));
 
@@ -774,22 +759,7 @@ async function fetchUserById(userId, backUrl) {
         const backButton = document.createElement('button');
         backButton.textContent = 'Back';
         backButton.addEventListener('click', () => {
-            switch (backUrl) {
-                case 'events':
-                    fetchEvents();
-                    break;
-                case 'announcements':
-                    fetchAnnouncements();
-                    break;
-                case 'users':
-                    fetchUsers();
-                    break;
-                case 'organisations':
-                    fetchOrganisations();
-                    break;
-                default:
-                    console.error('Invalid action:', backUrl);
-            }
+            backButtonFunction();
         });
 
         const buttonList = document.createElement('div');
