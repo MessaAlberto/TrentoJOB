@@ -1,9 +1,11 @@
-const {Profile, User, Organisation} = require("../models/profileModel");
+const router = require("express").Router();
 const {hash, compare} = require("bcrypt");
 const {sign, verify, decode} = require("jsonwebtoken");
+const {Profile, User, Organisation} = require("../models/profileModel");
 const {registerValidation, loginValidation} = require("./validation");
-const router = require("express").Router();
 const mail = require("../nodeMail");
+const {verifyToken} = require("verifyToken");
+
 
 // register
 router.post("/register", async (req, res) => {
@@ -17,7 +19,6 @@ router.post("/register", async (req, res) => {
 
     // hashing
     req.body.password = await hash(req.body.password, 10);
-
     let user = new (req.body.taxIdCode ? Organisation : User)(req.body);
     user.role = req.body.taxIdCode ? 'organization' : 'user';
 
@@ -43,8 +44,8 @@ router.get('/confirmation/:token', async (req, res) => {
         res.status(200).json({message: 'You have been verified'});
         await Profile.findById(data._id, {email: 1, role: 1}).
         then(async user => {
+            await Profile.findByIdAndUpdate(data._id, {confirmed: true});
             if (user.role === 'user') {
-                await Profile.findByIdAndUpdate(data._id, {confirmed: true});
                 mail(user.email, "Welcome to TrentoJob", `welcome to our platform, our crew is happy to have you on board. We hope you'll have great opportunities`);
             } else {
                 mail(user.email, "almost there", "Welcome to TrentoJOB, our crew is verifing your data, we'll notify you when your account is ready");
@@ -59,7 +60,7 @@ router.get('/confirmation/:token', async (req, res) => {
             await Profile.findByIdAndDelete(id);
         }
 
-        res.status(401).json({message: 'somthing went wrong'});
+        res.status(401).json({message: 'somthing went wrong, please retry signup'});
     }
 })
 
@@ -82,11 +83,15 @@ router.post('/login', async (req, res) => {
         if (!user.confirmed)
             return res.status(400).json({message: 'Email was not confirmed'});
 
+        // if orgnaization require verification by admin
+        if (user.role === 'organisation' && !user.verified)
+            return res.status(401).json({message: "this account hasn't been verified yet"});
+
         // logged
         const token = sign({_id: user._id}, process.env.JWT_SECRET_TOKEN, process.env.JWT_EXPIRE_TOKEN);
-        const refresh_token = sign({_id: user._id}, process.env.JWT_SECRET_REFRESH, process.env.JWT_EXPIRE_REFRESH);
+        const new_refresh_token = sign({_id: user._id}, process.env.JWT_SECRET_REFRESH, process.env.JWT_EXPIRE_REFRESH);
 
-        Profile.findByIdAndUpdate(user._id, {refresh_token: refresh_token});
+        Profile.findByIdAndUpdate(user._id, {refresh_token: new_refresh_token});
 
         res.status(200).json({
             message: 'Login successfully',
@@ -99,30 +104,36 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// logout
+router.post('/logout', verifyToken,  async (req, res) => {
+    // makes refresh impossible without login
+    Profile.findByIdAndUpdate(req.body._id, {refresh_token: null});
+    res.status(200).json({message: 'Logout successfully'});
+})
 
-// refresh token function
-router.post("/refresh_token", async (req, res) => {
+// refresh token
+router.get("/refresh_token", async (req, res) => {
     try {
-        const id = await decode(req.body.token, process.env.JWT_SECRET_TOKEN).payload._id;
+        // get id from refresh token
+        const id = await decode(req.body.token, process.env.JWT_SECRET_REFRESH).payload._id;
 
         if (!id)
             return res.status(500).json({message: "Invalid token"});
 
+        // get user
         const user = await Profile.findById(id);
 
         if (!user)
             return res.status(500).json({message: "User not found"});
 
+        // verify refresh token
         await verify(user.refresh_token, process.env.JWT_SECRET_REFRESH).
         catch (() => {
-            return res.status(401).json({message: "Invalid refresh token"});
+            return res.status(401).json({message: "Invalid refresh token, sign in to get a new one"});
         });
 
-        // The refresh token is correct
+        // The refresh token is correct => renew token
         const new_token = sign({_id: user._id}, process.env.JWT_SECRET_TOKEN, process.env.JWT_EXPIRE_TOKEN);
-        const new_refresh_token = sign({_id: user._id}, process.env.JWT_SECRET_REFRESH, process.env.JWT_EXPIRE_REFRESH);
-
-        Profile.findByIdAndUpdate(id, {refresh_token: new_refresh_token});
 
         res.status(200).json({
             message: "Token refreshed",
@@ -138,6 +149,7 @@ router.post("/refresh_token", async (req, res) => {
     }
 
 })
+
 
 
 module.exports = router;

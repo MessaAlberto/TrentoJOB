@@ -26,6 +26,7 @@ const Profile = mongoose.models.Profile || mongoose.model('Profile', new mongoos
     refresh_token: {
         type: String,
         required: false,
+        default: null,
     },
     role: {
         type: String,
@@ -80,6 +81,11 @@ const Organisation = Profile.discriminator('Organisation', new mongoose.Schema({
     codiceFiscale: {
         type: String,
         required: true,
+    },
+    verified: {
+        type: Boolean,
+        required: true,
+        default: false,
     },
     followersId: {
         type: [mongoose.Schema.Types.ObjectId],
