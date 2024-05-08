@@ -1,7 +1,7 @@
 const {verify} = require("jsonwebtoken");
 const {Profile} = require("../models/profileModel");
 
-const verifySecretToken = (req, res, next) => {
+module.exports = verifySecretToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -15,8 +15,6 @@ const verifySecretToken = (req, res, next) => {
         next()
     });
 }
-
-module.exports = verifySecretToken;
 
 // EXAMPLE USE
 // const router = require("express").Router();
