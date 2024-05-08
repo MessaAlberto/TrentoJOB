@@ -23,6 +23,10 @@ const Profile = mongoose.models.Profile || mongoose.model('Profile', new mongoos
         minlength: 8,
         maxlength: 255,
     },
+    refresh_token: {
+        type: String,
+        required: false,
+    },
     role: {
         type: String,
         required: true,
