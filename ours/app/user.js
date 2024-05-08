@@ -75,6 +75,21 @@ router.post('/', printf, async (req, res) => {
 });
 
 
+router.delete('/:id', printf, async (req, res) => {
+    try {
+        const profile = await User.findByIdAndDelete(req.params.id);
+        if (profile) {
+            res.status(200).send(profile);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error deleting profile:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
 
 function printf(req, res, next) {
     console.log("user.js")

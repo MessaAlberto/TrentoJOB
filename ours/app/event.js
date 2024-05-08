@@ -19,6 +19,7 @@ router.get('/', printf, async (req, res) => {
 
         // Query the database with the constructed query object
         const events = await Event.find(query);
+        // const events = await Event.find(query).populate('participantsID');
 
         // Return JSON response containing the events
         res.status(200).json(events);
