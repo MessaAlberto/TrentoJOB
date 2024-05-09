@@ -278,15 +278,15 @@ body {
     cursor: pointer;
 }
 
-.user-login {
+.user-sign-up {
     color: #fbfdff;
     background: #007bff; /* Blue */
     transform: translateX(-30%);
 }
 
-.organisation-login {
-    color: #007bff; /* Blue */
-    background: #fff; /* White */
+.organisation-sign-up {
+    color: #fbfdff;
+    background: #007bff;
     box-shadow: inset 0 0 0 2px #007bff; /* Blue border */
     transform: translateX(30%);
 }
