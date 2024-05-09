@@ -1,9 +1,7 @@
-const { required } = require('joi');
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const {Schema, model} = require('mongoose');
+const Participant = require('./participantModel');
 
-// set up a mongoose model
-module.exports = mongoose.model('Announcement', new Schema({
+module.exports = model('Announcement', new Schema({
     title: {
         type: String,
         required: true,
@@ -35,16 +33,16 @@ module.exports = mongoose.model('Announcement', new Schema({
         type: String,
         required: false,
     },
-    ownerId: {
-        type: String,
+    owner: {
+        type: Participant,
         required: true,
     },
     maxNumberParticipants: {
         type: Number,
         required: false,
     },
-    participantsID: {
-        type: [String],
+    participants: {
+        type: [Participant],
         required: false,
     }
 }));

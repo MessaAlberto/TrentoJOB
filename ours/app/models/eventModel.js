@@ -1,8 +1,7 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const {schema, model} = require('mongoose');
+const Participant = require("./participantModel");
 
-// set up a mongoose model
-module.exports = mongoose.model('Event', new Schema({
+module.exports = model('Event', new schema({
     title: {
         type: String,
         required: true,
@@ -30,16 +29,16 @@ module.exports = mongoose.model('Event', new Schema({
         type: Boolean,
         required: true,
     },
-    organizerId: {
-        type: String,
+    organizer: {
+        type: Participant,
         required: true,
     },
     maxNumberParticipants: {
         type: Number,
         required: false,
     },
-    participantsId: {
-        type: [String],
+    participants: {
+        type: [Participant],
         required: false,
     }
 }));
