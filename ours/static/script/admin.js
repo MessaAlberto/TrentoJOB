@@ -140,7 +140,7 @@ function createKeyValueElement(keyText, valueText) {
 
 async function createKeyValueClickableElement(keyText, valueText, baseURL, backUrl, backId) {
     const listIdUsername = [];
-    if (baseURL === 'profiles/organisations' || baseURL === 'profiles/users') {
+    if (baseURL === 'organisations' || baseURL === 'users') {
         for (const id of valueText) {
             const idUsername = await fetchIdUsername(baseURL, id);
             listIdUsername.push({ id: idUsername.id, username: idUsername.username });
@@ -169,10 +169,10 @@ async function createKeyValueClickableElement(keyText, valueText, baseURL, backU
             // Push the current page to the backPage array
             backPage.push([backUrl, backId]);
             switch (baseURL) {
-                case 'profiles/organisations':
+                case 'organisations':
                     fetchOrganisationById(idUsername.id);
                     break;
-                case 'profiles/users':
+                case 'users':
                     fetchUserById(idUsername.id);
                     break;
                 case 'events':
@@ -227,10 +227,10 @@ async function fetchEvents(title = '') {
             eventElement.appendChild(createKeyValueElement('Time', event.time));
             eventElement.appendChild(createKeyValueElement('Location', event.location));
             eventElement.appendChild(createKeyValueElement('Expired', event.expired));
-            eventElement.appendChild(await createKeyValueClickableElement('Organizer', [event.organizerId], 'profiles/organisations', 'events'));
+            eventElement.appendChild(await createKeyValueClickableElement('Organizer', [event.organizerId], 'organisations', 'events'));
             eventElement.appendChild(createKeyValueElement('Max Participants', event.maxNumberParticipants));
             if (event.participantsId.length !== 0) {
-                eventElement.appendChild(await createKeyValueClickableElement('Participants', event.participantsId, 'profiles/users', 'events'));
+                eventElement.appendChild(await createKeyValueClickableElement('Participants', event.participantsId, 'users', 'events'));
             } else
                 eventElement.appendChild(createKeyValueElement('Participants', ''));
 
@@ -286,10 +286,10 @@ async function fetchAnnouncements(title = '') {
             announcementElement.appendChild(createKeyValueElement('Time Begin', announcement.time_begin));
             announcementElement.appendChild(createKeyValueElement('Time Stop', announcement.time_stop));
             announcementElement.appendChild(createKeyValueElement('Location', announcement.location));
-            announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcement.ownerId], 'profiles/organisations', 'announcements'));
+            announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcement.ownerId], 'organisations', 'announcements'));
             announcementElement.appendChild(createKeyValueElement('Max Participants', announcement.maxNumberParticipants));
             if (announcement.participantsID.length !== 0)
-                announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcement.participantsID, 'profiles/users', 'announcements'));
+                announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcement.participantsID, 'users', 'announcements'));
             else
                 announcementElement.appendChild(createKeyValueElement('Participants', ''));
 
@@ -319,7 +319,7 @@ async function fetchAnnouncements(title = '') {
 
 async function fetchUsers(username = '') {
     // Construct the URL with optional query parameters
-    const url = `../profiles/users${username ? `?username=${username}` : ''}`;
+    const url = `../users${username ? `?username=${username}` : ''}`;
 
     try {
         const response = await fetch(url);
@@ -396,7 +396,7 @@ async function fetchUsers(username = '') {
 
 async function fetchOrganisations(username = '') {
     // Construct the URL with optional query parameters
-    const url = `../profiles/organisations${username ? `?username=${username}` : ''}`;
+    const url = `../organisations${username ? `?username=${username}` : ''}`;
 
     try {
         const response = await fetch(url);
@@ -534,10 +534,10 @@ async function fetchEventById(eventId) {
         eventElement.appendChild(createKeyValueElement('Time', eventData.time));
         eventElement.appendChild(createKeyValueElement('Location', eventData.location));
         eventElement.appendChild(createKeyValueElement('Expired', eventData.expired));
-        eventElement.appendChild(await createKeyValueClickableElement('Organizer', [eventData.organizerId], 'profiles/organisations', 'eventById', eventId));
+        eventElement.appendChild(await createKeyValueClickableElement('Organizer', [eventData.organizerId], 'organisations', 'eventById', eventId));
         eventElement.appendChild(createKeyValueElement('Max Participants', eventData.maxNumberParticipants));
         if (eventData.participantsId.length !== 0)
-            eventElement.appendChild(await createKeyValueClickableElement('Participants', eventData.participantsId, 'profiles/users', 'eventById', eventId));
+            eventElement.appendChild(await createKeyValueClickableElement('Participants', eventData.participantsId, 'users', 'eventById', eventId));
         else
             eventElement.appendChild(createKeyValueElement('Participants', ''));
 
@@ -596,10 +596,10 @@ async function fetchAnnouncementById(announcementId) {
         announcementElement.appendChild(createKeyValueElement('Time Begin', announcementData.time_begin));
         announcementElement.appendChild(createKeyValueElement('Time Stop', announcementData.time_stop));
         announcementElement.appendChild(createKeyValueElement('Location', announcementData.location));
-        announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcementData.ownerId], 'profiles/organisations', 'announcementById', announcementId));
+        announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcementData.ownerId], 'organisations', 'announcementById', announcementId));
         announcementElement.appendChild(createKeyValueElement('Max Participants', announcementData.maxNumberParticipants));
         if (announcementData.participantsID.length !== 0)
-            announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcementData.participantsID, 'profiles/users', 'announcementById', announcementId));
+            announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcementData.participantsID, 'users', 'announcementById', announcementId));
         else
             announcementElement.appendChild(createKeyValueElement('Participants', ''));
 
@@ -635,7 +635,7 @@ async function fetchAnnouncementById(announcementId) {
 // Function to fetch organization by ID
 async function fetchOrganisationById(organizationId) {
     try {
-        const response = await fetch(`../profiles/organisations/${organizationId}`);
+        const response = await fetch(`../organisations/${organizationId}`);
         if (!response.ok) {
             throw new Error('Failed to fetch organization');
         }
@@ -701,7 +701,7 @@ async function fetchOrganisationById(organizationId) {
 
 async function fetchUserById(userId) {
     try {
-        const response = await fetch(`../profiles/users/${userId}`);
+        const response = await fetch(`../users/${userId}`);
         if (!response.ok) {
             throw new Error('Failed to fetch user');
         }

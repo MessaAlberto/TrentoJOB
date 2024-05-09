@@ -6,35 +6,85 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Homepage</title>
   <script src="./script/registration.js"></script>
-  <link rel="stylesheet" href="./style/resistration.css">
+  <link rel="stylesheet" href="./style/registration.css">
 </head>
 
 <body>
-  <h2>Registrazione Account</h2>
+  <div class="header">
+      <div class="header-left">
+          <h2>TrentoJOB</h2>
+      </div>
+  </div>
+  <section class="forms-section">
+      <h1 class="section-title">Registration</h1>
+      <div class="forms">
+        <div class="form-wrapper is-active">
+          <button type="button" class="switcher switcher-user">
+            User
+            <span class="underline"></span>
+          </button>
+          <form class="form user-form">
+            <fieldset>
+              <div class="input-block">
+                <label for="user-username">Username</label>
+                <input id="user-username" type="username" required>
+              </div>
+              <div class="input-block">
+                <label for="user-email">E-mail</label>
+                <input id="user-email" type="email" required>
+              </div>
+              <div class="input-block">
+                <label for="user-password">Password</label>
+                <input id="user-password" type="password" required>
+              </div>
+              <div class="input-block">
+                <label for="user-conf-password">Repeat password</label>
+                <input id="user-conf-password" type="password" required>
+              </div>
+            </fieldset>
+            <button type="submit" class="user-login">Login</button>
+          </form>
+        </div>
+        <div class="form-wrapper">
+          <button type="button" class="switcher switcher-organisation">
+            Organisation
+            <span class="underline"></span>
+          </button>
+          <form class="form organisation-form">
+            <fieldset>
+              <div class="input-block">
+                <label for="org-username">Username</label>
+                <input id="org-username" type="username" required>
+              </div>
+              <div class="input-block">
+                <label for="org-email">E-mail</label>
+                <input id="org-email" type="email" required>
+              </div>
+              <div class="input-block">
+                <label for="org-password">Password</label>
+                <input id="org-password" type="password" required>
+              </div>
+              <div class="input-block">
+                <label for="org-conf-password">Repeat password</label>
+                <input id="org-conf-password" type="password" required>
+              </div>
+              <div class="input-block">
+                <label for="tax-id">Tax ID code</label>
+                <input id="tax-id" required>
+              </div>
+            </fieldset>
+            <button type="submit" class="organisation-login">Continue</button>
+          </form>
+        </div>
+      </div>
+    </section>
 
-  <form id="registrationForm" onsubmit="signUp(); return false;">
-    <label for="username">Username:</label><br>
-    <input type="text" id="username" name="username"><br>
-    <label for="email">Email:</label><br>
-    <input type="email" id="email" name="email"><br>
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password"><br>
-    <label for="confirmPassword">Conferma Password:</label><br>
-    <input type="password" id="confirmPassword" name="confirmPassword"><br>
-    <span id="passwordError" style="color: red; display: none;">La password deve contenere almeno 8 caratteri, di cui almeno una lettera maiuscola, una lettera minuscola, un numero e un carattere speciale.</span><br> <!-- Aggiunto un messaggio di errore per la password -->
-    
-    <!-- Checkbox per specificare se è un ente -->
-    <input type="checkbox" id="isEntity" name="isEntity" onchange="showHideTaxCodeField()">
-    <label for="isEntity">Sei un ente?</label><br>
 
-    <!-- Campo per il codice fiscale (inizialmente nascosto) -->
-    <div id="taxCodeField" style="display:none;">
-      <label for="taxCode">Codice Fiscale:</label><br>
-      <input type="text" id="taxCode" name="taxCode"><br><br>
+    <div class="bottom-button-list">
+      <button id="backButton" class="back-button" onclick="goBack()">Cancel</button>
+      <button id="singInButton" class="sign-in-button" onclick="goToLogin()">Sign Up</button>
     </div>
 
-    <button type="submit">Registrati</button>
-  </form>
 </body>
 
 </html>

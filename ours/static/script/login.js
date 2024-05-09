@@ -1,10 +1,8 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const switchers = [...document.querySelectorAll('.switcher')]
+function goBack() {
+    window.location.href = "/index.html";
+}
 
-    switchers.forEach(item => {
-        item.addEventListener('click', function () {
-            switchers.forEach(item => item.parentElement.classList.remove('is-active'))
-            this.parentElement.classList.add('is-active')
-        })
-    })
-});
+function goToRegistration() {
+    // redirect to registration page
+    window.location.href = "/registration.html";
+}
