@@ -1,0 +1,37 @@
+body {
+    margin: 0;
+    font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
+    background-color: #f8f9fa; /* Light grey */
+}
+
+.input-block textarea {
+    height: 150px; /* Imposta l'altezza della textarea */
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    align-items: center;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+}
+
+.header-left{
+    text-align: left;
+    margin-left: 15px;
+    margin-top: -10px;
+    max-height: 60px;
+    width: 100%;
+}
+
+.forms-section {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+}
