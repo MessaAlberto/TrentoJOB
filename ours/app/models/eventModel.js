@@ -1,7 +1,7 @@
-const {schema, model} = require('mongoose');
-const {Participant} = require("./participantModel");
+const mongoose = require('mongoose');
+const Participant = require("./participantModel");
 
-module.exports = model('Event', new schema({
+module.exports = mongoose.model('Event', new mongoose.Schema({
     title: {
         type: String,
         required: true,

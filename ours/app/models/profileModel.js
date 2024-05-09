@@ -1,6 +1,6 @@
-const {Schema, model} = require('mongoose');
+const mongoose = require('mongoose');
 
-const Profile = model('Profile', new Schema({
+const Profile = mongoose.model('Profile', new mongoose.Schema({
     username: {
         type: String,
         required: true,
@@ -36,7 +36,7 @@ const Profile = model('Profile', new Schema({
     }
 }));
 
-const User = Profile.discriminator('User', new Schema({
+const User = Profile.discriminator('User', new mongoose.Schema({
     birthday: {
         type: Date,
         required: false,
@@ -79,7 +79,7 @@ const User = Profile.discriminator('User', new Schema({
     }
 }));
 
-const Organisation = Profile.discriminator('Organisation', new Schema({
+const Organisation = Profile.discriminator('Organisation', new mongoose.Schema({
     taxIdCode: {
         type: String,
         required: true,
@@ -109,7 +109,7 @@ const Organisation = Profile.discriminator('Organisation', new Schema({
     }
 }));
 
-const Admin = Profile.discriminator('Admin', new Schema({
+const Admin = Profile.discriminator('Admin', new mongoose.Schema({
     // some joke fields
     beautifulnessLevel: {
         type: Number,

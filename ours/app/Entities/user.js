@@ -3,7 +3,7 @@ const {User} = require('../models/profileModel');
 const register = require("../validation");
 
 // register
-router.post("/", (req,res) => register(req, res, User));
+router.post("/", (req,res) => register(req, res, User, 'user'));
 
 // modify
 router.put('/', (req,res) => {

@@ -27,19 +27,16 @@ router.get('/', async (req, res) => {
         let query = {};
 
         // Check if the title query parameter exists
-        if (title) {
-            // Create a regular expression to match partial titles
+        if (title)
             query.title = new RegExp(title, 'i');
-        }
 
         // Query the database with the constructed query object
         const announcements = await Announcement.find(query);
 
         // Return JSON response containing the announcements
         res.status(200).json(announcements);
-    } catch (error) {
-        console.error('Error retrieving announcements:', error);
-        res.status(500).send('Internal Server Error');
+    } catch {
+        res.status(500).json({message: 'Internal Server Error'});
     }
 });
 
@@ -47,13 +44,13 @@ router.get('/:id', async (req, res) => {
     try {
         const announcement = await Announcement.findById(req.params.id);
         if (announcement) {
-            res.status(200).send(announcement);
+            res.status(200).json(announcement);
         } else {
             res.status(404).json({ error: 'Announcement not found' });
         }
     } catch (error) {
         console.error('Error retrieving announcement:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({message: 'Internal Server Error'});
     }
 });
 
@@ -64,14 +61,14 @@ router.delete('/:id', async (req, res) => {
         const owner = await Announcement.findById(id, {owner: 1});
 
         // not guest, owner
-        if (!req.user && req.user.role !== 'admin' && owner.id !== id)
+        if (!owner || !req.user && req.user.role !== 'admin' && owner.id !== id)
             return res.status(403);
 
         await Announcement.findByIdAndDelete(id);
         res.status(200).json({message: 'delete succesful'});
 
     } catch {
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({message: 'Internal Server Error'});
     }
 });
 

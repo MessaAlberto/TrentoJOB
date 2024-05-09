@@ -2,6 +2,7 @@ const Joi = require('joi');
 const {Profile} = require("./models/profileModel");
 const {hash} = require("bcrypt");
 const mail = require("./nodeMail");
+const {sign} = require('jsonwebtoken');
 
 const registerValidation = data => {
     const schema = Joi.object({
@@ -14,7 +15,7 @@ const registerValidation = data => {
 }
 
 // register
-const register = async (req, res, type) => {
+const register = async (req, res, type, role) => {
     // validate data
     const validation = registerValidation(req.body);
     if (validation.error)
@@ -28,15 +29,16 @@ const register = async (req, res, type) => {
     // hashing
     req.body.password = await hash(req.body.password, 10);
     let user = new type(req.body);
-    user.role = 'type'.toLowerCase();
+    user.role = role;
 
     // save
     try {
         const savedUser = await user.save();
         res.status(201).json({user: savedUser._id});
+
         // send email confirmation mail
         const email_token = sign({_id: savedUser._id}, process.env.JWT_SECRET_MAIL, {expiresIn: process.env.JWT_EXPIRE_MAIL});
-        const url = `http://localhost:${process.env.PORT}/auth/confirmation/${email_token}`;
+        const url = `http://localhost:${process.env.PORT}/auth/${email_token}`;
         const html = `link valid for 48h: <a href="${url}">Click here to confirm</a>`;
         mail(req.body.email, "Email confirmation", html);
     } catch {

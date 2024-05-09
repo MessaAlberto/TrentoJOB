@@ -1,7 +1,7 @@
-const {Schema, model} = require('mongoose');
-const {Participant} = require('./participantModel');
+const mongoose = require('mongoose');
+const Participant = require('./participantModel');
 
-module.exports = model('Announcement', new Schema({
+module.exports = mongoose.model('Announcement', new mongoose.Schema({
     title: {
         type: String,
         required: true,
