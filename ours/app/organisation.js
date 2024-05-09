@@ -3,7 +3,7 @@ const router = express.Router();
 const {User, Organisation, Admin} = require('./models/profileModel'); // get our mongoose model
 
 
-router.get('/', printf, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const { username } = req.query;
         let query = {
@@ -29,7 +29,7 @@ router.get('/', printf, async (req, res) => {
     }
 });
 
-router.get('/:id', printf, async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const profile = await Organisation.findById(req.params.id);
         if (profile) {
@@ -43,7 +43,7 @@ router.get('/:id', printf, async (req, res) => {
     }
 });
 
-router.post('/', printf, async (req, res) => {
+router.post('/', async (req, res) => {
     let profile = new Organisation(req.body);
 
     if (profile.username === undefined || profile.username === '' || profile.username === null || typeof profile.username !== 'string') {
@@ -56,7 +56,7 @@ router.post('/', printf, async (req, res) => {
 });
 
 
-router.delete('/:id', printf, async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const profile = await Organisation.findByIdAndDelete(req.params.id);
         if (profile) {
@@ -70,11 +70,5 @@ router.delete('/:id', printf, async (req, res) => {
     }
 });
 
-
-
-function printf(req, res, next) {
-    console.log("organisation.js")
-    next()
-}
 
 module.exports = router;

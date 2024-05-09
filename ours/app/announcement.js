@@ -4,7 +4,7 @@ const router = express.Router();
 const Announcement = require('./models/announcementModel'); // get our mongoose model
 
 
-router.get('/', printf, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const { title } = req.query;
         let query = {};
@@ -28,7 +28,7 @@ router.get('/', printf, async (req, res) => {
     }
 });
 
-router.get('/:id', printf, async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const announcement = await Announcement.findById(req.params.id);
         if (announcement) {
@@ -42,7 +42,7 @@ router.get('/:id', printf, async (req, res) => {
     }
 });
 
-router.post('/', printf, async (req, res) => {
+router.post('/', async (req, res) => {
     let announcement = new Announcement(req.body);
 
     if (announcement.title === undefined || announcement.title === '' || announcement.title === null || typeof announcement.title !== 'string') {
@@ -54,7 +54,7 @@ router.post('/', printf, async (req, res) => {
 
 });
 
-router.delete('/:id', printf, async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const announcement = await Announcement.findByIdAndDelete(req.params.id);
         if (announcement) {
@@ -68,10 +68,6 @@ router.delete('/:id', printf, async (req, res) => {
     }
 });
 
-function printf(req, res, next) {
-    console.log("announcement.js")
-    next()
-}
 
 module.exports = router;
 

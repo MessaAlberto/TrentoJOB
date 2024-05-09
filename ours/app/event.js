@@ -4,7 +4,7 @@ const router = express.Router();
 const Event = require('./models/eventModel'); // get our mongoose model
 
 
-router.get('/', printf, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const { title } = req.query;
         let query = {};
@@ -29,7 +29,7 @@ router.get('/', printf, async (req, res) => {
     }
 });
 
-router.get('/:id', printf, async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const event = await Event.findById(req.params.id);
         if (event) {
@@ -43,7 +43,7 @@ router.get('/:id', printf, async (req, res) => {
     }
 });
 
-router.post('/', printf, async (req, res) => {
+router.post('/', async (req, res) => {
     let event = new Event(req.body);
 
     if (event.title === undefined || event.title === '' || event.title === null || typeof event.title !== 'string') {
@@ -57,7 +57,7 @@ router.post('/', printf, async (req, res) => {
 
 
 
-router.delete('/:id', printf, async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const event = await Event.findByIdAndDelete(req.params.id);
         if (event) {
@@ -70,11 +70,6 @@ router.delete('/:id', printf, async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
-function printf(req, res, next) {
-    console.log("event.js")
-    next()
-}
 
 
 

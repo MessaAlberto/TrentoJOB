@@ -34,6 +34,18 @@ app.use((req,res,next) => {
 })
 
 
+// Define your middleware function
+
+function printf(req, res, next) {
+    console.log("event.js")
+    next()
+}
+
+
+app.use(printf);
+
+
+
 
 /**
  * Resource routing
