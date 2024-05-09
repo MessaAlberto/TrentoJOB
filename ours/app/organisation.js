@@ -1,7 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const {User, Organisation, Admin} = require('./models/profileModel'); // get our mongoose model
+const router = require('express').Router();
+const {Organisation} = require('./models/profileModel');
+const register = require("./validation");
 
+
+// register
+router.post("/", (req,res) => register(req, res, Organisation));
+
+// modify
+router.put('/', (req,res) => {
+    // TODO
+});
 
 router.get('/', async (req, res) => {
     try {
@@ -13,9 +21,7 @@ router.get('/', async (req, res) => {
         // Check if the username query parameter exists
         if (username) {
             // Create a regular expression to match partial usernames
-            const regex = new RegExp(username, 'i');
-            // Add the username regex to the query
-            query.username = regex;
+            query.username = new RegExp(username, 'i');
         }
 
         // Query the database with the constructed query object
@@ -43,20 +49,11 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
-    let profile = new Organisation(req.body);
-
-    if (profile.username === undefined || profile.username === '' || profile.username === null || typeof profile.username !== 'string') {
-        res.status(400).json({ error: 'The field "username" must be a non-empty string' });
-    } else {
-        const profileResult = await profile.save();
-        res.status(201).send(profileResult);
-    }
-
-});
-
-
 router.delete('/:id', async (req, res) => {
+    // not guest, self
+    if (!req.user && req.user.role !== 'admin' && req.user._id !== req.params.id)
+        return res.status(403);
+
     try {
         const profile = await Organisation.findByIdAndDelete(req.params.id);
         if (profile) {
@@ -69,6 +66,7 @@ router.delete('/:id', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 
 module.exports = router;

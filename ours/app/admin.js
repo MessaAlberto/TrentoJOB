@@ -1,14 +1,24 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 
-router.get('', printf, async (req, res) => {
-    res.redirect('/admin.html');
+// create
+router.post('/', (req,res) => {
+    // TODO
+});
+
+// modify
+router.put('/', (req,res) => {
+    // TODO
+});
+
+router.get('/', async (req, res) => {
+    // TODO
 
 });
 
-function printf(req, res, next) {
-    console.log("admin.js")
-    next()
-}
+router.delete('/', (req,res) => {
+    // TODO
+});
+
+
 
 module.exports = router;

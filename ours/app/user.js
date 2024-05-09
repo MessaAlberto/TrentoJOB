@@ -1,7 +1,14 @@
-const express = require('express');
-const router = express.Router();
-const {User, Organisation, Admin} = require('./models/profileModel'); // get our mongoose model
+const router = require('express').Router();
+const {User} = require('./models/profileModel');
+const register = require("./validation");
 
+// register
+router.post("/", (req,res) => register(req, res, User));
+
+// modify
+router.put('/', (req,res) => {
+    // TODO
+});
 
 router.get('/', async (req, res) => {
     try {
@@ -13,9 +20,7 @@ router.get('/', async (req, res) => {
         // Check if the username query parameter exists
         if (username) {
             // Create a regular expression to match partial usernames
-            const regex = new RegExp(username, 'i');
-            // Add the username regex to the query
-            query.username = regex;
+            query.username = new RegExp(username, 'i');
         }
 
         // Query the database with the constructed query object
@@ -25,7 +30,7 @@ router.get('/', async (req, res) => {
         res.status(200).json(user);
     } catch (error) {
         console.error('Error retrieving profiles:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({message: 'Internal Server Error'});
     }
 });
 
@@ -33,7 +38,7 @@ router.get('/:id', async (req, res) => {
     try {
         const profile = await User.findById(req.params.id);
         if (profile) {
-            res.status(200).send(profile);
+            res.status(200).json(profile);
         } else {
             res.status(404).json({ error: 'User not found' });
         }
@@ -42,40 +47,12 @@ router.get('/:id', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
-router.get('/:id/:expired', async (req, res) => {
-    try {
-        const profileId = req.params.id;
-        const expired = req.params.expired;
-        // Your logic using both profileId and expired parameters
-        // For example:
-        const profile = await User.findById(profileId);
-        if (profile) {
-            res.status(200).send({ profile, expired });
-        } else {
-            res.status(404).json({ error: 'User not found' });
-        }
-    } catch (error) {
-        console.error('Error retrieving profile:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-
-router.post('/', async (req, res) => {
-    let profile = new User(req.body);
-
-    if (profile.username === undefined || profile.username === '' || profile.username === null || typeof profile.username !== 'string') {
-        res.status(400).json({ error: 'The field "username" must be a non-empty string' });
-    } else {
-        const profileResult = await profile.save();
-        res.status(201).send(profileResult);
-    }
-
-});
-
 
 router.delete('/:id', async (req, res) => {
+    // not guest, self
+    if (!req.user && req.user.role !== 'admin' && req.user._id !== req.params.id)
+        return res.status(403);
+
     try {
         const profile = await User.findByIdAndDelete(req.params.id);
         if (profile) {

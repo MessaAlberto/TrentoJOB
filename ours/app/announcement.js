@@ -1,8 +1,25 @@
 // Route to handle requests for /announcement
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const Announcement = require('./models/announcementModel'); // get our mongoose model
 
+// create
+router.post('/', async (req, res) => {
+    let announcement = new Announcement(req.body);
+
+
+    // TODO BETTER
+    if (announcement.title|| typeof announcement.title !== 'string') {
+        res.status(400).json({ error: 'The field "title" must be a non-empty string' });
+    } else {
+        const announcementResult = await announcement.save();
+        res.status(201).send(announcementResult);
+    }
+});
+
+// modify
+router.put('/', (req,res) => {
+    // TODO
+});
 
 router.get('/', async (req, res) => {
     try {
@@ -12,9 +29,7 @@ router.get('/', async (req, res) => {
         // Check if the title query parameter exists
         if (title) {
             // Create a regular expression to match partial titles
-            const regex = new RegExp(title, 'i');
-            // Add the title regex to the query
-            query.title = regex;
+            query.title = new RegExp(title, 'i');
         }
 
         // Query the database with the constructed query object
@@ -42,19 +57,11 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
-    let announcement = new Announcement(req.body);
-
-    if (announcement.title === undefined || announcement.title === '' || announcement.title === null || typeof announcement.title !== 'string') {
-        res.status(400).json({ error: 'The field "title" must be a non-empty string' });
-    } else {
-        const announcementResult = await announcement.save();
-        res.status(201).send(announcementResult);
-    }
-
-});
-
 router.delete('/:id', async (req, res) => {
+    // not guest, self
+    if (!req.user && req.user.role !== 'admin' && req.user._id !== req.params.id)
+        return res.status(403);
+
     try {
         const announcement = await Announcement.findByIdAndDelete(req.params.id);
         if (announcement) {
