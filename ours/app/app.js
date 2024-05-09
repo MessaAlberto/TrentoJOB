@@ -1,10 +1,9 @@
 const Path = require('path');
-
 const express = require('express');
-const app = express();
 const cors = require('cors')
+const {printf, verifySecretToken} = require('./middleware')
 
-
+const app = express();
 /**
  * Configure Express.js parsing middleware
  */
@@ -27,30 +26,14 @@ app.use('/TrentoJOB/', express.static( FRONTEND ));
 app.use('/', express.static('static')); // expose also this folder
 
 
-
-app.use((req,res,next) => {
-    console.log(req.method + ' ' + req.url)
-    next()
-})
-
-
 // Define your middleware function
-
-function printf(req, res, next) {
-    console.log("event.js")
-    next()
-}
-
-
-app.use(printf);
-
-
+app.use(printf, verifySecretToken);
 
 
 /**
  * Resource routing
  */
-const authURL = require('./authentication/auth');
+const authURL = require('./auth');
 
 const adminURL = require('./admin');
 const userURL = require('./user.js');
@@ -61,18 +44,17 @@ const announcementURL = require('./announcement.js');
 
 app.use('/auth', authURL);
 
-app.use('/users', userURL);
-app.use('/organisations', organisationURL);
 app.use('/admin', adminURL);
+app.use('/user', userURL);
+app.use('/organisation', organisationURL);
 
-app.use('/events', eventURL);
-app.use('/announcements', announcementURL);
+app.use('/event', eventURL);
+app.use('/announcement', announcementURL);
 
 
 /* Default 404 handler */
 app.use((req, res) => {
-    res.status(404);
-    res.json({ error: 'Not found' });
+    res.status(404).json({ error: 'Not found' });
 });
 
 
