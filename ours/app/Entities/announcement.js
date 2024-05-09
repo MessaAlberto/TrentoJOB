@@ -1,6 +1,6 @@
 // Route to handle requests for /announcement
 const router = require('express').Router();
-const Announcement = require('./models/announcementModel'); // get our mongoose model
+const {Announcement} = require('../models/announcementModel'); // get our mongoose model
 
 // create
 router.post('/', async (req, res) => {
@@ -58,19 +58,19 @@ router.get('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-    // not guest, self
-    if (!req.user && req.user.role !== 'admin' && req.user._id !== req.params.id)
-        return res.status(403);
+    const id = req.params.id;
 
     try {
-        const announcement = await Announcement.findByIdAndDelete(req.params.id);
-        if (announcement) {
-            res.status(200).send(announcement);
-        } else {
-            res.status(404).json({ error: 'Announcement not found' });
-        }
-    } catch (error) {
-        console.error('Error deleting announcement:', error);
+        const owner = await Announcement.findById(id, {owner: 1});
+
+        // not guest, owner
+        if (!req.user && req.user.role !== 'admin' && owner.id !== id)
+            return res.status(403);
+
+        await Announcement.findByIdAndDelete(id);
+        res.status(200).json({message: 'delete succesful'});
+
+    } catch {
         res.status(500).send('Internal Server Error');
     }
 });

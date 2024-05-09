@@ -1,5 +1,5 @@
 const {Schema, model} = require('mongoose');
-const Participant = require('./participantModel');
+const {Participant} = require('./participantModel');
 
 module.exports = model('Announcement', new Schema({
     title: {

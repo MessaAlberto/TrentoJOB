@@ -1,5 +1,5 @@
 const {schema, model} = require('mongoose');
-const Participant = require("./participantModel");
+const {Participant} = require("./participantModel");
 
 module.exports = model('Event', new schema({
     title: {

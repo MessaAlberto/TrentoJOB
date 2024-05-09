@@ -33,14 +33,14 @@ app.use(printf, verifySecretToken);
 /**
  * Resource routing
  */
-const authURL = require('./auth');
+const authURL = require('./Entities/auth');
 
-const adminURL = require('./admin');
-const userURL = require('./user.js');
-const organisationURL = require('./organisation.js');
+const adminURL = require('./Entities/admin');
+const userURL = require('./Entities/user.js');
+const organisationURL = require('./Entities/organisation.js');
 
-const eventURL = require('./event');
-const announcementURL = require('./announcement.js');
+const eventURL = require('./Entities/event');
+const announcementURL = require('./Entities/announcement.js');
 
 app.use('/auth', authURL);
 

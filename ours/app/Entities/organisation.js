@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const {Organisation} = require('./models/profileModel');
-const register = require("./validation");
+const {Organisation} = require('../models/profileModel');
+const register = require("../validation");
 
 
 // register

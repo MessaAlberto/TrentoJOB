@@ -1,9 +1,8 @@
 const router = require("express").Router();
 const {compare} = require("bcrypt");
 const {sign, verify, decode} = require("jsonwebtoken");
-const {Profile} = require("./models/profileModel");
-const mail = require("./nodeMail");
-const verifyToken = require("./middleware");
+const {Profile} = require("../models/profileModel");
+const mail = require("../nodeMail");
 const Joi = require("joi");
 
 const loginValidation = data => {

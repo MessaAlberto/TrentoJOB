@@ -1,7 +1,7 @@
 // Route to handle requests for /events
 const express = require('express');
 const router = express.Router();
-const Event = require('./models/eventModel'); // get our mongoose model
+const Event = require('../models/eventModel'); // get our mongoose model
 
 
 router.get('/', async (req, res) => {
