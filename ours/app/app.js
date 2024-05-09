@@ -38,18 +38,23 @@ app.use((req,res,next) => {
 /**
  * Resource routing
  */
+const authURL = require('./authentication/auth');
 
 const adminURL = require('./admin');
+const userURL = require('./user.js');
+const organisationURL = require('./organisation.js');
+
 const eventURL = require('./event');
-const profileURL = require('./profile');
-const authURL = require('./authentication/auth');
 const announcementURL = require('./announcement.js');
 
+app.use('/auth', authURL);
+
+app.use('/users', userURL);
+app.use('/organisations', organisationURL);
 app.use('/admin', adminURL);
+
 app.use('/events', eventURL);
 app.use('/announcements', announcementURL);
-app.use('/profiles', profileURL);
-app.use('/auth', authURL);
 
 
 /* Default 404 handler */
