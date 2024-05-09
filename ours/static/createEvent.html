@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Registration</title>
+  <script src="./script/createEvent.js"></script>
+  <link rel="stylesheet" href="./style/pageEvent.css">
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h2>TrentoJOB</h2>
+        </div>
+    </div>
+    <section class="forms-section">
+        <h1 class="section-title">Event Registration</h1>
+        <div class="forms">
+            <form id="event-registration-form" action="/event" method="POST">
+                <fieldset>
+                    <div class="input-block">
+                        <label for="title">Title</label>
+                        <input id="title" type="text" required>
+                    </div>
+                    <div class="input-block">
+                        <label for="description">Description</label>
+                        <textarea id="description" required></textarea>
+                    </div>
+                    <div class="input-block">
+                        <label for="date">Date</label>
+                        <input id="date" type="date" required>
+                    </div>
+                    <div class="input-block">
+                        <label for="time">Time</label>
+                        <input id="time" type="time" required>
+                    </div>
+                    <div class="input-block">
+                        <label for="location">Location</label>
+                        <input id="location" type="text" required>
+                    </div>
+                    <div class="input-block">
+                        <label for="max-participants">Max Number of Participants</label>
+                        <input id="max-participants" type="number" required>
+                    </div>
+                </fieldset>
+                <button type="submit">Register Event</button>
+            </form>
+        </div>
+    </section>
+</body>
+
+</html>
