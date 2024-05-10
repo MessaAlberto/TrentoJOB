@@ -1,13 +1,14 @@
 const router = require('express').Router();
 const {Organisation} = require('../models/profileModel');
 const register = require("../validation");
+const {privateAccess} = require("../middleware");
 
 
 // register
-router.post("/", (req,res) => register(req, res, Organisation));
+router.post("/", (req,res) => register(req, res, Organisation, 'organisation'));
 
 // modify
-router.put('/', (req,res) => {
+router.put('/:id', privateAccess,  (req,res) => {
     // TODO
 });
 
@@ -49,11 +50,8 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
-    // not guest, self
-    if (!req.user && req.user.role !== 'admin' && req.user._id !== req.params.id)
-        return res.status(403);
-
+// eliminazione account
+router.delete('/:id', privateAccess, async (req, res) => {
     try {
         const profile = await Organisation.findByIdAndDelete(req.params.id);
         if (profile) {

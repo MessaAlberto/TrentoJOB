@@ -1,21 +1,22 @@
 const router = require('express').Router();
+const {privateAccess} = require("../middleware");
 
 // create
-router.post('/', (req,res) => {
+router.post('/', async (req,res) => {
     // TODO
 });
 
 // modify
-router.put('/', (req,res) => {
+router.put('/:id', privateAccess, async (req,res) => {
     // TODO
 });
 
-router.get('/', async (req, res) => {
+router.get('/:id', privateAccess,  async (req, res) => {
     // TODO
 
 });
 
-router.delete('/', (req,res) => {
+router.delete('/:id', privateAccess, async (req,res) => {
     // TODO
 });
 

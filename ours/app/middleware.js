@@ -27,9 +27,17 @@ const verifySecretToken = (req, res, next) => {
     });
 }
 
-
+// get access only if authorized
+const privateAccess = (req, res, next) => {
+    if (  !req.user                         // not guest
+        && req.user.role !== 'admin'        // admin
+        && req.user._id !== req.params.id)  // self
+        return res.status(403);
+    next();
+}
 
 module.exports = {
     printf,
     verifySecretToken,
+    privateAccess,
 }

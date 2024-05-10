@@ -1,12 +1,14 @@
 const router = require('express').Router();
 const {User} = require('../models/profileModel');
 const register = require("../validation");
+const {privateAccess} = require("../middleware");
+
 
 // register
 router.post("/", (req,res) => register(req, res, User, 'user'));
 
 // modify
-router.put('/', (req,res) => {
+router.put('/:id', privateAccess, async (req,res) => {
     // TODO
 });
 
@@ -48,21 +50,17 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
-    // not guest, self
-    if (!req.user && req.user.role !== 'admin' && req.user._id !== req.params.id)
-        return res.status(403);
-
+// eliminazione account
+router.delete('/:id', privateAccess, async (req, res) => {
     try {
         const profile = await User.findByIdAndDelete(req.params.id);
         if (profile) {
-            res.status(200).send(profile);
+            res.status(200).json(profile);
         } else {
             res.status(404).json({ error: 'User not found' });
         }
-    } catch (error) {
-        console.error('Error deleting profile:', error);
-        res.status(500).send('Internal Server Error');
+    } catch {
+        res.status(500).json({message: 'Internal Server Error'});
     }
 });
 

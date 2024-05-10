@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
         if (!user.confirmed)
             return res.status(400).json({message: 'Email was not confirmed'});
 
-        // if orgnaization require verification by admin
+        // if organization require verification by admin
         if (user.role === 'organisation' && !user.verified)
             return res.status(401).json({message: "this account hasn't been verified yet"});
 
@@ -61,20 +61,20 @@ router.get("/", async (req, res) => {
     try {
         const {refresh_token} = req.cookies;
         if (!refresh_token)
-            return res.status(400).json({message: "Missing refresh token"})
+            return res.status(401).json({message: "Missing refresh token"})
 
         // get id from token
         const id = verify(refresh_token, process.env.JWT_SECRET_REFRESH)._id;
         if (!id)
-            return res.status(500).json({message: "Invalid token"});
+            return res.status(403);
 
         // get user
         const user = await Profile.findById(id);
         if (!user)
-            return res.status(500).json({message: "User not found"});
+            return res.status(404).json({message: "User not found"});
 
         if (user.refresh_token !== refresh_token)
-            return res.status(500).json({message: "Invalid token"})
+            return res.status(403);
 
         // The refresh token is correct => renew token
         const new_token = sign({_id: user._id}, process.env.JWT_SECRET_TOKEN, {expiresIn: process.env.JWT_EXPIRE_TOKEN});
@@ -106,7 +106,7 @@ router.get('/:token', async (req, res) => {
         if (user.role === 'user') {
             mail(user.email, "Welcome to TrentoJob", `welcome to our platform, our crew is happy to have you on board. We hope you'll have great opportunities`);
         } else {
-            mail(user.email, "Almost there", "Welcome to TrentoJOB, our crew is verifing your data, we'll notify you when your account is ready");
+            mail(user.email, "Almost there", "Welcome to TrentoJOB, our crew is verifying your data, we'll notify you when your account is ready");
         }
     } catch (err) {
         // delete document since it wasn't verified  before deadline
@@ -115,7 +115,7 @@ router.get('/:token', async (req, res) => {
             await Profile.findByIdAndDelete(id);
         }
 
-        res.status(401).json({message: 'somthing went wrong, please retry signup'});
+        res.status(500).json({message: 'something went wrong, please retry signup'});
     }
 })
 
