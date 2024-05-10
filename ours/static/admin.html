@@ -2,30 +2,30 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
-  <script src="./script/admin.js"></script>
-  <link rel="stylesheet" href="./style/admin.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="./script/admin.js"></script>
+    <link rel="stylesheet" href="./style/admin.css">
 </head>
 
 <body>
-  <div class="buttons-container">
-    <button class="button" onclick="fetchEvents(); toggleActive(this)">Events</button>
-    <button class="button" onclick="fetchAnnouncements(); toggleActive(this)">Announcements</button>
-    <button class="button" onclick="fetchUsers(); toggleActive(this)">Users</button>
-    <button class="button" onclick="fetchOrganisations(); toggleActive(this)">Organisations</button>
-  </div>
+    <div class="buttons-container">
+        <button class="button" onclick="fetchEvents(); toggleActive(this)">Events</button>
+        <button class="button" onclick="fetchAnnouncements(); toggleActive(this)">Announcements</button>
+        <button class="button" onclick="fetchUsers(); toggleActive(this)">Users</button>
+        <button class="button" onclick="fetchOrganisations(); toggleActive(this)">Organisations</button>
+    </div>
 
-  <!-- Search bar -->
-  <div class="search-container hidden" id="searchContainer">
-    <input type="text" id="searchInput" placeholder="Search by name..." onkeypress="handleSearchKeyPress(event)">
-    <button class="button" onclick="searchButtonFunction()">Search</button>
-  </div>
+    <!-- Search bar -->
+    <div class="search-container hidden" id="searchContainer">
+        <input type="text" id="searchInput" placeholder="Search by name..." onkeypress="handleSearchKeyPress(event)">
+        <button class="button" onclick="searchButtonFunction()">Search</button>
+    </div>
 
-  <div class="list-container" id="listContainer">
-    <!-- Your dynamic list items will be added here -->
-  </div>
+    <div class="list-container" id="listContainer">
+        <!-- Your dynamic list items will be added here -->
+    </div>
 </body>
 
 </html>
