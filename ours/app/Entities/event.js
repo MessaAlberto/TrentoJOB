@@ -1,8 +1,12 @@
 // Route to handle requests for /events
 const express = require('express');
 const router = express.Router();
-const Event = require('../models/eventModel'); // get our mongoose model
+const {Event} = require('../models/eventModel');
+const {eventValidation} = require("../validation");
+const {new_activity} = require("../utils");
 
+// nwe event
+router.post('/', eventValidation, async (req, res) => new_activity(req, res, Event));
 
 router.get('/', async (req, res) => {
     try {
@@ -12,16 +16,13 @@ router.get('/', async (req, res) => {
         // Check if the title query parameter exists
         if (title) {
             // Create a regular expression to match partial titles
-            const regex = new RegExp(title, 'i');
-            // Add the title regex to the query
-            query.title = regex;
+            query.title = new RegExp(title, 'i');
         }
 
         // Query the database with the constructed query object
         const events = await Event.find(query);
         // const events = await Event.find(query).populate('participantsID');
 
-        // Return JSON response containing the events
         res.status(200).json(events);
     } catch (error) {
         console.error('Error retrieving events:', error);
@@ -43,17 +44,6 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
-    let event = new Event(req.body);
-
-    if (event.title === undefined || event.title === '' || event.title === null || typeof event.title !== 'string') {
-        res.status(400).json({ error: 'The field "title" must be a non-empty string' });
-    } else {
-        const eventResult = await event.save();
-        res.status(201).send(eventResult);
-    }
-
-});
 
 
 

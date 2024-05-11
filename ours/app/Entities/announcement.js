@@ -1,20 +1,11 @@
 // Route to handle requests for /announcement
 const router = require('express').Router();
-const {Announcement} = require('../models/announcementModel'); // get our mongoose model
+const {Announcement} = require('../models/announcementModel');
+const {announcementValidation} = require("../validation");
+const {new_activity} = require("../utils"); // get our mongoose model
 
 // create
-router.post('/', async (req, res) => {
-    let announcement = new Announcement(req.body);
-
-
-    // TODO BETTER
-    if (announcement.title|| typeof announcement.title !== 'string') {
-        res.status(400).json({ error: 'The field "title" must be a non-empty string' });
-    } else {
-        const announcementResult = await announcement.save();
-        res.status(201).send(announcementResult);
-    }
-});
+router.post('/', announcementValidation, async (req, res) => new_activity(req, res, Announcement));
 
 // modify
 router.put('/', (req,res) => {
@@ -65,7 +56,7 @@ router.delete('/:id', async (req, res) => {
             return res.status(403);
 
         await Announcement.findByIdAndDelete(id);
-        res.status(200).json({message: 'delete succesful'});
+        res.status(200).json({message: 'delete successful'});
 
     } catch {
         res.status(500).json({message: 'Internal Server Error'});

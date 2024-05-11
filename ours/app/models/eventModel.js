@@ -29,7 +29,7 @@ module.exports = mongoose.model('Event', new mongoose.Schema({
         type: Boolean,
         required: true,
     },
-    organizer: {
+    owner: {
         type: Participant,
         required: true,
     },

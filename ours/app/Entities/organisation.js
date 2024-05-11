@@ -1,11 +1,12 @@
 const router = require('express').Router();
 const {Organisation} = require('../models/profileModel');
-const register = require("../validation");
+const {register} = require("../utils");
 const {privateAccess} = require("../middleware");
+const {registerValidation} = require("../validation");
 
 
 // register
-router.post("/", (req,res) => register(req, res, Organisation, 'organisation'));
+router.post("/", registerValidation, async (req,res) => register(req, res, Organisation, 'organisation'));
 
 // modify
 router.put('/:id', privateAccess,  (req,res) => {

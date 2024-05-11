@@ -3,23 +3,10 @@ const {compare} = require("bcrypt");
 const {sign, verify, decode} = require("jsonwebtoken");
 const {Profile} = require("../models/profileModel");
 const mail = require("../nodeMail");
-const Joi = require("joi");
-
-const loginValidation = data => {
-    const schema = Joi.object({
-        email: Joi.string().required().email(),
-        password: Joi.string().alphanum().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
-    })
-    return schema.validate(data);
-}
+const {loginValidation} = require("../validation");
 
 // login
-router.post('/', async (req, res) => {
-    // Validate data
-    const validation = loginValidation(req.body);
-    if (validation.error)
-        return res.status(400).json({message: 'Email or password is wrong'});
-
+router.post('/', loginValidation, async (req, res) => {
     try {
         // Find user by email
         const user = await Profile.findOne({ email: req.body.email });
@@ -40,7 +27,7 @@ router.post('/', async (req, res) => {
         const token = sign({_id: user._id}, process.env.JWT_SECRET_TOKEN, {expiresIn: process.env.JWT_EXPIRE_TOKEN});
         const new_refresh_token = sign({_id: user._id}, process.env.JWT_SECRET_REFRESH, {expiresIn: process.env.JWT_EXPIRE_REFRESH});
 
-        Profile.findByIdAndUpdate(user._id, {refresh_token: new_refresh_token});
+        await Profile.findByIdAndUpdate(user._id, {refresh_token: new_refresh_token});
 
         res.
         status(200).
@@ -98,8 +85,8 @@ router.get('/:token', async (req, res) => {
     const token = req.params.token;
     try {
         const data = verify(token, process.env.JWT_SECRET_MAIL);
-        Profile.findByIdAndUpdate(data._id, {confirmed: true});
-        const user = await Profile.findById(data._id, {email: 1, role: 1});
+        const user = await Profile.findByIdAndUpdate(data._id, {confirmed: true});
+        console.log(user);
         res.status(200).json({message: 'You have been verified'});
 
         // mail
@@ -107,6 +94,7 @@ router.get('/:token', async (req, res) => {
             mail(user.email, "Welcome to TrentoJob", `welcome to our platform, our crew is happy to have you on board. We hope you'll have great opportunities`);
         } else {
             mail(user.email, "Almost there", "Welcome to TrentoJOB, our crew is verifying your data, we'll notify you when your account is ready");
+            // TODO NOTIFY AMM
         }
     } catch (err) {
         // delete document since it wasn't verified  before deadline

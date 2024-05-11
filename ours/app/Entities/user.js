@@ -1,11 +1,12 @@
 const router = require('express').Router();
 const {User} = require('../models/profileModel');
-const register = require("../validation");
+const {register} = require("../utils");
 const {privateAccess} = require("../middleware");
+const {registerValidation} = require("../validation");
 
 
 // register
-router.post("/", (req,res) => register(req, res, User, 'user'));
+router.post("/", registerValidation, async (req,res) => register(req, res, User, 'user'));
 
 // modify
 router.put('/:id', privateAccess, async (req,res) => {

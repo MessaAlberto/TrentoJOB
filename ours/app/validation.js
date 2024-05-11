@@ -1,51 +1,83 @@
 const Joi = require('joi');
-const {Profile} = require("./models/profileModel");
-const {hash} = require("bcrypt");
-const mail = require("./nodeMail");
-const {sign} = require('jsonwebtoken');
 
-const registerValidation = data => {
+const registerValidation = (req,res,next) => {
     const schema = Joi.object({
         username: Joi.string().alphanum().min(3).max(128).required(),
         email: Joi.string().required().email(),
         password: Joi.string().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
         taxIdCode: Joi.string().alphanum(),
     });
-    return schema.validate(data);
+    const validation = schema.validate(req.body);
+    if (validation.error)
+        return res.status(401).json({message: 'validation error', error: validation.error});
+    next();
 }
 
-// register
-const register = async (req, res, type, role) => {
-    // validate data
-    const validation = registerValidation(req.body);
+const loginValidation = (req,res,next) => {
+    const schema = Joi.object({
+        email: Joi.string().required().email(),
+        password: Joi.string().alphanum().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+    });
+    const validation = schema.validate(req.body);
     if (validation.error)
-        return res.status(400).json({message: 'Email or password not valid'});
+        return res.status(401).json({message: 'validation error', error: validation.error});
+    next();
+}
 
-    // check if email already exists
-    const emailExists = await Profile.findOne({email: req.body.email})
-    if (emailExists)
-        return res.status(400).json({message: 'Email already exists'});
+const announcementValidation = (req,res,next) => {
+    const schema = Joi.object({
+        title: Joi.string().alphanum().min(3).max(128).required(),
+        description: Joi.string().alphanum().min(6).max(1024).required(),
+        date_begin: Joi.date().required(),
+        date_stop: Joi.date().required(),
+        location: Joi.string().alphanum().required(),
+        maxNumberParticipants: Joi.number().required(),
+    })
+    const validation = schema.validate(req.body);
+    if (validation.error)
+        return res.status(401).json({message: 'validation error', error: validation.error});
+    next();
+}
 
-    // hashing
-    req.body.password = await hash(req.body.password, 10);
-    let user = new type(req.body);
-    user.role = role;
+const eventValidation = (req,res,next) => {
+    const schema = Joi.object({
+        title: Joi.string().alphanum().min(3).max(128).required(),
+        description: Joi.string().alphanum().min(6).max(1024).required(),
+        date: Joi.date().required(),
+        location: Joi.string().alphanum().required(),
+        maxNumberParticipants: Joi.number().required(),
+    })
+    const validation = schema.validate(req.body);
+    if (validation.error)
+        return res.status(401).json({message: 'validation error', error: validation.error});
+    next();
+}
 
-    // save
-    try {
-        const savedUser = await user.save();
-        res.status(201).json({user: savedUser._id});
+const resetEmailValidation = (req, res, next) => {
+    const schema = Joi.object({
+        email: Joi.string().required().email(),
+    })
+    const validation = schema.validate(req.body);
+    if (validation.error)
+        return res.status(401).json({message: 'validation error', error: validation.error});
+    next();
+}
 
-        // send email confirmation mail
-        const email_token = sign({_id: savedUser._id}, process.env.JWT_SECRET_MAIL, {expiresIn: process.env.JWT_EXPIRE_MAIL});
-        const url = `http://localhost:${process.env.PORT}/auth/${email_token}`;
-        const html = `link valid for 48h: <a href="${url}">Click here to confirm</a>`;
-        mail(req.body.email, "Email confirmation", html);
-    } catch {
-        res.status(400).json({message: 'registration failed'});
-    }
+const resetPasswordValidation = (req, res, next) => {
+    const schema = Joi.object({
+        email: Joi.string().alphanum().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+    })
+    const validation = schema.validate(req.body);
+    if (validation.error)
+        return res.status(401).json({message: 'validation error', error: validation.error});
+    next();
+}
+
+module.exports = {
+    registerValidation,
+    loginValidation,
+    announcementValidation,
+    eventValidation,
+    resetEmailValidation,
+    resetPasswordValidation,
 };
-
-
-
-module.exports = register;
