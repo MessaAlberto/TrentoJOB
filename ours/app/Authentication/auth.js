@@ -34,7 +34,8 @@ router.post('/', loginValidation, async (req, res) => {
         cookie("refresh_token", new_refresh_token, {httpOnly: true}).
         json({
             message: 'Login successfully',
-            user: user._id,
+            userId: user._id,
+            username: user.username,
             token: token,
         });
 
