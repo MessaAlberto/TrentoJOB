@@ -86,7 +86,6 @@ router.get('/:token', async (req, res) => {
     try {
         const data = verify(token, process.env.JWT_SECRET_MAIL);
         const user = await Profile.findByIdAndUpdate(data._id, {confirmed: true});
-        console.log(user);
         res.status(200).json({message: 'You have been verified'});
 
         // mail

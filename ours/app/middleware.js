@@ -15,11 +15,11 @@ const verifySecretToken = (req, res, next) => {
     // guest
     if (!token) return next();
 
-    verify(token, process.env.JWT_SECRET_TOKEN, (err, id) => {
+    verify(token, process.env.JWT_SECRET_TOKEN, async (err, id) => {
         if (err || !id) return res.status(403).json({message: 'Invalid token'});
 
         // adding user to the request
-        const user = Profile.findById(id);
+        const user = await Profile.findById(id);
         if (!user) return res.status(403).json({message: 'User does not exist'});
 
         req.user = user;
@@ -36,8 +36,18 @@ const privateAccess = (req, res, next) => {
     next();
 }
 
+const privateContent = (req,res,next) => {
+    // TODO SO THAT U CAN MODIFY ONLY WHATS YOURS
+    if (  !req.user
+        && req.user.role !== 'admin'
+        && req.user._id !== req.params.id)
+        return res.status(403);
+    next();
+}
+
 module.exports = {
     printf,
     verifySecretToken,
     privateAccess,
+    privateContent,
 }
