@@ -41,7 +41,7 @@ function login() {
             localStorage.setItem('token', response.token);
             window.location.href = "/index.html";
         } else {
-            alert("Si è verificato un errore durante la registrazione.");
+            alert("An error occurred during login.");
         }
     };
 

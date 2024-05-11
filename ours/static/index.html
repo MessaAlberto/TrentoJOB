@@ -16,13 +16,22 @@
         </div>
         <div class="header-right" id="sign-in-up">
             <button class="logButton" onclick="signUp()">Sign Up</button>
-            <button class="logButton" onclick="logIn()">Log In</button>
+            <button class="logButton" onclick="login()">Log In</button>
         </div>
         <div class="header-right hidden" id="profile-icon">
             <span class="usernameLabel" id="usernameLabel"></span>
             <span class="profileIcon" id="profileIcon">👤</span>
         </div>
     </div>
+
+    <div id="sidebar" class="sidebar hidden">
+        <ul>
+            <li><a href="/me.html">View My Profile</a></li>
+            <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+    </div>
+
+    
 </body>
 
 </html>

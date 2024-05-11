@@ -50,7 +50,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// eliminazione account
+// delete profile
 router.delete('/:id', privateAccess, async (req, res) => {
     try {
         const profile = await User.findByIdAndDelete(req.params.id);
