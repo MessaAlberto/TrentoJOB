@@ -11,6 +11,7 @@ body {
 .header {
     position: fixed;
     top: 0;
+    min-height: 60px;
     align-items: center;
     width: 100%;
     display: flex;
