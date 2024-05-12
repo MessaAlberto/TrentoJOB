@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const Profile = mongoose.models.Profile || mongoose.model('Profile', new mongoose.Schema({
+const Profile = mongoose.model('Profile', new mongoose.Schema({
     username: {
         type: String,
         required: true,
@@ -68,6 +68,7 @@ const User = Profile.discriminator('User', new mongoose.Schema({
         type: [String],
         required: false,
     },
+    // TODO REVIEW
     activeAnnouncementsId: {
         type: [String],
         required: false,
@@ -97,6 +98,7 @@ const Organisation = Profile.discriminator('Organisation', new mongoose.Schema({
         type: [String],
         required: false,
     },
+    // TODO REVIEW
     activeEventsId: {
         type: [String],
         required: false,

@@ -16,7 +16,6 @@ function goBack() {
 }
 
 function goToLogin() {
-  // redirect to registration page
   window.location.href = "/login.html";
 }
 
@@ -27,17 +26,17 @@ function signUp() {
     password: document.getElementById('password').value
   };
 
-  // Effettua una richiesta HTTP POST per inviare i dati al server
+  // Make a new XMLHttpRequest
   var xhr = new XMLHttpRequest();
   xhr.open("POST", "/auth/register", true);
   xhr.setRequestHeader("Content-Type", "application/json");
 
-  // Gestisci la risposta dalla richiesta
+  // Manage the response
   xhr.onload = function () {
     if (xhr.status === 200) {
-      alert("Registrazione completata con successo!");
+      window.location.href = "/login.html";
     } else {
-      alert("Si è verificato un errore durante la registrazione.");
+      alert("An error occurred during registration.")
     }
   };
 

@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+<<<<<<< HEAD
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Homepage</title>
@@ -24,6 +25,38 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!-- Carica Leaflet prima di index.js -->
   <script src="./script/index.js"></script>
+=======
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <script src="./script/index.js"></script>
+    <link rel="stylesheet" href="./style/index.css">
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h2>TrentoJOB</h2>
+        </div>
+        <div class="header-right" id="sign-in-up">
+            <button class="logButton" onclick="signUp()">Sign Up</button>
+            <button class="logButton" onclick="login()">Log In</button>
+        </div>
+        <div class="header-right hidden" id="profile-icon">
+            <span class="usernameLabel" id="usernameLabel"></span>
+            <span class="profileIcon" id="profileIcon">👤</span>
+        </div>
+    </div>
+
+    <div id="sidebar" class="sidebar hidden">
+        <ul>
+            <li><a href="/me.html">View My Profile</a></li>
+            <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+    </div>
+
+    
+>>>>>>> f21148f1c625a5a3cb675ff9c0875b0b27f8b7e1
 </body>
 
 </html>

@@ -8,7 +8,6 @@ body {
     margin: 0;
     font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
     background-color: #f8f9fa;
-    /* Light grey */
 }
 
 .header {
@@ -45,12 +44,7 @@ body {
     font-size: 32px;
     letter-spacing: 1px;
     color: #333;
-    /* Dark grey */
 }
-
-
-
-
 
 .switcher {
     position: relative;
@@ -64,15 +58,12 @@ body {
     font-size: 16px;
     letter-spacing: .5px;
     color: #666;
-    /* Dark grey */
     background-color: transparent;
     border: none;
     outline: none;
     transform: translateX(0);
     transition: all .3s ease-out;
 }
-
-
 
 form {
     overflow: hidden;
@@ -81,11 +72,8 @@ form {
     border-radius: 8px;
     transform-origin: top;
     background-color: #fff;
-    /* White */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    /* Light shadow */
 }
-
 
 .form-wrapper fieldset {
     border: 0;
@@ -99,7 +87,6 @@ form {
 .input-block label {
     font-size: 14px;
     color: #777;
-    /* Dark grey */
 }
 
 .input-block input {
@@ -111,19 +98,14 @@ form {
     font-size: 16px;
     line-height: 40px;
     color: #333;
-    /* Dark grey */
     background: #f8f9fa;
-    /* Light grey */
     border: 1px solid #ccc;
-    /* Light grey border */
     border-radius: 2px;
 }
 
 .login {
     color: #fbfdff;
     background: #007bff;
-    /* Blue */
-    /* vertically center text */
     display: block;
     min-width: 120px;
     margin: 0 auto 10px;
@@ -146,13 +128,11 @@ form {
     justify-content: center;
     align-items: center;
     padding: 30px;
-
 }
 
 .bottom-button-list > *:not(:last-child) {
-    margin-right: 20px; /* Adjust as needed */
+    margin-right: 20px;
 }
-
 
 .back-button {
     display: block;

@@ -1,13 +1,8 @@
 # SETUP
-la passsa
 ```bash
-npm install express mongoose mongodb
+npm install express mongoose bcrypt cors dotenv joi jsonwebtoken nodemailer vite
 ```
 /admin
-/admin/announcement
-/admin/event
-/admin/user
-/admin/organisation
 
 /homepage
 /user/me

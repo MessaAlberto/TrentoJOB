@@ -2,45 +2,44 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login form</title>
-  <script src="./script/login.js"></script>
-  <link rel="stylesheet" href="./style/login.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login form</title>
+    <script src="./script/login.js"></script>
+    <link rel="stylesheet" href="./style/login.css">
 </head>
 
 <body>
-  <div class="header">
-    <div class="header-left">
-      <h2>TrentoJOB</h2>
+    <div class="header">
+        <div class="header-left">
+            <h2>TrentoJOB</h2>
+        </div>
     </div>
-  </div>
-  <section class="form-section">
-    <h1 class="section-title">Login</h1>
-    <div class="form-wrapper">
-      <form id="loginForm" action="/auth" method="POST">
-        <fieldset>
-          <div class="input-block">
-            <label for="login-email">E-mail</label>
-            <input id="login-email" type="email" required>
-          </div>
-          <div class="input-block">
-            <label for="login-password">Password</label>
-            <input id="login-password" type="password" required>
-          </div>
-        </fieldset>
-        <button type="submit" class="login">Login</button>
-      </form>
+    <section class="form-section">
+        <h1 class="section-title">Login</h1>
+        <div class="form-wrapper">
+            <form id="loginForm">
+                <fieldset>
+                    <div class="input-block">
+                        <label for="login-email">E-mail</label>
+                        <input id="login-email" type="email" required>
+                    </div>
+                    <div class="input-block">
+                        <label for="login-password">Password</label>
+                        <input id="login-password" type="password" required>
+                    </div>
+                </fieldset>
+                <button class="login" id="loginButton">Login</button>
+            </form>
 
+        </div>
+    </section>
+
+
+    <div class="bottom-button-list">
+        <button id="backButton" class="back-button" onclick="goBack()">Cancel</button>
+        <button id="singUpButton" class="sign-up-button" onclick="goToRegistration()">Sign Up</button>
     </div>
-  </section>
-
-
-  <div class="bottom-button-list">
-    <button id="backButton" class="back-button" onclick="goBack()">Cancel</button>
-    <button id="singUpButton" class="sign-up-button" onclick="goToRegistration()">Sign Up</button>
-  </div>
-
 
 </body>
 
