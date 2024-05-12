@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+    <title>Registration form</title>
     <script src="./script/registration.js"></script>
     <link rel="stylesheet" href="./style/registration.css">
 </head>
@@ -38,11 +38,11 @@
                             <input id="user-password" type="password" required>
                         </div>
                         <div class="input-block">
-                            <label for="user-conf-password">Repeat password</label>
-                            <input id="user-conf-password" type="password" required>
+                            <label for="user-repeat-password">Repeat password</label>
+                            <input id="user-repeat-password" type="password" required>
                         </div>
                     </fieldset>
-                    <button type="submit" class="user-sign-up">Sign Up</button>
+                    <button type="submit" class="sign-up-button" id="user-sign-up">Sign Up</button>
                 </form>
             </div>
             <div class="form-wrapper">
@@ -65,25 +65,33 @@
                             <input id="org-password" type="password" required>
                         </div>
                         <div class="input-block">
-                            <label for="org-conf-password">Repeat password</label>
-                            <input id="org-conf-password" type="password" required>
+                            <label for="org-repeat-password">Repeat password</label>
+                            <input id="org-repeat-password" type="password" required>
                         </div>
                         <div class="input-block">
                             <label for="tax-id">Tax ID code</label>
                             <input id="tax-id" required>
                         </div>
                     </fieldset>
-                    <button type="submit" class="organisation-sign-up">Sign Up</button>
+                    <button type="submit" class="sign-up-button" id="org-sign-up">Sign Up</button>
                 </form>
             </div>
         </div>
     </section>
 
+    <div id="successPage" class="hidden">
+        <div id="successMessage">
+            <p>Before continue, check your email to confirm your Registration</p>
+            <button onclick="goToLogin()">Go to Login</button>
+        </div>
+    </div>
 
     <div class="bottom-button-list">
         <button id="backButton" class="back-button" onclick="goBack()">Cancel</button>
-        <button id="singInButton" class="sign-in-button" onclick="goToLogin()">Sign In</button>
+        <button id="loginButton" class="login-button" onclick="goToLogin()">Login</button>
     </div>
+
+
 
 </body>
 

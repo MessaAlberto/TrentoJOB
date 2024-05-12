@@ -289,19 +289,49 @@ body {
     cursor: pointer;
 }
 
-.user-sign-up {
+.sign-up-button {
     color: #fbfdff;
     background: #007bff;
     transform: translateX(-30%);
 }
 
-.organisation-sign-up {
-    color: #fbfdff;
-    background: #007bff;
-    box-shadow: inset 0 0 0 2px #007bff;
-    transform: translateX(30%);
+#successPage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(240, 240, 240, 0.7);
+    z-index: 999;
 }
 
+#successMessage {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    z-index: 1000;
+}
+
+#successMessage p {
+    margin-bottom: 10px;
+}
+
+#successMessage button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#successMessage button:hover {
+    background-color: #0056b3;
+}
 
 .bottom-button-list {
     display: flex;
@@ -333,7 +363,7 @@ body {
     cursor: pointer;
 }
 
-.sign-in-button {
+.login-button {
     display: block;
     min-width: 120px;
     font-size: 18px;
@@ -347,4 +377,8 @@ body {
 
 .back-button:hover {
     background-color: #64acf9;
+}
+
+.hidden {
+    display: none;
 }
