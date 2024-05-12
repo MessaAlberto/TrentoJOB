@@ -1,7 +1,6 @@
 const {verify} = require("jsonwebtoken");
-const {Profile, User, Organisation, Organisation} = require("./models/profileModel");
+const {Profile} = require("./models/profileModel");
 const {Event} = require("./models/eventModel");
-const {Announcement} = require("./models/announcementModel");
 
 // print method and url
 const printf = (req, res, next) => {
@@ -40,24 +39,15 @@ const privateAccess = (req, res, next) => {
 
 const privateContent = (Model) => async (req, res, next) => {
     try {
-        if (!req.user || req.user.role !== 'admin') { // Check if user is admin
-            if (Model === User || Model === Organisation) { 
-                // Check id of the user
-                if (req.user._id !== req.params.id) {
-                    return res.status(403).json({ message: 'Unauthorized access' });
-                }
-            } else if (Model === Event || Model === Announcement) { 
-                // Check the ownerId of the entity
-                const entity = await Model.findById(req.params.id);
-                
-                // Check if the entity exists and if the user is the owner
-                if (!entity || !entity.owner.equals(req.user._id)) {
-                    return res.status(403).json({ message: 'Unauthorized access' });
-                }
-            }
+        // Check the ownerId of the entity
+        const entity = await Model.findById(req.params.id);
+
+        // Check if the entity exists and if the user is the owner
+        if (!entity || !entity.owner.equals(req.user._id)) {
+            return res.status(403).json({ message: 'Unauthorized access' });
         }
-        
         next();
+        
     } catch (error) {
         console.error('Error in privateContent middleware:', error);
         res.status(500).json({ message: 'Internal Server Error' });
