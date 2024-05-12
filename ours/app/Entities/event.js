@@ -1,24 +1,20 @@
 const router = require('express').Router();
 const {Event} = require('../models/eventModel');
 const {eventValidation} = require("../validation");
-const {new_activity, search, searchById} = require("../utils");
+const {newActivity, search, searchById, editEntity} = require("../utils");
+const {privateContent} = require("../middleware");
 
-// nwe event
-router.post('/', eventValidation, async (req, res) => new_activity(req, res, Event));
-
-// modify
-router.put('/', (req,res) => {
-    // TODO
-});
+// Create new event
+router.post('/', eventValidation, async (req, res) => newActivity(req, res, Event));
 
 router.get('/', async (req, res) => search(req, res, Event));
 
 router.get('/:id', async (req, res) => searchById(req, res, Event));
 
+router.put('/:id', privateContent(Event), async (req, res) => editEntity(req, res, Event));
 
 
-
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', privateContent(Event), async (req, res) => {
     try {
         const event = await Event.findByIdAndDelete(req.params.id);
         if (event) {

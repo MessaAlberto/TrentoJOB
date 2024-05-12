@@ -1,21 +1,18 @@
 const router = require('express').Router();
 const {User} = require('../models/profileModel');
-const {register, search, searchById} = require("../utils");
-const {privateAccess} = require("../middleware");
+const {register, search, searchById, editEntity} = require("../utils");
+const {privateAccess, privateContent} = require("../middleware");
 const {registerValidation} = require("../validation");
 
 
 // register
 router.post("/", registerValidation, async (req,res) => register(req, res, User, 'user'));
 
-// modify
-router.put('/:id', privateAccess, async (req,res) => {
-    // TODO
-});
-
 router.get('/', async (req, res) => search(req, res, User));
 
 router.get('/:id', async (req, res) => searchById(req, res, User));
+
+router.put('/:id', privateContent(User), async (req, res) => editEntity(req, res, User));
 
 // delete profile
 router.delete('/:id', privateAccess, async (req, res) => {
