@@ -34,12 +34,13 @@ const new_activity = async (req, res, type) => {
     if (!req.user)
         return res.status(403);
 
+    let activity = new type(req.body);
+    activity.owner = {
+        username: req.user.username,
+        id: req.user._id
+    };
+
     try {
-        let activity = new type(req.body);
-        activity.owner = {
-            username: req.user.username,
-            id: req.user._id
-        };
         const activityResult = await activity.save();
         res.status(201).json({event: activityResult._id});
     } catch {

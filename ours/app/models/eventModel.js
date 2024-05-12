@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Participant = require("./participantModel");
 
-module.exports = mongoose.model('Event', new mongoose.Schema({
+const Event = mongoose.model('Event', new mongoose.Schema({
     title: {
         type: String,
         required: true,
@@ -17,10 +17,6 @@ module.exports = mongoose.model('Event', new mongoose.Schema({
         type: Date,
         required: true,
     },
-    time: {
-        type: String,
-        required: true,
-    },
     location: {
         type: String,
         required: true,
@@ -28,6 +24,7 @@ module.exports = mongoose.model('Event', new mongoose.Schema({
     expired: {
         type: Boolean,
         required: true,
+        default: false,
     },
     owner: {
         type: Participant,
@@ -42,3 +39,9 @@ module.exports = mongoose.model('Event', new mongoose.Schema({
         required: false,
     }
 }));
+
+
+
+module.exports = {
+    Event
+};

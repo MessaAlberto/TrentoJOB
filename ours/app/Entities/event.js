@@ -1,4 +1,3 @@
-// Route to handle requests for /events
 const router = require('express').Router();
 const {Event} = require('../models/eventModel');
 const {eventValidation} = require("../validation");

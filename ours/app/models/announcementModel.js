@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Participant = require('./participantModel');
 
-module.exports = mongoose.model('Announcement', new mongoose.Schema({
+const Announcement = mongoose.model('Announcement', new mongoose.Schema({
     title: {
         type: String,
         required: true,
@@ -21,14 +21,6 @@ module.exports = mongoose.model('Announcement', new mongoose.Schema({
         type: Date,
         required: false,
     },
-    time_begin: {
-        type: String,
-        required: false,
-    },
-    time_stop: {
-        type: String,
-        required: false,
-    },
     location: {
         type: String,
         required: false,
@@ -46,3 +38,9 @@ module.exports = mongoose.model('Announcement', new mongoose.Schema({
         required: false,
     }
 }));
+
+
+
+module.exports = {
+    Announcement
+}

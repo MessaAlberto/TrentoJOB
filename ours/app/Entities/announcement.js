@@ -2,7 +2,7 @@
 const router = require('express').Router();
 const {Announcement} = require('../models/announcementModel');
 const {announcementValidation} = require("../validation");
-const {new_activity} = require("../utils"); // get our mongoose model
+const {new_activity} = require("../utils");
 
 // create
 router.post('/', announcementValidation, async (req, res) => new_activity(req, res, Announcement));
