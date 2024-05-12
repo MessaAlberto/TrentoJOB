@@ -64,10 +64,25 @@ const privateContent = (Model) => async (req, res, next) => {
     }
 };
 
+// Middleware per ottenere un evento per ID
+async function getEvent(req, res, next) {
+    let event;
+    try {
+        event = await Event.findById(req.params.id);
+        if (event == null) {
+            return res.status(404).json({ message: 'Evento non trovato' });
+        }
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+    res.event = event;
+    next();
+}
 
 module.exports = {
     printf,
     verifySecretToken,
     privateAccess,
     privateContent,
+    getEvent
 }

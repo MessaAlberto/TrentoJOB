@@ -34,6 +34,41 @@ document.addEventListener('DOMContentLoaded', function () {
     
 });
 
+// Importa Leaflet
+import L from 'leaflet';
+
+// URL dell'API per ottenere gli eventi dal backend
+const eventsAPI = '/event';
+
+// Funzione per ottenere gli eventi dal backend e visualizzarli sulla mappa
+async function fetchAndDisplayEvents() {
+    try {
+        // Ottieni gli eventi dal backend
+        const response = await fetch(eventsAPI);
+        const events = await response.json();
+
+        // Inizializza la mappa Leaflet
+        const map = L.map('map').setView([51.505, -0.09], 13);
+
+        // Aggiungi layer di mappe di base
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Itera sugli eventi e aggiungi marker alla mappa per ciascun evento
+        events.forEach(event => {
+            const { latitude, longitude, title } = event;
+            L.marker([latitude, longitude]).addTo(map).bindPopup(title);
+        });
+    } catch (error) {
+        console.error('Errore durante il recupero degli eventi:', error);
+    }
+}
+
+// Chiama la funzione per ottenere ed visualizzare gli eventi sulla mappa
+fetchAndDisplayEvents();
+
+
 function signUp() {
     window.location.href = "registration.html";
 }
@@ -41,17 +76,6 @@ function signUp() {
 function login() {
     window.location.href = "login.html";
 }
-<<<<<<< HEAD
-  
-function toggleActive(button) {
-    // Qui puoi aggiungere il codice per attivare/disattivare lo stato del pulsante se necessario
-}
-
-var map = L.map('map').setView([46.06685578571241, 11.118635547295556], 12,8); // Imposta la vista della mappa su una certa posizione e livello di zoom
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { // Aggiunge un layer di mappe di OpenStreetMap
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
-=======
 
 function logout() {
     localStorage.removeItem('userId');
@@ -87,4 +111,3 @@ function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.toggle('hidden');
 }
->>>>>>> f21148f1c625a5a3cb675ff9c0875b0b27f8b7e1
