@@ -2,7 +2,7 @@
 const router = require('express').Router();
 const {Announcement} = require('../models/announcementModel');
 const {announcementValidation} = require("../validation");
-const {new_activity} = require("../utils");
+const {new_activity, search, searchById} = require("../utils");
 
 // create
 router.post('/', announcementValidation, async (req, res) => new_activity(req, res, Announcement));
@@ -12,38 +12,9 @@ router.put('/', (req,res) => {
     // TODO
 });
 
-router.get('/', async (req, res) => {
-    try {
-        const { title } = req.query;
-        let query = {};
+router.get('/', async (req, res) => search(req, res, Announcement));
 
-        // Check if the title query parameter exists
-        if (title)
-            query.title = new RegExp(title, 'i');
-
-        // Query the database with the constructed query object
-        const announcements = await Announcement.find(query);
-
-        // Return JSON response containing the announcements
-        res.status(200).json(announcements);
-    } catch {
-        res.status(500).json({message: 'Internal Server Error'});
-    }
-});
-
-router.get('/:id', async (req, res) => {
-    try {
-        const announcement = await Announcement.findById(req.params.id);
-        if (announcement) {
-            res.status(200).json(announcement);
-        } else {
-            res.status(404).json({ error: 'Announcement not found' });
-        }
-    } catch (error) {
-        console.error('Error retrieving announcement:', error);
-        res.status(500).json({message: 'Internal Server Error'});
-    }
-});
+router.get('/:id', async (req, res) => searchById(req, res, Announcement));
 
 router.delete('/:id', async (req, res) => {
     const id = req.params.id;
