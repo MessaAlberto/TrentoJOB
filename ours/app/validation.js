@@ -2,7 +2,7 @@ const Joi = require('joi');
 
 const registerValidation = (req,res,next) => {
     const schema = Joi.object({
-        username: Joi.string().min(3).max(128).required(),
+        username: Joi.string().alphanum().min(3).max(128).required(),
         email: Joi.string().required().email(),
         password: Joi.string().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
         taxIdCode: Joi.string().alphanum(),
@@ -16,7 +16,7 @@ const registerValidation = (req,res,next) => {
 const loginValidation = (req,res,next) => {
     const schema = Joi.object({
         email: Joi.string().required().email(),
-        password: Joi.string().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+        password: Joi.string().alphanum().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
     });
     const validation = schema.validate(req.body);
     if (validation.error)
@@ -26,11 +26,11 @@ const loginValidation = (req,res,next) => {
 
 const announcementValidation = (req,res,next) => {
     const schema = Joi.object({
-        title: Joi.string().min(3).max(128).required(),
-        description: Joi.string().min(6).max(1024).required(),
+        title: Joi.string().alphanum().min(3).max(128).required(),
+        description: Joi.string().alphanum().min(6).max(1024).required(),
         date_begin: Joi.date().required(),
         date_stop: Joi.date().required(),
-        location: Joi.string().required(),
+        location: Joi.string().alphanum().required(),
         maxNumberParticipants: Joi.number().required(),
     })
     const validation = schema.validate(req.body);
@@ -41,10 +41,10 @@ const announcementValidation = (req,res,next) => {
 
 const eventValidation = (req,res,next) => {
     const schema = Joi.object({
-        title: Joi.string().min(3).max(128).required(),
-        description: Joi.string().min(6).max(1024).required(),
+        title: Joi.string().alphanum().min(3).max(128).required(),
+        description: Joi.string().alphanum().min(6).max(1024).required(),
         date: Joi.date().required(),
-        location: Joi.string().required(),
+        location: Joi.string().alphanum().required(),
         maxNumberParticipants: Joi.number().required(),
     })
     const validation = schema.validate(req.body);
@@ -65,7 +65,7 @@ const resetEmailValidation = (req, res, next) => {
 
 const resetPasswordValidation = (req, res, next) => {
     const schema = Joi.object({
-        password: Joi.string().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+        email: Joi.string().alphanum().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
     })
     const validation = schema.validate(req.body);
     if (validation.error)

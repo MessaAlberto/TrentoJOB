@@ -21,9 +21,7 @@ function login() {
         email: document.getElementById('login-email').value,
         password: document.getElementById('login-password').value
     };
-
-    console.log(formData);
-
+    
     // Create a new XMLHttpRequest
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/auth", true);
