@@ -291,11 +291,3 @@ form {
         margin-top: 0px;
     }
 }
-
-#map{
-    height: 400px;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-}

@@ -64,19 +64,46 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+async function getCoordinatesFromLocation(location) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`);
+        const data = await response.json();
+        
+        // Assumendo che il primo risultato sia quello desiderato
+        const latitude = parseFloat(data[0].lat);
+        const longitude = parseFloat(data[0].lon);
+        
+        return [longitude, latitude];
+    } catch (error) {
+        console.error('Errore durante il recupero delle coordinate dalla località:', error);
+        return null;
+    }
+}
+
+
+// Funzione per ottenere gli eventi e visualizzarli sulla mappa
 async function fetchAndDisplayEvents(eventsAPI) {
     try {
         const response = await fetch(eventsAPI);
         const events = await response.json();
-        const map = L.map('map').setView([51.505, -0.09], 13);
+        const map = L.map('map').setView([46.06733219102662, 11.121038806580422], 12);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        events.forEach(event => {
-            const { latitude, longitude, title } = event;
-            L.marker([latitude, longitude]).addTo(map).bindPopup(title);
+        events.forEach(async event => {
+            // Ottenere la località dall'evento
+            const location = event.location;
+            // Ottenere le coordinate dalla località
+            const coordinates = await getCoordinatesFromLocation(location);
+            
+            // Se le coordinate sono state ottenute con successo, visualizza l'evento sulla mappa
+            if (coordinates) {
+                const [longitude, latitude] = coordinates; // La funzione fetchAndDisplayEvents accetta le coordinate in questo ordine
+                const { title } = event;
+                L.marker([latitude, longitude]).addTo(map).bindPopup(title);
+            }
         });
     } catch (error) {
         console.error('Errore durante il recupero degli eventi:', error);
