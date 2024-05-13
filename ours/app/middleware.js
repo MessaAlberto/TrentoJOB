@@ -1,6 +1,5 @@
 const {verify} = require("jsonwebtoken");
 const {Profile} = require("./models/profileModel");
-const {Event} = require("./models/eventModel");
 
 // print method and url
 const printf = (req, res, next) => {

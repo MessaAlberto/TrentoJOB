@@ -3,7 +3,6 @@ require('dotenv').config();
 
 const app = require('./app/app.js');
 const mongoose = require('mongoose');
-// console.log(process.env.MONGODBURI);
 
 /**
  * https://devcenter.heroku.com/articles/preparing-a-codebase-for-heroku-deployment#4-listen-on-the-correct-port

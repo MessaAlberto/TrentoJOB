@@ -32,7 +32,7 @@ app.use(printf, verifySecretToken);
 /**
  * Resource routing
  */
-const authURL = require('./Authentication/auth');
+const authURL = require('./authentication/auth');
 
 const adminURL = require('./Entities/admin');
 const userURL = require('./Entities/user.js');
