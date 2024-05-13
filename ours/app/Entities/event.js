@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const {Event} = require('../models/eventModel');
 const {eventValidation} = require("../validation");
-const {newActivity, search, searchById, editEntity} = require("../utils");
+const {newActivity, search, searchById, editEntity, erase} = require("../utils");
 const {privateContent} = require("../middleware");
 
 // Create new event
@@ -13,20 +13,7 @@ router.get('/:id', async (req, res) => searchById(req, res, Event));
 
 router.put('/:id', privateContent(Event), async (req, res) => editEntity(req, res, Event));
 
-
-router.delete('/:id', privateContent(Event), async (req, res) => {
-    try {
-        const event = await Event.findByIdAndDelete(req.params.id);
-        if (event) {
-            res.status(204).send();
-        } else {
-            res.status(404).json({ error: 'Event not found' });
-        }
-    } catch (error) {
-        console.error('Error deleting event:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
+router.delete('/:id', privateContent(Event), async (req, res) => erase(req, res, Event));
 
 
 

@@ -43,13 +43,11 @@ const privateContent = (Model) => async (req, res, next) => {
         const entity = await Model.findById(req.params.id);
 
         // Check if the entity exists and if the user is the owner
-        if (!entity || !entity.owner.equals(req.user._id)) {
+        if (!entity || !entity.owner.equals(req.user._id))
             return res.status(403).json({ message: 'Unauthorized access' });
-        }
         next();
         
-    } catch (error) {
-        console.error('Error in privateContent middleware:', error);
+    } catch {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -73,5 +71,4 @@ module.exports = {
     verifySecretToken,
     privateAccess,
     privateContent,
-    getEvent
 }
