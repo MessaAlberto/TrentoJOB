@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    const eventsAPI = '/event';
+
+    fetchAndDisplayEvents(eventsAPI);
 
     const radioButtons = document.querySelectorAll('.tabs input[type="radio"]');
 
@@ -48,6 +51,25 @@ document.addEventListener('DOMContentLoaded', function () {
     
 });
 
+
+async function fetchAndDisplayEvents(eventsAPI) {
+    try {
+        const response = await fetch(eventsAPI);
+        const events = await response.json();
+        const map = L.map('map').setView([51.505, -0.09], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        events.forEach(event => {
+            const { latitude, longitude, title } = event;
+            L.marker([latitude, longitude]).addTo(map).bindPopup(title);
+        });
+    } catch (error) {
+        console.error('Errore durante il recupero degli eventi:', error);
+    }
+}
 
 function signUp() {
     window.location.href = "registration.html";
