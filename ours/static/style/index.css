@@ -164,8 +164,9 @@ body {
 .main-content {
     display: flex;
     flex-direction: column;
+    align-items: center;
     margin-top: 10px;
-    margin-left: 210px;
+    margin-left: 220px;
     padding: 10px;
 }
 
@@ -173,6 +174,8 @@ body {
     position: fixed;
     top: 0;
     min-height: 30px;
+    max-width: 600px;
+    margin-left: 20px;
     display: grid;
     grid-auto-flow: column;
     background: #007bff;
@@ -275,15 +278,40 @@ input:not(:checked)+label:hover {
     margin-right: auto;
 }
 
-form {
+.element-container {
     overflow: hidden;
     min-width: 260px;
     padding: 30px 25px;
+    margin-top: 10px;
     border-radius: 8px;
     transform-origin: top;
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+.title-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0px;
+}   
+
+.expired {
+    color: red;
+}
+
+.info-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.main-info {
+    flex-grow: 1;
+    margin-right: 15px;
+}
+
 
 @media (max-width: 600px) {
 
