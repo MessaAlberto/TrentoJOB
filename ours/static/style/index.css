@@ -112,16 +112,19 @@ body {
 }
 
 .container {
+    display: flex;
+    flex-direction: row;
     width: 100%;
     height: 100%;
 }
 
 .search-column {
-    position: fixed;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
     margin: 10px;
     height: 100%;
     width: 200px;
+    min-width: 200px;
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
@@ -163,17 +166,17 @@ body {
 
 .main-content {
     display: flex;
+    width: 100%;
     flex-direction: column;
     align-items: center;
     margin-top: 10px;
-    margin-left: 220px;
     padding: 10px;
 }
 
 .tabs {
     position: fixed;
     top: 0;
-    min-height: 30px;
+    min-height: 50px;
     max-width: 600px;
     margin-left: 20px;
     display: grid;
@@ -261,7 +264,8 @@ input:not(:checked)+label:hover {
 }
 
 
-.map-list {
+.list {
+    margin-top: 20px;
     padding: 10px;
     width: 100%;
 }
