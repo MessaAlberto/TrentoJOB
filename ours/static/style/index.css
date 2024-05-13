@@ -1,3 +1,8 @@
+:root {
+    --radius: 8px;
+    --border: 2px;
+}
+
 body {
     font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
     margin: 0;
@@ -7,6 +12,11 @@ body {
     flex-direction: column;
     align-items: center;
     background-color: #f0f0f0;
+    margin-top: 60px;
+}
+
+.hidden {
+    display: none;
 }
 
 .header {
@@ -61,8 +71,8 @@ body {
 }
 
 .usernameLabel {
-    font-weight: bold; 
-    border: 1px solid #333; 
+    font-weight: bold;
+    border: 1px solid #333;
     padding-bottom: 2px;
     margin-right: 10px;
     cursor: pointer;
@@ -101,10 +111,179 @@ body {
     color: #333;
 }
 
-.hidden {
-    display: none;
+.container {
+    width: 100%;
+    height: 100%;
 }
 
+.search-column {
+    position: fixed;
+    align-items: center;
+    margin: 10px;
+    height: 100%;
+    width: 200px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.search-bar-container {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#searchInput {
+    padding: 10px;
+    width: 80%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#searchInput::placeholder {
+    color: #999;
+}
+
+.search-button {
+    padding: 5px 20px;
+    margin-top: 10px;
+    font-size: 16px;
+    width: 90%;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+    background-color: #0056b3;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    margin-left: 210px;
+    padding: 10px;
+}
+
+.tabs {
+    position: fixed;
+    top: 0;
+    min-height: 30px;
+    display: grid;
+    grid-auto-flow: column;
+    background: #007bff;
+    border-radius: var(--radius);
+    grid-auto-columns: 1fr;
+    position: relative;
+    border: var(--border) solid #0056b3;
+}
+
+.tabs>input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    border-width: 0;
+}
+
+.tabs:has(:checked:nth-of-type(1)) {
+    --active: 0;
+}
+
+.tabs:has(:checked:nth-of-type(2)) {
+    --active: 1;
+}
+
+.tabs:has(:checked:nth-of-type(3)) {
+    --active: 2;
+}
+
+.tabs:has(:checked:nth-of-type(4)) {
+    --active: 3;
+}
+
+.tabs:has(input:nth-of-type(2)) {
+    --count: 2;
+}
+
+.tabs:has(input:nth-of-type(3)) {
+    --count: 3;
+}
+
+.tabs:has(input:nth-of-type(4)) {
+    --count: 4;
+}
+
+.tabs label {
+    padding: 0 clamp(0.5rem, 2vw + 0.25rem, 2rem);
+    cursor: pointer;
+    text-align: center;
+    height: 100%;
+    display: grid;
+    border-radius: calc(var(--radius) - var(--border));
+    place-items: center;
+    color: #f0f0f0;
+    transition: color;
+    transition-duration: 0.25s;
+    transition-timing-function: var(--ease, ease);
+}
+
+input:not(:checked)+label:hover {
+    background: #0056b3;
+}
+
+.tabs::after {
+    pointer-events: none;
+    content: "";
+    width: calc(100% / var(--count));
+    height: 100%;
+    position: absolute;
+    border-radius: calc(var(--radius) - var(--border));
+    translate: calc(var(--active, 0) * 100%) 0;
+    transition: translate, outline-color;
+    transition-duration: 0.25s;
+    transition-timing-function: var(--ease, ease);
+    outline: 2px solid transparent;
+}
+
+.tabs input:checked+label {
+    color: #000;
+    background-color: #f0f0f0;
+}
+
+
+.map-list {
+    padding: 10px;
+    width: 100%;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+
+.dynamic-list {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+form {
+    overflow: hidden;
+    min-width: 260px;
+    padding: 30px 25px;
+    border-radius: 8px;
+    transform-origin: top;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
 @media (max-width: 600px) {
 

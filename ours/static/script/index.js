@@ -22,51 +22,43 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    document.body.addEventListener('click', function(event) {
+    document.body.addEventListener('click', function (event) {
         const sidebar = document.getElementById('sidebar');
         const profileIcon = document.getElementById('profileIcon');
-    
+
         // Check if the clicked element is not the sidebar or profile icon
         if (!sidebar.contains(event.target) && !profileIcon.contains(event.target)) {
             sidebar.classList.add('hidden');
         }
     });
+
+
+    const radioButtons = document.querySelectorAll('.tabs input[type="radio"]');
+
+    radioButtons.forEach(radioButton => {
+        radioButton.addEventListener('click', function () {
+            const value = this.value;
+            switch (value) {
+                case 'Event':
+                    fetchEvents();
+                    break;
+                case 'Announcement':
+                    fetchAnnouncements();
+                    break;
+                case 'User':
+                    fetchUsers();
+                    break;
+                case 'Organisation':
+                    fetchOrganisations();
+                    break;
+                default:
+                    // Default case
+                    break;
+            }
+        });
+    });
     
 });
-
-// Importa Leaflet
-import L from 'leaflet';
-
-// URL dell'API per ottenere gli eventi dal backend
-const eventsAPI = '/event';
-
-// Funzione per ottenere gli eventi dal backend e visualizzarli sulla mappa
-async function fetchAndDisplayEvents() {
-    try {
-        // Ottieni gli eventi dal backend
-        const response = await fetch(eventsAPI);
-        const events = await response.json();
-
-        // Inizializza la mappa Leaflet
-        const map = L.map('map').setView([51.505, -0.09], 13);
-
-        // Aggiungi layer di mappe di base
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Itera sugli eventi e aggiungi marker alla mappa per ciascun evento
-        events.forEach(event => {
-            const { latitude, longitude, title } = event;
-            L.marker([latitude, longitude]).addTo(map).bindPopup(title);
-        });
-    } catch (error) {
-        console.error('Errore durante il recupero degli eventi:', error);
-    }
-}
-
-// Chiama la funzione per ottenere ed visualizzare gli eventi sulla mappa
-fetchAndDisplayEvents();
 
 
 function signUp() {
@@ -110,4 +102,28 @@ function displayUserProfile(username) {
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.toggle('hidden');
+}
+
+
+
+
+
+function fetchEvents() {
+
+    console.log('Event tab selected');
+}
+
+function fetchAnnouncements() {
+    // Your code for handling the announcement tab
+    console.log('Announcement tab selected');
+}
+
+function fetchUsers() {
+    // Your code for handling the user tab
+    console.log('User tab selected');
+}
+
+function fetchOrganisations() {
+    // Your code for handling the organisation tab
+    console.log('Organisation tab selected');
 }

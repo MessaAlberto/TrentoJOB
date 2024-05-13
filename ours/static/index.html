@@ -31,8 +31,44 @@
         </ul>
     </div>
 
-    <div id="map" style="height: 400px;"></div>
+    <div class="container">
+        <div class="search-column">
+            <div class="search-bar-container" id="searchBarContainer">
+                <input type="text" id="searchInput" placeholder="Search by name..."
+                    onkeypress="handleSearchKeyPress(event)">
+                <button class="search-button" onclick="searchButtonFunction()">Search</button>
+            </div>
+            <h2> filters...</h2>
+        </div>
+
+        <div class="main-content">
+            <div class="tabs">
+                <input type="radio" id="event" name="fav_language" value="Event" checked>
+                <label for="event">Volunteer Events</label>
     
+                <input type="radio" id="announcement" name="fav_language" value="Announcement">
+                <label for="announcement">Job Announcement</label>
+    
+                <input type="radio" id="user" name="fav_language" value="User">
+                <label for="user">Users</label>
+    
+                <input type="radio" id="organisation" name="fav_language" value="Organisation">
+                <label for="organisation">Organisations</label>
+            </div>
+
+            <div class="map-list">
+                <div id="map">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9ArvT8GWRORZFMwuRvqQjuj88Tjipbwctqw&s"
+                        alt="Description of the image">
+                </div>
+                <div class="dynamic-list">
+                    <!-- Event and announcement will be added here -->
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>
