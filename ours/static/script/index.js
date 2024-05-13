@@ -52,46 +52,19 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-async function getCoordinatesFromLocation(location) {
-    try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`);
-        const data = await response.json();
-        
-        // Assumendo che il primo risultato sia quello desiderato
-        const latitude = parseFloat(data[0].lat);
-        const longitude = parseFloat(data[0].lon);
-        
-        return [longitude, latitude];
-    } catch (error) {
-        console.error('Errore durante il recupero delle coordinate dalla località:', error);
-        return null;
-    }
-}
-
-
-// Funzione per ottenere gli eventi e visualizzarli sulla mappa
 async function fetchAndDisplayEvents(eventsAPI) {
     try {
         const response = await fetch(eventsAPI);
         const events = await response.json();
-        const map = L.map('map').setView([46.06733219102662, 11.121038806580422], 12);
+        const map = L.map('map').setView([51.505, -0.09], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        events.forEach(async event => {
-            // Ottenere la località dall'evento
-            const location = event.location;
-            // Ottenere le coordinate dalla località
-            const coordinates = await getCoordinatesFromLocation(location);
-            
-            // Se le coordinate sono state ottenute con successo, visualizza l'evento sulla mappa
-            if (coordinates) {
-                const [longitude, latitude] = coordinates; // La funzione fetchAndDisplayEvents accetta le coordinate in questo ordine
-                const { title } = event;
-                L.marker([latitude, longitude]).addTo(map).bindPopup(title);
-            }
+        events.forEach(event => {
+            const { latitude, longitude, title } = event;
+            L.marker([latitude, longitude]).addTo(map).bindPopup(title);
         });
     } catch (error) {
         console.error('Errore durante il recupero degli eventi:', error);
@@ -249,7 +222,12 @@ function createItemList(Model, items) {
         phone.innerHTML = items.phone;
     }
 
-    console.log(elementContainer);
+    owner.addEventListener('click', function(event) {
+        event.preventDefault();
+        fecthObject('User', items.owner.id);
+    });
+
+
     return elementContainer;
 }
 
@@ -267,9 +245,45 @@ async function fetchList(tabName, title = '') {
 
         items.forEach(item => {
             const itemElement = createItemList(tabName, item);
-            console.log(itemElement);
             itemsContainer.appendChild(itemElement);
         });
+    } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+    }
+}
+
+async function fecthObject(model, ownerId) {
+    const url = '/' + model.toLowerCase() + '/' + ownerId;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const item = await response.json();
+        const itemContainer = document.getElementById('showObject');
+
+        const itemElement = createItemList(model, item);
+        itemElement.classList.add('single-item-container');
+
+        const closeButton = document.createElement('button');
+        closeButton.classList.add('close-button');
+        closeButton.innerHTML = 'Close';
+
+        closeButton.addEventListener('click', function() {
+            itemContainer.classList.add('hidden');
+        });
+        itemContainer.addEventListener('click', function(event) {
+            if (event.target === itemContainer) {
+                itemContainer.classList.add('hidden');
+            }
+        });
+
+        itemContainer.appendChild(itemElement);
+        itemContainer.appendChild(closeButton);
+
+        itemContainer.classList.remove('hidden');
+
     } catch (error) {
         console.error('There has been a problem with your fetch operation:', error);
     }
