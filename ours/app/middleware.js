@@ -54,7 +54,6 @@ const privateContent = (Model) => async (req, res, next) => {
     }
 };
 
-// Middleware per ottenere un evento per ID
 async function getEvent(req, res, next) {
     let event;
     try {
