@@ -52,6 +52,20 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+async function getCoordinatesFromLocation(location) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`);
+        const data = await response.json();
+        const latitude = parseFloat(data[0].lat);
+        const longitude = parseFloat(data[0].lon);
+        
+        return [longitude, latitude];
+    } catch (error) {
+        console.error('Errore durante il recupero delle coordinate dalla località:', error);
+        return null;
+    }
+}
+
 async function fetchAndDisplayEvents(eventsAPI) {
     try {
         const response = await fetch(eventsAPI);
@@ -62,9 +76,15 @@ async function fetchAndDisplayEvents(eventsAPI) {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        events.forEach(event => {
-            const { latitude, longitude, title } = event;
-            L.marker([latitude, longitude]).addTo(map).bindPopup(title);
+        events.forEach(async event => {
+            const location = event.location;
+            const coordinates = await getCoordinatesFromLocation(location);
+            
+            if (coordinates) {
+                const [longitude, latitude] = coordinates;
+                const { title } = event;
+                L.marker([latitude, longitude]).addTo(map).bindPopup(title);
+            }
         });
     } catch (error) {
         console.error('Errore durante il recupero degli eventi:', error);
