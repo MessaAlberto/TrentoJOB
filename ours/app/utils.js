@@ -1,4 +1,6 @@
-const {Profile, User} = require("./models/profileModel");
+const {Profile, User, Organisation} = require("./models/profileModel");
+const {Event} = require("./models/eventModel");
+const {Announcement} = require("./models/announcementModel");
 const {hash} = require("bcrypt");
 const mail = require("./nodeMail");
 const {sign} = require('jsonwebtoken');
@@ -58,10 +60,15 @@ const search = async (req, res, model) => {
         const { input } = req.query;
         let query = {};
 
-        // Check if the title query parameter exists
-        if (input)
-            query.title = new RegExp(input, 'i');
-
+        if (model === Event || model === Announcement) {
+            // Check if the title query parameter exists
+            if (input)
+                query.title = new RegExp(input, 'i');
+        } else if (model === User || model === Organisation) {
+            // Check if the username query parameter exists
+            if (input)
+                query.username = new RegExp(input, 'i');
+        }
         // Query the database with the constructed query object
         const output = await model.find(query).select(fields);
 

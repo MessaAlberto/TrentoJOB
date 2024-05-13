@@ -41,25 +41,13 @@ document.addEventListener('DOMContentLoaded', function () {
     radioButtons.forEach(radioButton => {
         radioButton.addEventListener('click', function () {
             const value = this.value;
-            switch (value) {
-                case 'Event':
-                    fetchList('Event');
-                    break;
-                case 'Announcement':
-                    fetchList('Announcement');
-                    break;
-                case 'User':
-                    fetchList('User');
-                    break;
-                case 'Organisation':
-                    fetchList('Organisation');
-                    break;
-                default:
-                    // Default case
-                    break;
-            }
+            const title = document.getElementById('searchInput').value.trim();
+            fetchList(value, title);
+            document.getElementById('searchInput').value = '';
         });
     });
+
+    fetchList('Event');
     
 });
 
@@ -144,13 +132,37 @@ function displayUserProfile(username) {
     const usernameLabel = document.getElementById('usernameLabel');
 
     singInUp.classList.add('hidden');
-    usernameLabel.textContent = username;
+    usernameLabel.innerHTML = username;
     userProfile.classList.remove('hidden');
 }
 
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.toggle('hidden');
+}
+
+function searchInputBar(event) {
+    if (event.keyCode === 13) {
+        event.preventDefault();
+        const title = document.getElementById('searchInput').value.trim();
+        const radioButtons = document.querySelectorAll('.tabs input[type="radio"]');
+        radioButtons.forEach(radioButton => {
+            if (radioButton.checked) {
+                fetchList(radioButton.value, title);
+            }
+        });
+    }
+}
+        
+function searchButton() {
+    const title = document.getElementById('searchInput').value.trim();
+    const radioButtons = document.querySelectorAll('.tabs input[type="radio"]');
+    radioButtons.forEach(radioButton => {
+        if (radioButton.checked) {
+            fetchList(radioButton.value, title);
+        }
+    }
+    );
 }
 
 
@@ -182,9 +194,17 @@ function createItemList(Model, items) {
     dateBegin.classList.add('date-begin');
     mainInfo.appendChild(dateBegin);
 
+    const hourBegin = document.createElement('div');
+    hourBegin.classList.add('hour-begin');
+    mainInfo.appendChild(hourBegin);
+
     const dateEnd = document.createElement('div');
     dateEnd.classList.add('date-end');
     mainInfo.appendChild(dateEnd);
+
+    const hourEnd = document.createElement('div');
+    hourEnd.classList.add('hour-end');
+    mainInfo.appendChild(hourEnd);
 
     const location = document.createElement('div');
     location.classList.add('location');
@@ -207,22 +227,26 @@ function createItemList(Model, items) {
     infoContainer.appendChild(description);
 
     if (Model === 'Event' || Model === 'Announcement') {
-        titleText.textContent = items.title;
+        titleText.innerHTML = items.title;
         if (items.expired) 
-            expiredText.textContent = 'Expired';
-        location.textContent = items.location;
-        owner.textContent = items.owner.username;
+            expiredText.innerHTML = 'Expired';
+        location.innerHTML = "<b>Where:</b><br>" + items.location;
+        owner.innerHTML = "<b>Owner:</b><br>" + items.owner.username;
         if (Model === 'Announcement') {
-            dateBegin.textContent = items.date_begin;
-            dateEnd.textContent = items.date_stop;
+            dateBegin.innerHTML = "<b>Starts:</b><br>" + items.date_begin.split('T')[0];
+            hourBegin.innerHTML = items.date_begin.split('T')[1].split('.')[0];
+            dateEnd.innerHTML = "<b>Ends:</b><br>" + items.date_stop.split('T')[0]; 
+            hourEnd.innerHTML = items.date_stop.split('T')[1].split('.')[0];
         } else
-            dateBegin.textContent = items.date;
-        description.textContent = items.description;
+        dateBegin.innerHTML = "<b>On:</b><br>" + items.date.split('T')[0];
+        hourBegin.innerHTML = items.date.split('T')[1].split('.')[0];
+        description.innerHTML = "<b>Description:</b><br>" + items.description;
     } else if (Model === 'User' || Model === 'Organisation') {
-        titleText.textContent = items.username;
-        description.textContent = items.bio;
-        email.textContent = items.email;
-        phone.textContent = items.phone;
+        titleText.innerHTML = items.username;
+        if (items.bio !== undefined) 
+            description.innerHTML = "<b>Bio:</b><br>" + items.bio;
+        email.innerHTML = items.email;
+        phone.innerHTML = items.phone;
     }
 
     console.log(elementContainer);
@@ -230,8 +254,6 @@ function createItemList(Model, items) {
 }
 
 async function fetchList(tabName, title = '') {
-    console.log('Tab selected:', tabName);
-
     const url = '/' + tabName.toLowerCase() + '/?input=' + title;
 
     try {
