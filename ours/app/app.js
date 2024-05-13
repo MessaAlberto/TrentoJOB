@@ -15,7 +15,6 @@ app.use(express.urlencoded({ extended: true }));
  */
 app.use(cors())
 
-
 /**
  * Serve front-end static files
  */
