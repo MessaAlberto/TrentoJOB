@@ -83,7 +83,7 @@ body {
 
 .sidebar {
     position: fixed;
-    top: 50px;
+    top: 60px;
     right: 0;
     height: 100%;
     width: 200px;
@@ -358,6 +358,28 @@ input:not(:checked)+label:hover {
 }
 
 
+.create-notice {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 60px;
+    height: 60px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 999; /* Ensure it's above other content */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.create-notice:hover {
+    background-color: #0056b3;
+}
+
+
 
 @media (max-width: 600px) {
 
@@ -365,45 +387,6 @@ input:not(:checked)+label:hover {
         margin-top: 0px;
     }
 }
-
-#successPage {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(240, 240, 240, 0.7);
-    z-index: 1002;
-}
-
-#successMessage {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    text-align: center;
-    transform: translate(-50%, -50%);
-    background-color: #ffffff;
-    padding: 20px;
-    border: 1px solid #ccc;
-    z-index: 1003;
-}
-
-#successMessage p {
-    margin-bottom: 10px;
-}
-
-#successMessage button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-#successMessage button:hover {
-    background-color: #0056b3;
-}
-
 
 .hidden {
     display: none;

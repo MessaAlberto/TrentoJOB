@@ -48,7 +48,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     fetchList('Event');
-    
+        
+    // Display the create button if the user is logged in
+    displayCreateButton();
 });
 
 
@@ -158,8 +160,38 @@ function searchButton() {
     );
 }
 
+function displayCreateButton() {
+    // Only logged in users can create notices
+    var userId = localStorage.getItem('userId');
+    if (userId) {
+        var createButton = document.getElementById('createNotice');
+        createButton.classList.remove('hidden');
+    }
+}
 
-function createItemList(Model, items) {
+function createNotices() {
+    // Check if it is logged in
+    var userId = localStorage.getItem('userId');
+    if (!userId) {
+        alert("You must be logged in to create a notice.");
+        return;
+    } 
+
+    // Send user to the correct page
+    // User --> createAnnouncement
+    // Organisation --> createEvent
+    var userRole = localStorage.role;
+    if (userRole === 'user') 
+        window.location.href = "/createAnnouncement.html";
+    else if (userRole === 'organisation') 
+        window.location.href = "/createEvent.html";
+    else 
+        alert("You must be logged in to create a notice.");
+
+}
+
+
+function createItemList(model, items) {
     const elementContainer = document.createElement('div');
     elementContainer.classList.add('element-container');
 
@@ -219,13 +251,13 @@ function createItemList(Model, items) {
     description.classList.add('description');
     infoContainer.appendChild(description);
 
-    if (Model === 'Event' || Model === 'Announcement') {
+    if (model === 'Event' || model === 'Announcement') {
         titleText.innerHTML = items.title;
         if (items.expired) 
             expiredText.innerHTML = 'Expired';
         location.innerHTML = "<b>Where:</b><br>" + items.location;
         owner.innerHTML = "<b>Owner:</b><br>" + items.owner.username;
-        if (Model === 'Announcement') {
+        if (model === 'Announcement') {
             dateBegin.innerHTML = "<b>Starts:</b><br>" + items.date_begin.split('T')[0];
             hourBegin.innerHTML = items.date_begin.split('T')[1].split('.')[0];
             dateEnd.innerHTML = "<b>Ends:</b><br>" + items.date_stop.split('T')[0]; 
@@ -234,7 +266,7 @@ function createItemList(Model, items) {
         dateBegin.innerHTML = "<b>On:</b><br>" + items.date.split('T')[0];
         hourBegin.innerHTML = items.date.split('T')[1].split('.')[0];
         description.innerHTML = "<b>Description:</b><br>" + items.description;
-    } else if (Model === 'User' || Model === 'Organisation') {
+    } else if (model === 'User' || model === 'Organisation') {
         titleText.innerHTML = items.username;
         if (items.bio !== undefined) 
             description.innerHTML = "<b>Bio:</b><br>" + items.bio;

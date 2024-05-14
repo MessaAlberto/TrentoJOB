@@ -3,10 +3,10 @@ const router = require('express').Router();
 const {Announcement} = require('../models/announcementModel');
 const {announcementValidation} = require("../validation");
 const {newActivity, search, searchById, editEntity, erase} = require("../utils");
-const {privateContent} = require("../middleware");
+const {privateContent, checkRole} = require("../middleware");
 
 // create
-router.post('/', announcementValidation, async (req, res) => newActivity(req, res, Announcement));
+router.post('/', checkRole('Organisation'), announcementValidation, async (req, res) => newActivity(req, res, Announcement));
 
 router.get('/', async (req, res) => search(req, res, Announcement));
 

@@ -42,7 +42,7 @@ const announcementValidation = (req,res,next) => {
 const eventValidation = (req,res,next) => {
     const schema = Joi.object({
         title: Joi.string().min(3).max(128).required(),
-        description: Joi.string().alphanum().min(6).max(1024).required(),
+        description: Joi.string().min(6).max(1024).required(),
         date: Joi.date().required(),
         location: Joi.string().required(),
         maxNumberParticipants: Joi.number().required(),
