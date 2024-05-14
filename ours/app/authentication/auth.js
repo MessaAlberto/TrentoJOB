@@ -17,7 +17,7 @@ router.post('/', loginValidation, async (req, res) => {
 
         // If email is not confirmed
         if (!user.confirmed)
-            return res.status(400).json({message: 'Email was not confirmed'});
+            return res.status(401).json({message: 'Email was not confirmed'});
 
         // if organization require verification by admin
         if (user.role === 'organisation' && !user.verified)
@@ -40,7 +40,7 @@ router.post('/', loginValidation, async (req, res) => {
         });
 
     } catch {
-        res.status(400).json({message: 'Internal Server Error, please retry'});
+        res.status(400).json({message: 'Internal Server Error'});
     }
 });
 
