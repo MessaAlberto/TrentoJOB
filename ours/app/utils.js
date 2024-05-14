@@ -14,7 +14,7 @@ const register = async (req, res, model, role) => {
             return res.status(400).json({message: 'Email already exists'});
 
         // hashing
-        req.body.password = await hash(req.body.password, 10);
+        req.password = await hash(req.password, 10);
         let user = new model(req.body);
         user.role = role;
 
@@ -28,7 +28,7 @@ const register = async (req, res, model, role) => {
         const html = `link valid for 48h: <a href="${url}">Click here to confirm</a>`;
         mail(req.body.email, "Email confirmation", html);
     } catch {
-        res.status(400).json({message: 'registration failed'});
+        res.status(400).json({message: 'Internal Server Error'});
     }
 };
 

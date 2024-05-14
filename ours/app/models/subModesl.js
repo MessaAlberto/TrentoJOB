@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // pair username - id
-module.exports = Partecipants =  new mongoose.Schema({
+const Participants =  new mongoose.Schema({
     username: {
         type: String,
         required: true,
@@ -11,6 +11,31 @@ module.exports = Partecipants =  new mongoose.Schema({
         required: true,
     },
 });
+
+const Review = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+        maxlength: 150,
+    },
+    rating: {
+        type: Number,
+        required: true,
+        min: 0,
+        max: 5,
+        default: 5,
+    }
+});
+
+module.exports = {
+    Participants,
+    Like: Participants,
+    Review,
+}
 
 /*const mongoose = require('mongoose');
 

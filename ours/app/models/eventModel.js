@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Participant = require("./participantModel");
+const {Participant} = require("./subModesl");
 
 const Event = mongoose.model('Event', new mongoose.Schema({
     title: {
