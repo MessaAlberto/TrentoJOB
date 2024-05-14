@@ -36,6 +36,7 @@ function login() {
             // Store user ID and token in local storage
             localStorage.setItem('userId', response.userId);
             localStorage.setItem('username', response.username);
+            localStorage.setItem('role', response.role);
             localStorage.setItem('token', response.token);
             window.location.href = "/index.html";
         } else {

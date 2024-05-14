@@ -2,10 +2,10 @@ const router = require('express').Router();
 const {Event} = require('../models/eventModel');
 const {eventValidation} = require("../validation");
 const {newActivity, search, searchById, editEntity, erase} = require("../utils");
-const {privateContent} = require("../middleware");
+const {privateContent, checkRole} = require("../middleware");
 
 // Create new event
-router.post('/', eventValidation, async (req, res) => newActivity(req, res, Event));
+router.post('/', checkRole('User'), eventValidation, async (req, res) => newActivity(req, res, Event));
 
 router.get('/', async (req, res) => search(req, res, Event));
 

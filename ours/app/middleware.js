@@ -1,6 +1,5 @@
 const {verify} = require("jsonwebtoken");
 const {Profile} = require("./models/profileModel");
-const {Event} = require("./models/eventModel");
 
 // print method and url
 const printf = (req, res, next) => {
@@ -37,10 +36,10 @@ const privateAccess = (req, res, next) => {
     next();
 }
 
-const privateContent = (Model) => async (req, res, next) => {
+const privateContent = (model) => async (req, res, next) => {
     try {
         // Check the ownerId of the entity
-        const entity = await Model.findById(req.params.id);
+        const entity = await model.findById(req.params.id);
 
         // Check if the entity exists and if the user is the owner
         if (!entity || !entity.owner.equals(req.user._id))
@@ -52,9 +51,17 @@ const privateContent = (Model) => async (req, res, next) => {
     }
 };
 
+
+const checkRole = (role) => (req, res, next) => {
+    if (req.user.role !== role)
+        return res.status(403).json({ message: 'Unauthorized access' });
+    next();
+}
+
 module.exports = {
     printf,
     verifySecretToken,
     privateAccess,
     privateContent,
+    checkRole,
 }
