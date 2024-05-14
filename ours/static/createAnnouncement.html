@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Event Registration</title>
-  <script src="./script/createEvent.js"></script>
-  <link rel="stylesheet" href="./style/createEvent.css">
+  <title>Announcement Registration</title>
+  <script src="./script/createAnnouncement.js"></script>
+  <link rel="stylesheet" href="./style/createAnnouncement.css">
 </head>
 
 <body>
@@ -16,7 +16,7 @@
         </div>
     </div>
     <section class="forms-section">
-        <h1 class="section-title">Event Registration</h1>
+        <h1 class="section-title">Announcement Registration</h1>
         <div class="forms">
             <form>
                 <fieldset>
@@ -29,12 +29,20 @@
                         <textarea id="description" required></textarea>
                     </div>
                     <div class="input-block">
-                        <label for="date">Date</label>
-                        <input id="date" type="date" required>
+                        <label for="date-begin">Begin data</label>
+                        <input id="date-begin" type="date" required>
                     </div>
                     <div class="input-block">
-                        <label for="time">Time</label>
-                        <input id="time" type="time" required>
+                        <label for="time-begin">Begin Time</label>
+                        <input id="time-begin" type="time" required>
+                    </div>
+                    <div class="input-block">
+                        <label for="date-end">End data</label>
+                        <input id="date-end" type="date" required>
+                    </div>
+                    <div class="input-block">
+                        <label for="time-end">End Time</label>
+                        <input id="time-end" type="time" required>
                     </div>
                     <div class="input-block">
                         <label for="location">Location</label>
@@ -45,7 +53,7 @@
                         <input id="max-participants" type="number" required>
                     </div>
                 </fieldset>
-                <button id="createEventButton">Register Event</button>
+                <button id="createAnnouncementButton">Register Announcement</button>
             </form>
         </div>
     </section>
