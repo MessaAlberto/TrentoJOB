@@ -42,7 +42,7 @@ const privateContent = (model) => async (req, res, next) => {
         const entity = await model.findById(req.params.id);
 
         // Check if the entity exists and if the user is the owner
-        if (!entity || !entity.owner.equals(req.user._id))
+        if (!entity || (entity.owner.id !== req.user._id))
             return res.status(403).json({ message: 'Unauthorized access' });
         next();
         

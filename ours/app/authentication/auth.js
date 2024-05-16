@@ -5,6 +5,7 @@ const {Profile} = require("../models/profileModel");
 const mail = require("../nodeMail");
 const {loginValidation} = require("../validation");
 
+
 // login
 router.post('/', loginValidation, async (req, res) => {
     try {
@@ -41,7 +42,7 @@ router.post('/', loginValidation, async (req, res) => {
         });
 
     } catch {
-        res.status(400).json({message: 'Internal Server Error'});
+        res.status(500).json({message: 'Internal Server Error'});
     }
 });
 

@@ -4,12 +4,12 @@ info:
   description: API for user authentication, authorization, and account management
   version: 1.0.0
 servers:
-  - url: http://localhost:3000
+  - url: http://localhost:8080
 tags:
   - name: AUTENTICAZIONE
     description: gestione acesso
 
-  - name: ADMIN
+  - name: AMMINISTRATORE
     description: gestione amministratori
 
   - name: UTENTE
@@ -55,7 +55,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-      security: []
     get:
       tags:
         - AUTENTICAZIONE
@@ -125,7 +124,7 @@ paths:
   /admins:
     post:
       tags:
-        - ADMIN
+        - AMMINISTRATORE
       summary: Create a new admin user
       requestBody:
         required: true
@@ -157,7 +156,7 @@ paths:
 
     put:
       tags:
-        - ADMIN
+        - AMMINISTRATORE
       summary: Modify an existing admin user
       parameters:
         - name: id
@@ -201,7 +200,7 @@ paths:
 
     get:
       tags:
-        - ADMIN
+        - AMMINISTRATORE
       summary: Get a list of admin users
       responses:
         '200':
@@ -224,7 +223,7 @@ paths:
   /admins/{id}:
     get:
       tags:
-        - ADMIN
+        - AMMINISTRATORE
       summary: Get admin user by ID
       parameters:
         - name: id
@@ -256,7 +255,7 @@ paths:
 
     delete:
       tags:
-        - ADMIN
+        - AMMINISTRATORE
       summary: Delete admin user by ID
       parameters:
         - name: id
@@ -634,7 +633,7 @@ paths:
   /organisations:
     post:
       tags:
-        - ENTE
+        - ORGANIZZAZIONE
       summary: Register a new organisation
       requestBody:
         required: true
@@ -664,7 +663,7 @@ paths:
 
     get:
       tags:
-        - ENTE
+        - ORGANIZZAZIONE
       summary: Get a list of organisations
       responses:
         '200':
@@ -685,7 +684,7 @@ paths:
   /organisations/{id}:
     get:
       tags:
-        - ENTE
+        - ORGANIZZAZIONE
       summary: Get organisation by ID
       parameters:
         - name: id
@@ -715,7 +714,7 @@ paths:
 
     put:
       tags:
-        - ENTE
+        - ORGANIZZAZIONE
       summary: Update organisation by ID
       parameters:
         - name: id
@@ -765,7 +764,7 @@ paths:
 
     delete:
       tags:
-        - ENTE
+        - ORGANIZZAZIONE
       summary: Delete organisation by ID
       parameters:
         - name: id
