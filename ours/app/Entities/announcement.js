@@ -6,7 +6,7 @@ const {newActivity, search, searchById, editEntity, erase} = require("../utils")
 const {privateContent, checkRole} = require("../middleware");
 
 // create
-router.post('/', checkRole('Organisation'), announcementValidation, async (req, res) => newActivity(req, res, Announcement));
+router.post('/', checkRole('user'), announcementValidation, async (req, res) => newActivity(req, res, Announcement));
 
 router.get('/', async (req, res) => search(req, res, Announcement));
 
