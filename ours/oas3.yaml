@@ -5,9 +5,30 @@ info:
   version: 1.0.0
 servers:
   - url: http://localhost:3000
+tags:
+  - name: AUTENTICAZIONE
+    description: gestione acesso
+
+  - name: ADMIN
+    description: gestione amministratori
+
+  - name: UTENTE
+    description: gestione utente
+
+  - name: ORGANIZZAZIONE
+    description: gestione organizzazione
+
+  - name: EVENTO
+    description: getione eventi
+
+  - name: ANNUNCIO
+    description: gestione annunci
+
 paths:
   /auth:
     post:
+      tags:
+        - AUTENTICAZIONE
       summary: User login
       requestBody:
         required: true
@@ -36,6 +57,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       security: []
     get:
+      tags:
+        - AUTENTICAZIONE
       summary: Refresh access token
       responses:
         '200':
@@ -57,6 +80,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
     delete:
+      tags:
+        - AUTENTICAZIONE
       summary: User logout
       responses:
         '200':
@@ -68,6 +93,8 @@ paths:
 
   /auth/{token}:
     get:
+      tags:
+        - AUTENTICAZIONE
       summary: Confirm email
       parameters:
         - name: token
@@ -94,9 +121,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+################################################################################################################
   /admins:
     post:
+      tags:
+        - ADMIN
       summary: Create a new admin user
       requestBody:
         required: true
@@ -127,6 +156,8 @@ paths:
         - bearerAuth: []
 
     put:
+      tags:
+        - ADMIN
       summary: Modify an existing admin user
       parameters:
         - name: id
@@ -169,6 +200,8 @@ paths:
         - bearerAuth: []
 
     get:
+      tags:
+        - ADMIN
       summary: Get a list of admin users
       responses:
         '200':
@@ -190,6 +223,8 @@ paths:
 
   /admins/{id}:
     get:
+      tags:
+        - ADMIN
       summary: Get admin user by ID
       parameters:
         - name: id
@@ -220,6 +255,8 @@ paths:
         - bearerAuth: []
 
     delete:
+      tags:
+        - ADMIN
       summary: Delete admin user by ID
       parameters:
         - name: id
@@ -248,9 +285,11 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearerAuth: []
-
+##################################################################################################################
   /announcement:
     post:
+      tags:
+        - ANNUNCIO
       summary: Create a new announcement
       requestBody:
         required: true
@@ -287,6 +326,8 @@ paths:
         - bearerAuth: []
 
     get:
+      tags:
+        - ANNUNCIO
       summary: Get a list of announcements
       responses:
         '200':
@@ -306,6 +347,8 @@ paths:
 
   /announcement/{id}:
     get:
+      tags:
+        - ANNUNCIO
       summary: Get announcement by ID
       parameters:
         - name: id
@@ -334,6 +377,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
     put:
+      tags:
+        - ANNUNCIO
       summary: Update announcement by ID
       parameters:
         - name: id
@@ -382,6 +427,8 @@ paths:
         - bearerAuth: []
 
     delete:
+      tags:
+        - ANNUNCIO
       summary: Delete announcement by ID
       parameters:
         - name: id
@@ -416,11 +463,644 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearerAuth: []
+#######################################################################################################
+  /users:
+    post:
+      tags:
+        - UTENTE
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserIdResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+    get:
+      tags:
+        - UTENTE
+      summary: Get a list of users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /users/{id}:
+    get:
+      tags:
+        - UTENTE
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+    put:
+      tags:
+        - UTENTE
+      summary: Update user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserIdResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - UTENTE
+      summary: Delete user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserIdResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+############################################################################################################
+  /organisations:
+    post:
+      tags:
+        - ENTE
+      summary: Register a new organisation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganisationRegistrationRequest'
+      responses:
+        '201':
+          description: Organisation registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganisationIdResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - ENTE
+      summary: Get a list of organisations
+      responses:
+        '200':
+          description: List of organisations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Organisation'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /organisations/{id}:
+    get:
+      tags:
+        - ENTE
+      summary: Get organisation by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Organisation found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organisation'
+        '404':
+          description: Organisation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - ENTE
+      summary: Update organisation by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganisationUpdateRequest'
+      responses:
+        '200':
+          description: Organisation updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganisationIdResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organisation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags:
+        - ENTE
+      summary: Delete organisation by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Organisation deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganisationIdResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organisation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+##########################################################################################################################
+  /events:
+    post:
+      tags:
+        - EVENTO
+      summary: Create a new event
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCreationRequest'
+      responses:
+        '201':
+          description: Event created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventIdResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - EVENTO
+      summary: Get a list of events
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /events/{id}:
+    get:
+      tags:
+        - EVENTO
+      summary: Get event by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Event found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - EVENTO
+      summary: Update event by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventUpdateRequest'
+      responses:
+        '200':
+          description: Event updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventIdResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - EVENTO
+      summary: Delete event by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Event deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventIdResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+#########################################################################################################
 components:
   schemas:
+    EventCreationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+      required:
+        - name
+        - date
+
+    EventUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    EventIdResponse:
+      type: object
+      properties:
+        eventId:
+          type: string
+
+    Event:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    OrganisationRegistrationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - name
+        - email
+        - password
+
+    OrganisationUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+      required:
+        - name
+        - email
+
+    OrganisationIdResponse:
+      type: object
+      properties:
+        organisationId:
+          type: string
+
+    Organisation:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+
+    UserRegistrationRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - email
+        - password
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+      required:
+        - username
+        - email
+
+    UserIdResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+
     AnnouncementCreationRequest:
       type: object
       properties:
