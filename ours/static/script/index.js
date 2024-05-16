@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-
     var usernameLabel = document.getElementById('usernameLabel');
     if (usernameLabel) {
         usernameLabel.addEventListener('click', function () {
@@ -32,9 +31,36 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    const eventsAPI = '/event';
+    const map = L.map('map').setView([51.505, -0.09], 2);
 
-    fetchAndDisplayEvents(eventsAPI);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Define custom icons
+    const blueIcon = new L.Icon({
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        shadowSize: [41, 41]
+    });
+
+    const redIcon = new L.Icon({
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-red.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        shadowSize: [41, 41]
+    });
+
+    const eventsAPI = '/event';
+    const announcementsAPI = '/announcement';
+
+    fetchAndDisplayItems(eventsAPI, map, blueIcon);
+    fetchAndDisplayItems(announcementsAPI, map, redIcon);
 
     const radioButtons = document.querySelectorAll('.tabs input[type="radio"]');
 
@@ -48,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     fetchList('Event');
-        
+
     // Display the create button if the user is logged in
     displayCreateButton();
 });
@@ -60,7 +86,7 @@ async function getCoordinatesFromLocation(location) {
         const data = await response.json();
         const latitude = parseFloat(data[0].lat);
         const longitude = parseFloat(data[0].lon);
-        
+
         return [longitude, latitude];
     } catch (error) {
         console.error('Errore durante il recupero delle coordinate dalla località:', error);
@@ -68,28 +94,24 @@ async function getCoordinatesFromLocation(location) {
     }
 }
 
-async function fetchAndDisplayEvents(eventsAPI) {
+
+async function fetchAndDisplayItems(apiURL, map, icon) {
     try {
-        const response = await fetch(eventsAPI);
-        const events = await response.json();
-        const map = L.map('map').setView([51.505, -0.09], 13);
+        const response = await fetch(apiURL);
+        const items = await response.json();
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        events.forEach(async event => {
-            const location = event.location;
+        items.forEach(async item => {
+            const location = item.location;
             const coordinates = await getCoordinatesFromLocation(location);
-            
+
             if (coordinates) {
                 const [longitude, latitude] = coordinates;
-                const { title } = event;
-                L.marker([latitude, longitude]).addTo(map).bindPopup(title);
+                const { title } = item;
+                L.marker([latitude, longitude], { icon }).addTo(map).bindPopup(title);
             }
         });
     } catch (error) {
-        console.error('Errore durante il recupero degli eventi:', error);
+        console.error('Errore durante il recupero degli items:', error);
     }
 }
 
