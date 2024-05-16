@@ -95,8 +95,420 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /admins:
+    post:
+      summary: Create a new admin user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCreationRequest'
+      responses:
+        '201':
+          description: Admin user created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminIdResponse'
+        '400':
+          description: Email already exists or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    put:
+      summary: Modify an existing admin user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminModificationRequest'
+      responses:
+        '200':
+          description: Admin user modified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminIdResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Admin user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    get:
+      summary: Get a list of admin users
+      responses:
+        '200':
+          description: List of admin users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminUser'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /admins/{id}:
+    get:
+      summary: Get admin user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Admin user found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+        '404':
+          description: Admin user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    delete:
+      summary: Delete admin user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Admin user deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminIdResponse'
+        '404':
+          description: Admin user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /announcement:
+    post:
+      summary: Create a new announcement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnouncementCreationRequest'
+      responses:
+        '201':
+          description: Announcement created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementIdResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    get:
+      summary: Get a list of announcements
+      responses:
+        '200':
+          description: List of announcements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Announcement'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /announcement/{id}:
+    get:
+      summary: Get announcement by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Announcement found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        '404':
+          description: Announcement not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update announcement by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnouncementModificationRequest'
+      responses:
+        '200':
+          description: Announcement updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementIdResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Announcement not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    delete:
+      summary: Delete announcement by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Announcement deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementIdResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Announcement not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+
+
 components:
   schemas:
+    AnnouncementCreationRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+      required:
+        - title
+        - content
+
+    AnnouncementModificationRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+
+    AnnouncementIdResponse:
+      type: object
+      properties:
+        announcementId:
+          type: string
+
+    Announcement:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+
+    AdminCreationRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - email
+        - password
+
+    AdminModificationRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+      required:
+        - username
+        - email
+
+    AdminIdResponse:
+      type: object
+      properties:
+        user:
+          type: string
+      required:
+        - user
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+    AdminUser:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        confirmed:
+          type: boolean
+
     LoginRequest:
       type: object
       properties:
@@ -114,12 +526,6 @@ components:
         message:
           type: string
         token:
-          type: string
-
-    ErrorResponse:
-      type: object
-      properties:
-        message:
           type: string
 
     TokenRefreshResponse:
