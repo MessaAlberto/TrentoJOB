@@ -97,11 +97,16 @@ async function getCoordinatesFromLocation(location) {
 
 async function fetchAndDisplayItems(apiURL, map, icon) {
     try {
-        const response = await fetch(apiURL);
-        const items = await response.json();
+        const response = await fetch(eventsAPI);
+        const events = await response.json();
+        const map = L.map('map').setView([51.505, -0.09], 13);
 
-        items.forEach(async item => {
-            const location = item.location;
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        events.forEach(async event => {
+            const location = event.location;
             const coordinates = await getCoordinatesFromLocation(location);
 
             if (coordinates) {
@@ -170,7 +175,7 @@ function searchInputBar(event) {
         });
     }
 }
-        
+
 function searchButton() {
     const title = document.getElementById('searchInput').value.trim();
     const radioButtons = document.querySelectorAll('.tabs input[type="radio"]');
@@ -197,17 +202,17 @@ function createNotices() {
     if (!userId) {
         alert("You must be logged in to create a notice.");
         return;
-    } 
+    }
 
     // Send user to the correct page
     // User --> createAnnouncement
     // Organisation --> createEvent
     var userRole = localStorage.role;
-    if (userRole === 'user') 
+    if (userRole === 'user')
         window.location.href = "/createAnnouncement.html";
-    else if (userRole === 'organisation') 
+    else if (userRole === 'organisation')
         window.location.href = "/createEvent.html";
-    else 
+    else
         alert("You must be logged in to create a notice.");
 
 }
@@ -256,7 +261,7 @@ function createItemList(model, items) {
     const location = document.createElement('div');
     location.classList.add('location');
     mainInfo.appendChild(location);
-    
+
     const owner = document.createElement('div');
     owner.classList.add('owner');
     mainInfo.appendChild(owner);
@@ -274,29 +279,28 @@ function createItemList(model, items) {
     infoContainer.appendChild(description);
 
     if (model === 'Event' || model === 'Announcement') {
-        titleText.innerHTML = items.title;
-        if (items.expired) 
-            expiredText.innerHTML = 'Expired';
-        location.innerHTML = "<b>Where:</b><br>" + items.location;
-        owner.innerHTML = "<b>Owner:</b><br>" + items.owner.username;
+        titleText.innerHTML = items.title || 'No title';
+        if (items.expired) expiredText.innerHTML = 'Expired';
+        location.innerHTML = "<b>Where:</b><br>" + (items.location || 'Unknown location');
+        owner.innerHTML = "<b>Owner:</b><br>" + (items.owner?.username || 'Unknown owner');
         if (model === 'Announcement') {
-            dateBegin.innerHTML = "<b>Starts:</b><br>" + items.date_begin.split('T')[0];
-            hourBegin.innerHTML = items.date_begin.split('T')[1].split('.')[0];
-            dateEnd.innerHTML = "<b>Ends:</b><br>" + items.date_stop.split('T')[0]; 
-            hourEnd.innerHTML = items.date_stop.split('T')[1].split('.')[0];
-        } else
-        dateBegin.innerHTML = "<b>On:</b><br>" + items.date.split('T')[0];
-        hourBegin.innerHTML = items.date.split('T')[1].split('.')[0];
-        description.innerHTML = "<b>Description:</b><br>" + items.description;
+            dateBegin.innerHTML = "<b>Starts:</b><br>" + (items.date_begin?.split('T')[0] || 'Unknown start date');
+            hourBegin.innerHTML = items.date_begin ? items.date_begin.split('T')[1].split('.')[0] : 'Unknown start time';
+            dateEnd.innerHTML = "<b>Ends:</b><br>" + (items.date_stop?.split('T')[0] || 'Unknown end date');
+            hourEnd.innerHTML = items.date_stop ? items.date_stop.split('T')[1].split('.')[0] : 'Unknown end time';
+        } else {
+            dateBegin.innerHTML = "<b>On:</b><br>" + (items.date_begin?.split('T')[0] || 'Unknown date');
+            hourBegin.innerHTML = items.date_begin ? items.date_begin.split('T')[1].split('.')[0] : 'Unknown time';
+        }
+        description.innerHTML = "<b>Description:</b><br>" + (items.description || 'No description available');
     } else if (model === 'User' || model === 'Organisation') {
-        titleText.innerHTML = items.username;
-        if (items.bio !== undefined) 
-            description.innerHTML = "<b>Bio:</b><br>" + items.bio;
-        email.innerHTML = items.email;
-        phone.innerHTML = items.phone;
+        titleText.innerHTML = items.username || 'No username';
+        if (items.bio !== undefined) description.innerHTML = "<b>Bio:</b><br>" + items.bio;
+        email.innerHTML = items.email || 'No email';
+        phone.innerHTML = items.phone || 'No phone';
     }
 
-    owner.addEventListener('click', function(event) {
+    owner.addEventListener('click', function (event) {
         event.preventDefault();
         fecthObject('User', items.owner.id);
     });
@@ -344,10 +348,10 @@ async function fecthObject(model, ownerId) {
         closeButton.classList.add('close-button');
         closeButton.innerHTML = 'Close';
 
-        closeButton.addEventListener('click', function() {
+        closeButton.addEventListener('click', function () {
             itemContainer.classList.add('hidden');
         });
-        itemContainer.addEventListener('click', function(event) {
+        itemContainer.addEventListener('click', function (event) {
             if (event.target === itemContainer) {
                 itemContainer.classList.add('hidden');
             }

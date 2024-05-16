@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('createAnnouncementButton').addEventListener('click', function (event) {
         event.preventDefault();
+        console.log("Button clicked");
         createAnnouncement();
     });
 });
@@ -10,16 +11,17 @@ document.addEventListener('DOMContentLoaded', function () {
 function createAnnouncement() {
 
     // Get the date and time inputs and convert it to a Date object
-    var date_begin = document.getElementById('date_begin').value;
-    var time_begin = document.getElementById('time_begin').value;
+    var date_begin = document.getElementById('date-begin').value;
+    var time_begin = document.getElementById('time-begin').value;
     var isoDateString_begin = date_begin + "T" + time_begin;
     var dateObject_begin = new Date(isoDateString_begin);
 
-    var date_stop = document.getElementById('date_end').value;
-    var time_stop = document.getElementById('time_end').value;
+    var date_stop = document.getElementById('date-end').value;
+    var time_stop = document.getElementById('time-end').value;
     var isoDateString_stop = date_stop + "T" + time_stop;
     var dateObject_stop = new Date(isoDateString_stop);
 
+    console.log("Form prepared");
     var formData = {
         title: document.getElementById('title').value,
         description: document.getElementById('description').value,
