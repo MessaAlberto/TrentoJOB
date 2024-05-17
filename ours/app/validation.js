@@ -2,9 +2,9 @@ const Joi = require('joi');
 
 const registerValidation = (req,res,next) => {
     const schema = Joi.object({
-        username: Joi.string().alphanum().min(3).max(128).required(),
+        username: Joi.string().min(3).max(128).required(),
         email: Joi.string().required().email(),
-        password: Joi.string().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+        password: Joi.string().alphanum().min(6).max(128).required(),
         taxIdCode: Joi.string().alphanum(),
     });
     const validation = schema.validate(req.body);

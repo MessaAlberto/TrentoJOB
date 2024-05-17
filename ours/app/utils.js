@@ -60,14 +60,14 @@ const search = async (req, res, model) => {
         const { input } = req.query;
         let query = {};
 
-        if (model === Event || model === Announcement) {
-            // Check if the title query parameter exists
-            if (input)
+        if (input) {
+            if (model === Event || model === Announcement) {
+                // Check if the title query parameter exists
                 query.title = new RegExp(input, 'i');
-        } else if (model === User || model === Organisation) {
-            // Check if the username query parameter exists
-            if (input)
+            } else if (model === User || model === Organisation) {
+                // Check if the username query parameter exists
                 query.username = new RegExp(input, 'i');
+            }
         }
         // Query the database with the constructed query object
         const output = await model.find(query).select(fields);
