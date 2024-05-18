@@ -5,10 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <link rel="stylesheet" href="./style/index.css">
+    
+    
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js"></script>
     <script src="./script/index.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
+    <link rel="stylesheet" href="./style/index.css">
 </head>
 
 <body>
@@ -33,13 +40,12 @@
         </ul>
     </div>
 
-    <div id="map"></div>
-    
-    <div class="container">
+    <div id="map" class="map"></div>
+
+    <div id="container" class="container">
         <div class="search-column">
             <div class="search-bar-container" id="searchBarContainer">
-                <input type="text" id="searchInput" placeholder="Search by name..."
-                    onkeypress="searchInputBar(event)">
+                <input type="text" id="searchInput" placeholder="Search by name..." onkeypress="searchInputBar(event)">
                 <button class="search-button" onclick="searchButton()">Search</button>
             </div>
             <h2> filters...</h2>
@@ -49,13 +55,13 @@
             <div class="tabs">
                 <input type="radio" id="event" name="fav_language" value="Event" checked>
                 <label for="event">Volunteer Events</label>
-    
+
                 <input type="radio" id="announcement" name="fav_language" value="Announcement">
                 <label for="announcement">Job Announcement</label>
-    
+
                 <input type="radio" id="user" name="fav_language" value="User">
                 <label for="user">Users</label>
-    
+
                 <input type="radio" id="organisation" name="fav_language" value="Organisation">
                 <label for="organisation">Organisations</label>
             </div>

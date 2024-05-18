@@ -1,4 +1,6 @@
-document.addEventListener('DOMContentLoaded', function () {
+let map;
+
+document.addEventListener('DOMContentLoaded', function () {    
     // Check if user ID is present in localStorage
     var userId = localStorage.getItem('userId');
     if (userId) {
@@ -31,37 +33,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    const map = L.map('map').setView([51.505, -0.09], 2);
+
+    // show Trento
+    map = L.map('map').setView([46.066422, 11.125760], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Define custom icons
-    const blueIcon = new L.Icon({
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-        shadowSize: [41, 41]
-    });
 
-    const redIcon = new L.Icon({
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-red.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-        shadowSize: [41, 41]
-    });
-
-    const eventsAPI = '/event';
-    const announcementsAPI = '/announcement';
-
-    fetchAndDisplayItems(eventsAPI, map, blueIcon);
-    fetchAndDisplayItems(announcementsAPI, map, redIcon);
-
+    // Add the event listener to the radio buttons
     const radioButtons = document.querySelectorAll('.tabs input[type="radio"]');
 
     radioButtons.forEach(radioButton => {
@@ -74,9 +55,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     fetchList('Event');
-
-    // Display the create button if the user is logged in
-    displayCreateButton();
 });
 
 
@@ -95,18 +73,35 @@ async function getCoordinatesFromLocation(location) {
 }
 
 
-async function fetchAndDisplayItems(apiURL, map, icon) {
+async function fetchAndDisplayItems(model, map, items) {
     try {
-        const response = await fetch(eventsAPI);
-        const events = await response.json();
-        const map = L.map('map').setView([51.505, -0.09], 13);
+        // clean the map
+        map.eachLayer(function (layer) {
+            if (layer instanceof L.Marker) {
+                map.removeLayer(layer);
+            }
+        });
+
+        if (model === 'Event') {
+            var icon = new L.AwesomeMarkers.icon({
+                icon: 'group',
+                markerColor: 'blue',
+                prefix: 'fa'
+            });
+        } else if (model === 'Announcement') {
+            var icon = new L.AwesomeMarkers.icon({
+                icon: 'handshake-o',
+                markerColor: 'green',
+                prefix: 'fa'
+            });
+        }
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        events.forEach(async event => {
-            const location = event.location;
+        items.forEach(async item => {
+            const location = item.location;
             const coordinates = await getCoordinatesFromLocation(location);
 
             if (coordinates) {
@@ -116,7 +111,7 @@ async function fetchAndDisplayItems(apiURL, map, icon) {
             }
         });
     } catch (error) {
-        console.error('Errore durante il recupero degli items:', error);
+        console.error('Error during items fetch:', error);
     }
 }
 
@@ -171,6 +166,7 @@ function searchInputBar(event) {
         radioButtons.forEach(radioButton => {
             if (radioButton.checked) {
                 fetchList(radioButton.value, title);
+                document.getElementById('searchInput').value = '';
             }
         });
     }
@@ -182,6 +178,7 @@ function searchButton() {
     radioButtons.forEach(radioButton => {
         if (radioButton.checked) {
             fetchList(radioButton.value, title);
+            document.getElementById('searchInput').value = '';
         }
     }
     );
@@ -309,8 +306,8 @@ function createItemList(model, items) {
     return elementContainer;
 }
 
-async function fetchList(tabName, title = '') {
-    const url = '/' + tabName.toLowerCase() + '/?input=' + title;
+async function fetchList(model, title = '') {
+    const url = '/' + model.toLowerCase() + '/?input=' + title;
 
     try {
         const response = await fetch(url);
@@ -322,9 +319,12 @@ async function fetchList(tabName, title = '') {
         itemsContainer.innerHTML = '';
 
         items.forEach(item => {
-            const itemElement = createItemList(tabName, item);
+            const itemElement = createItemList(model, item);
             itemsContainer.appendChild(itemElement);
         });
+
+        // show markers on the map
+        fetchAndDisplayItems(model, map, items);
     } catch (error) {
         console.error('There has been a problem with your fetch operation:', error);
     }
