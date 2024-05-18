@@ -53,7 +53,7 @@ const newActivity = async (req, res, model) => {
     }
 };
 
-const fields = '-confirmed -password -refresh_token';
+const fields = '-password -refresh_token';
 
 const search = async (req, res, model) => {
     try {
@@ -67,6 +67,12 @@ const search = async (req, res, model) => {
             } else if (model === User || model === Organisation) {
                 // Check if the username query parameter exists
                 query.username = new RegExp(input, 'i');
+                // Check if they are confirmed
+                query.confirmed = true;
+            }
+        } else {
+            if (model === User || model === Organisation) {
+                query.confirmed = true; // Ensure only confirmed users and organisations are fetched even if there's no input
             }
         }
         // Query the database with the constructed query object

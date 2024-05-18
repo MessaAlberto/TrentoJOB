@@ -1,35 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Check if user ID is present in localStorage
-    var userId = localStorage.getItem('userId');
-    if (userId) {
-        var username = localStorage.getItem('username');
-        if (username) {
-            displayUserProfile(username);
-        }
-    }
-
-    var usernameLabel = document.getElementById('usernameLabel');
-    if (usernameLabel) {
-        usernameLabel.addEventListener('click', function () {
-            window.location.href = "/me.html"; // Redirect to /me page
-        });
-    }
-    var profileIcon = document.getElementById('profileIcon');
-    if (profileIcon) {
-        profileIcon.addEventListener('click', function () {
-            toggleSidebar();
-        });
-    }
-
-    document.body.addEventListener('click', function (event) {
-        const sidebar = document.getElementById('sidebar');
-        const profileIcon = document.getElementById('profileIcon');
-
-        // Check if the clicked element is not the sidebar or profile icon
-        if (!sidebar.contains(event.target) && !profileIcon.contains(event.target)) {
-            sidebar.classList.add('hidden');
-        }
-    });
 
     const map = L.map('map').setView([51.505, -0.09], 2);
 
@@ -120,49 +89,6 @@ async function fetchAndDisplayItems(apiURL, map, icon) {
     }
 }
 
-function signUp() {
-    window.location.href = "registration.html";
-}
-
-function login() {
-    window.location.href = "login.html";
-}
-
-function logout() {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('username');
-    localStorage.removeItem('token');
-
-    // Call the delete /auth
-    var xhr = new XMLHttpRequest();
-    xhr.open("DELETE", "/auth", true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onload = function () {
-        if (xhr.status === 200) {
-            window.location.href = "/index.html";
-        } else {
-            alert("Si è verificato un errore durante il logout.");
-        }
-    };
-    xhr.send();
-}
-
-
-function displayUserProfile(username) {
-    const singInUp = document.getElementById('sign-in-up');
-    const userProfile = document.getElementById('profile-icon');
-    const usernameLabel = document.getElementById('usernameLabel');
-
-    singInUp.classList.add('hidden');
-    usernameLabel.innerHTML = username;
-    userProfile.classList.remove('hidden');
-}
-
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('hidden');
-}
-
 function searchInputBar(event) {
     if (event.keyCode === 13) {
         event.preventDefault();
@@ -218,7 +144,7 @@ function createNotices() {
 }
 
 
-function createItemList(model, items) {
+function createItemList(model, item) {
     const elementContainer = document.createElement('div');
     elementContainer.classList.add('element-container');
 
@@ -230,10 +156,6 @@ function createItemList(model, items) {
     titleText.classList.add('title');
     titleElement.appendChild(titleText);
 
-    const expiredText = document.createElement('div');
-    expiredText.classList.add('expired');
-    titleElement.appendChild(expiredText);
-
     const infoContainer = document.createElement('div');
     infoContainer.classList.add('info-container');
     elementContainer.appendChild(infoContainer);
@@ -242,75 +164,183 @@ function createItemList(model, items) {
     mainInfo.classList.add('main-info');
     infoContainer.appendChild(mainInfo);
 
-    const dateBegin = document.createElement('div');
-    dateBegin.classList.add('date-begin');
-    mainInfo.appendChild(dateBegin);
-
-    const hourBegin = document.createElement('div');
-    hourBegin.classList.add('hour-begin');
-    mainInfo.appendChild(hourBegin);
-
-    const dateEnd = document.createElement('div');
-    dateEnd.classList.add('date-end');
-    mainInfo.appendChild(dateEnd);
-
-    const hourEnd = document.createElement('div');
-    hourEnd.classList.add('hour-end');
-    mainInfo.appendChild(hourEnd);
-
-    const location = document.createElement('div');
-    location.classList.add('location');
-    mainInfo.appendChild(location);
-
-    const owner = document.createElement('div');
-    owner.classList.add('owner');
-    mainInfo.appendChild(owner);
-
-    const email = document.createElement('div');
-    email.classList.add('email');
-    mainInfo.appendChild(email);
-
-    const phone = document.createElement('div');
-    phone.classList.add('phone');
-    mainInfo.appendChild(phone);
-
     const description = document.createElement('div');
     description.classList.add('description');
     infoContainer.appendChild(description);
 
     if (model === 'Event' || model === 'Announcement') {
-        titleText.innerHTML = items.title || 'No title';
-        if (items.expired) expiredText.innerHTML = 'Expired';
-        location.innerHTML = "<b>Where:</b><br>" + (items.location || 'Unknown location');
-        owner.innerHTML = "<b>Owner:</b><br>" + (items.owner?.username || 'Unknown owner');
+        const expiredText = document.createElement('div');
+        expiredText.classList.add('expired');
+        titleElement.appendChild(expiredText);
+
+        titleText.innerHTML = item.title || 'No title';
+        if (item.expired) expiredText.innerHTML = 'Expired';
+
+        const descriptionKey = document.createElement('div');
+        descriptionKey.classList.add('key');
+        descriptionKey.innerHTML = 'Description:';
+        const descriptionValue = document.createElement('div');
+        descriptionValue.classList.add('value');
+        descriptionValue.innerHTML = item.description || 'No description available';
+        description.appendChild(descriptionKey);
+        description.appendChild(descriptionValue);
+
+        const location = document.createElement('div');
+        location.classList.add('location');
+        mainInfo.appendChild(location);
+        const locationKey = document.createElement('div');
+        locationKey.classList.add('key');
+        locationKey.innerHTML = 'Location:';
+        const locationValue = document.createElement('div');
+        locationValue.classList.add('value');
+        locationValue.innerHTML = item.location || 'Unknown location';
+        location.appendChild(locationKey);
+        location.appendChild(locationValue);
+
+        const owner = document.createElement('div');
+        owner.classList.add('owner');
+        mainInfo.appendChild(owner);
+        const ownerKey = document.createElement('div');
+        ownerKey.classList.add('key');
+        ownerKey.innerHTML = 'Owner:';
+        const ownerValue = document.createElement('div');
+        ownerValue.classList.add('value');
+        ownerValue.classList.add('clickable');
+        ownerValue.innerHTML = item.owner?.username || 'Unknown owner';
+        owner.appendChild(ownerKey);
+        owner.appendChild(ownerValue);
+
         if (model === 'Announcement') {
-            dateBegin.innerHTML = "<b>Starts:</b><br>" + (items.date_begin?.split('T')[0] || 'Unknown start date');
-            hourBegin.innerHTML = items.date_begin ? items.date_begin.split('T')[1].split('.')[0] : 'Unknown start time';
-            dateEnd.innerHTML = "<b>Ends:</b><br>" + (items.date_stop?.split('T')[0] || 'Unknown end date');
-            hourEnd.innerHTML = items.date_stop ? items.date_stop.split('T')[1].split('.')[0] : 'Unknown end time';
+            ownerValue.addEventListener('click', function (event) {
+                event.preventDefault();
+                fecthObject('User', item.owner.id);
+            });
+
+            if (item.date_begin) {
+                const dateBegin = document.createElement('div');
+                dateBegin.classList.add('date-begin');
+                mainInfo.appendChild(dateBegin);
+                const dateBeginKey = document.createElement('div');
+                dateBeginKey.classList.add('key');
+                dateBeginKey.innerHTML = 'Starts:';
+                const dateBeginValue = document.createElement('div');
+                dateBeginValue.classList.add('value');
+                dateBeginValue.innerHTML = item.date_begin.split('T')[0];
+                dateBegin.appendChild(dateBeginKey);
+                dateBegin.appendChild(dateBeginValue);
+
+                const hourBegin = document.createElement('div');
+                hourBegin.classList.add('hour-begin');
+                mainInfo.appendChild(hourBegin);
+                const hourBeginKey = document.createElement('div');
+                hourBeginKey.classList.add('key');
+                hourBeginKey.innerHTML = 'At:';
+                const hourBeginValue = document.createElement('div');
+                hourBeginValue.classList.add('value');
+                hourBeginValue.innerHTML = item.date_begin.split('T')[1].split('.')[0].slice(0, 5);
+                hourBegin.appendChild(hourBeginKey);
+                hourBegin.appendChild(hourBeginValue);
+            }
+            if (item.date_stop) {
+                const dateEnd = document.createElement('div');
+                dateEnd.classList.add('date-end');
+                mainInfo.appendChild(dateEnd);
+                const dateEndKey = document.createElement('div');
+                dateEndKey.classList.add('key');
+                dateEndKey.innerHTML = 'Ends:';
+                const dateEndValue = document.createElement('div');
+                dateEndValue.classList.add('value');
+                dateEndValue.innerHTML = item.date_stop.split('T')[0];
+                dateEnd.appendChild(dateEndKey);
+                dateEnd.appendChild(dateEndValue);
+
+                const hourEnd = document.createElement('div');
+                hourEnd.classList.add('hour-end');
+                mainInfo.appendChild(hourEnd);
+                const hourEndKey = document.createElement('div');
+                hourEndKey.classList.add('key');
+                hourEndKey.innerHTML = 'At:';
+                const hourEndValue = document.createElement('div');
+                hourEndValue.classList.add('value');
+                hourEndValue.innerHTML = item.date_stop.split('T')[1].split('.')[0].slice(0, 5);
+                hourEnd.appendChild(hourEndKey);
+                hourEnd.appendChild(hourEndValue);
+            }
         } else {
-            dateBegin.innerHTML = "<b>On:</b><br>" + (items.date_begin?.split('T')[0] || 'Unknown date');
-            hourBegin.innerHTML = items.date_begin ? items.date_begin.split('T')[1].split('.')[0] : 'Unknown time';
+            ownerValue.addEventListener('click', function (event) {
+                event.preventDefault();
+                fecthObject('Organisation', item.owner.id);
+            });
+
+            const dateBegin = document.createElement('div');
+            dateBegin.classList.add('date-begin');
+            mainInfo.appendChild(dateBegin);
+            const dateBeginKey = document.createElement('div');
+            dateBeginKey.classList.add('key');
+            dateBeginKey.innerHTML = 'On:';
+            const dateBeginValue = document.createElement('div');
+            dateBeginValue.classList.add('value');
+            dateBeginValue.innerHTML = item.date.split('T')[0];
+            dateBegin.appendChild(dateBeginKey);
+            dateBegin.appendChild(dateBeginValue);
+
+            const hourBegin = document.createElement('div');
+            hourBegin.classList.add('hour-begin');
+            mainInfo.appendChild(hourBegin);
+            const hourBeginKey = document.createElement('div');
+            hourBeginKey.classList.add('key');
+            hourBeginKey.innerHTML = 'At:';
+            const hourBeginValue = document.createElement('div');
+            hourBeginValue.classList.add('value');
+            hourBeginValue.innerHTML = item.date.split('T')[1].split('.')[0].slice(0, 5);
+            hourBegin.appendChild(hourBeginKey);
+            hourBegin.appendChild(hourBeginValue);
         }
-        description.innerHTML = "<b>Description:</b><br>" + (items.description || 'No description available');
     } else if (model === 'User' || model === 'Organisation') {
-        titleText.innerHTML = items.username || 'No username';
-        if (items.bio !== undefined) description.innerHTML = "<b>Bio:</b><br>" + items.bio;
-        email.innerHTML = items.email || 'No email';
-        phone.innerHTML = items.phone || 'No phone';
+        titleText.innerHTML = item.username || 'No username';
+
+        const email = document.createElement('div');
+        email.classList.add('email');
+        mainInfo.appendChild(email);
+        const emailKey = document.createElement('div');
+        emailKey.classList.add('key');
+        emailKey.innerHTML = 'Email:';
+        const emailValue = document.createElement('div');
+        emailValue.classList.add('value');
+        emailValue.innerHTML = item.email || 'No email';
+        email.appendChild(emailKey);
+        email.appendChild(emailValue);
+
+        const phone = document.createElement('div');
+        phone.classList.add('phone');
+        mainInfo.appendChild(phone);
+        const phoneKey = document.createElement('div');
+        phoneKey.classList.add('key');
+        phoneKey.innerHTML = 'Phone:';
+        const phoneValue = document.createElement('div');
+        phoneValue.classList.add('value');
+        phoneValue.innerHTML = item.phone || 'No phone';
+        phone.appendChild(phoneKey);
+        phone.appendChild(phoneValue);
+
+        if (item.bio !== undefined) {
+            // add to description
+            const bioKey = document.createElement('div');
+            bioKey.classList.add('key');
+            bioKey.innerHTML = 'Bio:';
+            const bioValue = document.createElement('div');
+            bioValue.classList.add('value');
+            bioValue.innerHTML = item.bio;
+            description.appendChild(bioKey);
+            description.appendChild(bioValue);
+        }
     }
-
-    owner.addEventListener('click', function (event) {
-        event.preventDefault();
-        fecthObject('User', items.owner.id);
-    });
-
 
     return elementContainer;
 }
 
-async function fetchList(tabName, title = '') {
-    const url = '/' + tabName.toLowerCase() + '/?input=' + title;
+async function fetchList(model, title = '') {
+    const url = '/' + model.toLowerCase() + '/?input=' + title;
 
     try {
         const response = await fetch(url);
@@ -322,7 +352,7 @@ async function fetchList(tabName, title = '') {
         itemsContainer.innerHTML = '';
 
         items.forEach(item => {
-            const itemElement = createItemList(tabName, item);
+            const itemElement = createItemList(model, item);
             itemsContainer.appendChild(itemElement);
         });
     } catch (error) {
