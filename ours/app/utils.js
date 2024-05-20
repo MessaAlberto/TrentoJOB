@@ -1,6 +1,4 @@
-const {Profile, User, Organisation} = require("./models/profileModel");
-const {Event} = require("./models/eventModel");
-const {Announcement} = require("./models/announcementModel");
+const {Profile} = require("./models/profileModel");
 const {hash} = require("bcrypt");
 const mail = require("./nodeMail");
 const {sign} = require('jsonwebtoken');
@@ -53,28 +51,19 @@ const newActivity = async (req, res, model) => {
     }
 };
 
-const fields = '-password -refresh_token';
+const fields = '-password -refresh_token -confirmed -verified';
 
 const search = async (req, res, model) => {
     try {
-        const { input } = req.query;
-        let query = {};
+        let query = req.body;
 
-        if (input) {
-            if (model === Event || model === Announcement) {
-                // Check if the title query parameter exists
-                query.title = new RegExp(input, 'i');
-            } else if (model === User || model === Organisation) {
-                // Check if the username query parameter exists
-                query.username = new RegExp(input, 'i');
-                // Check if they are confirmed
-                query.confirmed = true;
-            }
-        } else {
-            if (model === User || model === Organisation) {
-                query.confirmed = true; // Ensure only confirmed users and organisations are fetched even if there's no input
-            }
+        if (model === User)
+            req.body.confirmed = true;
+        else if (model === Organisation) {
+            req.body.confirmed = true;
+            req.body.verified = true;
         }
+
         // Query the database with the constructed query object
         const output = await model.find(query).select(fields);
 
