@@ -1,4 +1,6 @@
-const {Profile} = require("./models/profileModel");
+const {Profile, User, Organisation } = require("./models/profileModel");
+const {Event} = require("./models/eventModel");
+const {Announcement} = require("./models/announcementModel");
 const {hash} = require("bcrypt");
 const mail = require("./nodeMail");
 const {sign} = require('jsonwebtoken');
@@ -7,9 +9,9 @@ const {sign} = require('jsonwebtoken');
 const register = async (req, res, model, role) => {
     try {
         // check if email already exists
-        const emailExists = await Profile.findOne({email: req.body.email})
+        const emailExists = await Profile.findOne({ email: req.body.email })
         if (emailExists)
-            return res.status(400).json({message: 'Email already exists'});
+            return res.status(400).json({ message: 'Email already exists' });
 
         // hashing
         req.body.password = await hash(req.body.password, 10);
@@ -18,15 +20,15 @@ const register = async (req, res, model, role) => {
 
         // save
         const savedUser = await user.save();
-        res.status(201).json({user: savedUser._id});
+        res.status(201).json({ user: savedUser._id });
 
         // send email confirmation mail
-        const email_token = sign({_id: savedUser._id}, process.env.JWT_SECRET_MAIL, {expiresIn: process.env.JWT_EXPIRE_MAIL});
+        const email_token = sign({ _id: savedUser._id }, process.env.JWT_SECRET_MAIL, { expiresIn: process.env.JWT_EXPIRE_MAIL });
         const url = `http://localhost:${process.env.PORT}/auth/${email_token}`;
         const html = `link valid for 48h: <a href="${url}">Click here to confirm</a>`;
         mail(req.body.email, "Email confirmation", html);
-    } catch{
-        res.status(500).json({message: 'Internal Server Error'});
+    } catch {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
@@ -45,9 +47,9 @@ const newActivity = async (req, res, model) => {
 
         // save in db
         const activityResult = await activity.save();
-        res.status(201).json({activity_id: activityResult._id});
+        res.status(201).json({ activity_id: activityResult._id });
     } catch {
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
@@ -55,22 +57,36 @@ const fields = '-password -refresh_token -confirmed -verified';
 
 const search = async (req, res, model) => {
     try {
-        let query = req.body;
+        let query = { ...req.query };
 
-        if (model === User)
-            req.body.confirmed = true;
-        else if (model === Organisation) {
-            req.body.confirmed = true;
-            req.body.verified = true;
+        console.log(query);
+        if (query.input) {
+            const searchTerm = new RegExp(query.input, 'i');
+            delete query.input;
+
+            if (model === Event || model === Announcement) {
+                query.title = searchTerm;
+            } else if (model === User || model === Organisation) {
+                query.username = searchTerm;
+            }
         }
 
+        if (model === User) {
+            query.confirmed = true;
+        } else if (model === Organisation) {
+            query.confirmed = true;
+            query.verified = true;
+        }
+
+        console.log(query);
+        console.log("--------------------");
         // Query the database with the constructed query object
         const output = await model.find(query).select(fields);
 
         // Return JSON response containing the announcements
         res.status(200).json(output);
     } catch {
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 }
 
@@ -83,13 +99,13 @@ const searchById = async (req, res, model) => {
             res.status(404).json({ error: 'Not found' });
         }
     } catch {
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 }
 
 const editEntity = async (req, res, model) => {
     try {
-        const updatedentity = await model.findByIdAndUpdate(req.params.id, req.body, {new: true});
+        const updatedentity = await model.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.status(200).json(updatedentity);
     } catch {
         res.status(500).json({ message: 'Internal Server Error' });
@@ -105,7 +121,7 @@ const erase = async (req, res, model) => {
             res.status(404).json({ error: 'Not found' });
         }
     } catch {
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 }
 

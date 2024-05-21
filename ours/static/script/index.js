@@ -1,6 +1,10 @@
 let map;
+let radioButtonsValue = 'event';
 
-document.addEventListener('DOMContentLoaded', function () {    
+document.addEventListener('DOMContentLoaded', function () {
+
+    displayCreateButton();
+
     // show Trento on the map
     map = L.map('map').setView([46.066422, 11.125760], 13);
 
@@ -14,14 +18,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     radioButtons.forEach(radioButton => {
         radioButton.addEventListener('click', function () {
-            const value = this.value;
-            const title = document.getElementById('searchInput').value.trim();
-            fetchList(value, title);
+            radioButtonsValue = this.value;
+            // Empty the search bar
             document.getElementById('searchInput').value = '';
+            // Fetch the list of items and display them on the map
+
+            fetchList(radioButtonsValue);
+            // Display filter
+            createFilterForm();
         });
     });
 
-    fetchList('Event');
+
+    fetchList('event');
+    createFilterForm();
 });
 
 
@@ -42,7 +52,6 @@ async function getCoordinatesFromLocation(location) {
 
 async function fetchAndDisplayItems(model, items) {
     try {
-        console.log('Fetching items:', items);
         // clean the map
         map.eachLayer(function (layer) {
             if (layer instanceof L.Marker) {
@@ -51,39 +60,31 @@ async function fetchAndDisplayItems(model, items) {
         });
 
         let icon;
-        if (model === 'Event') {
-            console.log('Event');
+        if (model === 'event') {
             icon = new L.AwesomeMarkers.icon({
                 icon: 'group',
                 markerColor: 'blue',
                 prefix: 'fa'
             });
-        } else if (model === 'Announcement') {
-            console.log('Announcement');
+        } else if (model === 'announcement') {
             icon = new L.AwesomeMarkers.icon({
                 icon: 'handshake-o',
                 markerColor: 'green',
                 prefix: 'fa'
             });
-            if (icon) {
-                console.log('Icon:', icon);
-            }
-
-        }
+        } else
+            return;
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        console.log('Items:', items);
         items.forEach(async item => {
             const location = item.location;
             const coordinates = await getCoordinatesFromLocation(location);
-            console.log('Coordinates:', coordinates);
             if (coordinates) {
                 const [longitude, latitude] = coordinates;
                 const { title } = item;
-                console.log('Title:', title);
                 L.marker([latitude, longitude], { icon }).addTo(map).bindPopup(title);
             }
         });
@@ -96,26 +97,21 @@ function searchInputBar(event) {
     if (event.keyCode === 13) {
         event.preventDefault();
         const title = document.getElementById('searchInput').value.trim();
-        const radioButtons = document.querySelectorAll('.tabs input[type="radio"]');
-        radioButtons.forEach(radioButton => {
-            if (radioButton.checked) {
-                fetchList(radioButton.value, title);
-                document.getElementById('searchInput').value = '';
-            }
-        });
+        if (title) {
+            const query = { input: title };
+            fetchList(radioButtonsValue, query);
+        }
+        document.getElementById('searchInput').value = '';
     }
 }
 
 function searchButton() {
     const title = document.getElementById('searchInput').value.trim();
-    const radioButtons = document.querySelectorAll('.tabs input[type="radio"]');
-    radioButtons.forEach(radioButton => {
-        if (radioButton.checked) {
-            fetchList(radioButton.value, title);
-            document.getElementById('searchInput').value = '';
-        }
+    if (title) {
+        const query = { input: title };
+        fetchList(radioButtonsValue, query);
     }
-    );
+    document.getElementById('searchInput').value = '';
 }
 
 function displayCreateButton() {
@@ -127,7 +123,7 @@ function displayCreateButton() {
     }
 }
 
-function createNotices() {
+function createActivity() {
     // Check if it is logged in
     var userId = localStorage.getItem('userId');
     if (!userId) {
@@ -158,7 +154,6 @@ function createItemList(model, item) {
     elementContainer.appendChild(titleElement);
 
     const titleText = document.createElement('div');
-    titleText.classList.add('title');
     titleElement.appendChild(titleText);
 
     const infoContainer = document.createElement('div');
@@ -173,7 +168,7 @@ function createItemList(model, item) {
     description.classList.add('description');
     infoContainer.appendChild(description);
 
-    if (model === 'Event' || model === 'Announcement') {
+    if (model === 'event' || model === 'announcement') {
         const expiredText = document.createElement('div');
         expiredText.classList.add('expired');
         titleElement.appendChild(expiredText);
@@ -191,7 +186,6 @@ function createItemList(model, item) {
         description.appendChild(descriptionValue);
 
         const location = document.createElement('div');
-        location.classList.add('location');
         mainInfo.appendChild(location);
         const locationKey = document.createElement('div');
         locationKey.classList.add('key');
@@ -203,7 +197,6 @@ function createItemList(model, item) {
         location.appendChild(locationValue);
 
         const owner = document.createElement('div');
-        owner.classList.add('owner');
         mainInfo.appendChild(owner);
         const ownerKey = document.createElement('div');
         ownerKey.classList.add('key');
@@ -215,7 +208,7 @@ function createItemList(model, item) {
         owner.appendChild(ownerKey);
         owner.appendChild(ownerValue);
 
-        if (model === 'Announcement') {
+        if (model === 'announcement') {
             ownerValue.addEventListener('click', function (event) {
                 event.preventDefault();
                 fecthObject('User', item.owner.id);
@@ -223,7 +216,6 @@ function createItemList(model, item) {
 
             if (item.date_begin) {
                 const dateBegin = document.createElement('div');
-                dateBegin.classList.add('date-begin');
                 mainInfo.appendChild(dateBegin);
                 const dateBeginKey = document.createElement('div');
                 dateBeginKey.classList.add('key');
@@ -235,7 +227,6 @@ function createItemList(model, item) {
                 dateBegin.appendChild(dateBeginValue);
 
                 const hourBegin = document.createElement('div');
-                hourBegin.classList.add('hour-begin');
                 mainInfo.appendChild(hourBegin);
                 const hourBeginKey = document.createElement('div');
                 hourBeginKey.classList.add('key');
@@ -248,7 +239,6 @@ function createItemList(model, item) {
             }
             if (item.date_stop) {
                 const dateEnd = document.createElement('div');
-                dateEnd.classList.add('date-end');
                 mainInfo.appendChild(dateEnd);
                 const dateEndKey = document.createElement('div');
                 dateEndKey.classList.add('key');
@@ -260,7 +250,6 @@ function createItemList(model, item) {
                 dateEnd.appendChild(dateEndValue);
 
                 const hourEnd = document.createElement('div');
-                hourEnd.classList.add('hour-end');
                 mainInfo.appendChild(hourEnd);
                 const hourEndKey = document.createElement('div');
                 hourEndKey.classList.add('key');
@@ -278,7 +267,6 @@ function createItemList(model, item) {
             });
 
             const dateBegin = document.createElement('div');
-            dateBegin.classList.add('date-begin');
             mainInfo.appendChild(dateBegin);
             const dateBeginKey = document.createElement('div');
             dateBeginKey.classList.add('key');
@@ -290,7 +278,6 @@ function createItemList(model, item) {
             dateBegin.appendChild(dateBeginValue);
 
             const hourBegin = document.createElement('div');
-            hourBegin.classList.add('hour-begin');
             mainInfo.appendChild(hourBegin);
             const hourBeginKey = document.createElement('div');
             hourBeginKey.classList.add('key');
@@ -301,11 +288,10 @@ function createItemList(model, item) {
             hourBegin.appendChild(hourBeginKey);
             hourBegin.appendChild(hourBeginValue);
         }
-    } else if (model === 'User' || model === 'Organisation') {
+    } else if (model === 'user' || model === 'organisation') {
         titleText.innerHTML = item.username || 'No username';
 
         const email = document.createElement('div');
-        email.classList.add('email');
         mainInfo.appendChild(email);
         const emailKey = document.createElement('div');
         emailKey.classList.add('key');
@@ -317,7 +303,6 @@ function createItemList(model, item) {
         email.appendChild(emailValue);
 
         const phone = document.createElement('div');
-        phone.classList.add('phone');
         mainInfo.appendChild(phone);
         const phoneKey = document.createElement('div');
         phoneKey.classList.add('key');
@@ -344,11 +329,13 @@ function createItemList(model, item) {
     return elementContainer;
 }
 
-async function fetchList(model, title = '') {
-    const url = '/' + model.toLowerCase() + '/?input=' + title;
-
+async function fetchList(model, query = {}) {
     try {
+        const queryString = new URLSearchParams(query).toString();
+        const url = '/' + model + '?' + queryString;
+
         const response = await fetch(url);
+
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -369,7 +356,7 @@ async function fetchList(model, title = '') {
 }
 
 async function fecthObject(model, ownerId) {
-    const url = '/' + model.toLowerCase() + '/' + ownerId;
+    const url = '/' + model + '/' + ownerId;
 
     try {
         const response = await fetch(url);
@@ -403,4 +390,101 @@ async function fecthObject(model, ownerId) {
     } catch (error) {
         console.error('There has been a problem with your fetch operation:', error);
     }
+}
+
+function createFilterForm() {
+    const filterContainer = document.getElementById('filterContainer');
+    filterContainer.innerHTML = '';
+
+    const expired = document.createElement('div');
+    const expiredLabel = document.createElement('label');
+    expiredLabel.setAttribute('for', 'expired');
+    expiredLabel.innerHTML = 'Expired:';
+    expired.appendChild(expiredLabel);
+    const expiredInput = document.createElement('input');
+    expiredInput.setAttribute('type', 'checkbox');
+    expiredInput.setAttribute('id', 'expired');
+    expiredInput.setAttribute('name', 'expired');
+    expiredInput.setAttribute('value', 'true');
+    expired.appendChild(expiredInput);
+    filterContainer.appendChild(expired);
+
+    // Create the score filter with star rating
+    const score = document.createElement('div');
+    const scoreLabel = document.createElement('label');
+    scoreLabel.setAttribute('for', 'score');
+    scoreLabel.innerHTML = 'Score:';
+    score.appendChild(scoreLabel);
+
+    const ratingDiv = document.createElement('div');
+    ratingDiv.classList.add('rating');
+
+    for (let i = 5; i >= 1; i--) {
+        const starLabel = document.createElement('label');
+        const starInput = document.createElement('input');
+        starInput.setAttribute('type', 'radio');
+        starInput.setAttribute('name', 'rating');
+        starInput.setAttribute('value', i);
+        starInput.setAttribute('title', `${i} stars`);
+        starLabel.appendChild(starInput);
+        starLabel.appendChild(document.createTextNode(` ${i} `));
+        ratingDiv.appendChild(starLabel);
+    }
+
+    score.appendChild(ratingDiv);
+    filterContainer.appendChild(score);
+
+
+    const dateBegin = document.createElement('div');
+    const dateBeginLabel = document.createElement('label');
+    dateBeginLabel.setAttribute('for', 'dateBegin');
+    dateBeginLabel.innerHTML = 'Date begin:';
+    dateBegin.appendChild(dateBeginLabel);
+    const dateBeginInput = document.createElement('input');
+    dateBeginInput.setAttribute('type', 'date');
+    dateBeginInput.setAttribute('id', 'dateBegin');
+    dateBeginInput.setAttribute('name', 'dateBegin');
+    dateBegin.appendChild(dateBeginInput);
+    filterContainer.appendChild(dateBegin);
+
+    const dateEnd = document.createElement('div');
+    const dateEndLabel = document.createElement('label');
+    dateEndLabel.setAttribute('for', 'dateEnd');
+    dateEndLabel.innerHTML = 'Date end:';
+    dateEnd.appendChild(dateEndLabel);
+    const dateEndInput = document.createElement('input');
+    dateEndInput.setAttribute('type', 'date');
+    dateEndInput.setAttribute('id', 'dateEnd');
+    dateEndInput.setAttribute('name', 'dateEnd');
+    dateEnd.appendChild(dateEndInput);
+    filterContainer.appendChild(dateEnd);
+
+    const maxNumberParticipants = document.createElement('div');
+    const maxNumberParticipantsLabel = document.createElement('label');
+    maxNumberParticipantsLabel.setAttribute('for', 'maxNumberParticipants');
+    maxNumberParticipantsLabel.innerHTML = 'Max number participants:';
+    maxNumberParticipants.appendChild(maxNumberParticipantsLabel);
+    const maxNumberParticipantsInput = document.createElement('input');
+    maxNumberParticipantsInput.setAttribute('type', 'number');
+    maxNumberParticipantsInput.setAttribute('id', 'maxNumberParticipants');
+    maxNumberParticipantsInput.setAttribute('name', 'maxNumberParticipants');
+    maxNumberParticipants.appendChild(maxNumberParticipantsInput);
+    filterContainer.appendChild(maxNumberParticipants);
+
+
+}
+
+
+function applayFilter() {
+    const form = document.getElementById('filterForm');
+    const formData = new FormData(form);
+    const filters = {};
+
+    formData.forEach((value, key) => {
+        if (value) {
+            filters[key] = value;
+        }
+    });
+
+    fetchList(radioButtonsValue, filters);
 }

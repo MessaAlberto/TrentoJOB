@@ -14,6 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js"></script>
     <script src="./script/header-sidebar.js"></script>
     <script src="./script/index.js"></script>    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
@@ -46,21 +47,29 @@
                 <input type="text" id="searchInput" placeholder="Search by name..." onkeypress="searchInputBar(event)">
                 <button class="search-button" onclick="searchButton()">Search</button>
             </div>
-            <h2> filters...</h2>
+            <div id="dynamicFilter" class="dynamic-filter">
+                <h2 class="filter-title">Filters research</h2>
+                <form id="filterForm">
+                    <div id="filterContainer">
+                        <!-- Filters will be added here -->
+                    </div>
+                    <button type="button" class="filter-button" onclick="applayFilter()">Applay filters</button>
+                </form>
+            </div>
         </div>
 
         <div class="main-content">
             <div class="tabs">
-                <input type="radio" id="event" name="fav_language" value="Event" checked>
+                <input type="radio" id="event" name="fav_language" value="event" checked>
                 <label for="event">Volunteer Events</label>
 
-                <input type="radio" id="announcement" name="fav_language" value="Announcement">
+                <input type="radio" id="announcement" name="fav_language" value="announcement">
                 <label for="announcement">Job Announcement</label>
 
-                <input type="radio" id="user" name="fav_language" value="User">
+                <input type="radio" id="user" name="fav_language" value="user">
                 <label for="user">Users</label>
 
-                <input type="radio" id="organisation" name="fav_language" value="Organisation">
+                <input type="radio" id="organisation" name="fav_language" value="organisation">
                 <label for="organisation">Organisations</label>
             </div>
 
@@ -74,7 +83,7 @@
 
     <div id="showObject" class="hidden"></div>
 
-    <button id="createNotice" class="create-notice hidden" onclick="createNotices()">+</button>
+    <button id="createNotice" class="create-notice hidden" onclick="createActivity()">+</button>
 
 </body>
 
