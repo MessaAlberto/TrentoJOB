@@ -1,4 +1,4 @@
-const {Profile} = require("./models/profileModel");
+const {Profile, User, Organisation} = require("./models/profileModel");
 const {hash} = require("bcrypt");
 const mail = require("./nodeMail");
 const {sign} = require('jsonwebtoken');
@@ -25,7 +25,8 @@ const register = async (req, res, model, role) => {
         const url = `http://localhost:${process.env.PORT}/auth/${email_token}`;
         const html = `link valid for 48h: <a href="${url}">Click here to confirm</a>`;
         mail(req.body.email, "Email confirmation", html);
-    } catch{
+    } catch (err) {
+        console.log(err);
         res.status(500).json({message: 'Internal Server Error'});
     }
 };

@@ -19,4 +19,3 @@ router.delete('/:id', privateContent(Announcement), async (req, res) => erase(re
 
 
 module.exports = router;
-
