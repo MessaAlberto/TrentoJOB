@@ -41,6 +41,8 @@ const organisationURL = require('./Entities/organisation.js');
 const eventURL = require('./Entities/event');
 const announcementURL = require('./Entities/announcement.js');
 
+const chatURL = require('./Entities/chat.js');
+
 app.use('/auth', authURL);
 
 app.use('/admin', adminURL);
@@ -50,6 +52,7 @@ app.use('/organisation', organisationURL);
 app.use('/event', eventURL);
 app.use('/announcement', announcementURL);
 
+app.use('/chat', chatURL);
 
 /* Default 404 handler */
 app.use((req, res) => {
