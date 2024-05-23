@@ -26,6 +26,11 @@ const Event = mongoose.model('Event', new mongoose.Schema({
         required: true,
         default: false,
     },
+    score: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
     owner: {
         type: Participant,
         required: true,
