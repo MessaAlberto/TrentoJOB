@@ -5,16 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage</title>
     <!-- The order is important -->
+    <!-- map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
-    <link rel="stylesheet" href="./style/header.css">
-    <link rel="stylesheet" href="./style/index.css">
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+
+    <!-- range data input -->
+    <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
+
+    <!-- Include Date Range Picker -->
+    <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+
+
+    <link rel="stylesheet" href="./style/header.css">
+    <link rel="stylesheet" href="./style/index.css">
+
     <script src="./script/header-sidebar.js"></script>
     <script src="./script/index.js"></script>    
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 
 <body>
@@ -47,13 +65,19 @@
                 <input type="text" id="searchInput" placeholder="Search by name..." onkeypress="searchInputBar(event)">
                 <button class="search-button" onclick="searchButton()">Search</button>
             </div>
+            <div class="order-by-container">
+                <label for="orderBy">Order by:</label>
+                <select id="orderBy" name="orderBy" onchange="orderBy()">
+                    <!-- Dynamic order options -->>
+                </select>
+            </div>
             <div id="dynamicFilter" class="dynamic-filter">
                 <h2 class="filter-title">Filters research</h2>
                 <form id="filterForm">
                     <div id="filterContainer">
-                        <!-- Filters will be added here -->
+                        <!-- Dynamic filtres fields -->
                     </div>
-                    <button type="button" class="filter-button" onclick="applayFilter()">Applay filters</button>
+                    <button type="button" class="filter-button" onclick="resetFilters()">Reset filters</button>
                 </form>
             </div>
         </div>
