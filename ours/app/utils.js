@@ -171,12 +171,13 @@ const editEntity = async (req, res, model) => {
             return res.status(404).json({ message: 'Not found' });
 
         const userIdString = String(req.user._id);
+        console.log("userIdString: ", userIdString);
         if (model === Event || model === Announcement) {
             if (req.body.action === 'join') {
                 if (activity.participants.some(participant => String(participant.id) === userIdString))
                     return res.status(400).json({ message: 'Already joined' });
 
-                activity.participants.push({ username: req.user.username, id: req.user._id });
+                activity.participants.push({ username: req.user.username, id: req.user._id, role: req.user.role});
                 await activity.save();
                 return res.status(200).json({ message: 'Joined' });
             } else if (req.body.action === 'leave') {
