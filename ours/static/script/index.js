@@ -182,6 +182,77 @@ function addFiltersToQuery() {
 }
 
 
+function addJoinLeaveButton(item, buttonContainer, elementContainer) {
+    // Only logged in users can join events
+    const userId = localStorage.getItem('userId');
+    const username = localStorage.getItem('username');
+
+    if (userId && username) {
+        const joinButton = document.createElement('button');
+        joinButton.classList.add('join-leave-button');
+
+        const isParticipant = item.participants.some(participant => String(participant.id) === userId);
+
+        if (isParticipant) {
+            if (radioButtonsValue === 'event') {
+
+                joinButton.innerHTML = 'Leave';
+                joinButton.addEventListener('click', function () {
+                    fetch('/event/' + item._id, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + localStorage.token,
+                        },
+                        body: JSON.stringify({ userId: userId, username: username, action: 'leave' }),
+                    }).then(response => {
+                        if (response.ok) {
+                            // reload the element
+                            fetch('/event/' + item._id).then(response => response.json()).then(item => {
+                                const newElement = createItemList('event', item);
+                                elementContainer.replaceWith(newElement);
+                            });
+                        }
+                    });
+                });
+            } else {
+                // open chat: todo
+                // for the moment write a button that open alert 'open chat'
+                joinButton.innerHTML = 'Open Chat';
+                joinButton.addEventListener('click', function () {
+                    alert('Open chat');
+                });
+            }
+
+        } else if (item.maxNumberParticipants && item.participants.length >= item.maxNumberParticipants) {
+            joinButton.innerHTML = 'Full';
+            joinButton.disabled = true;
+        } else {
+            radioButtonsValue === 'event' ? joinButton.innerHTML = 'Join' : joinButton.innerHTML = 'Apply';
+            joinButton.addEventListener('click', function () {
+                fetch('/' + radioButtonsValue + '/' + item._id, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.token,
+                    },
+                    body: JSON.stringify({ userId: userId, username: username, action: 'join' }),
+                }).then(response => {
+                    if (response.ok) {
+                        // reload the element
+                        fetch('/' + radioButtonsValue + '/' + item._id).then(response => response.json()).then(item => {
+                            const newElement = createItemList(radioButtonsValue, item);
+                            elementContainer.replaceWith(newElement);
+                        });
+                    }
+                });
+            });
+        }
+        buttonContainer.appendChild(joinButton);
+    }
+}
+
+
 
 
 function displayCreateButton() {
@@ -235,17 +306,22 @@ function createItemList(model, item) {
     mainInfo.classList.add('main-info');
     infoContainer.appendChild(mainInfo);
 
+    const bodyBox = document.createElement('div');
+    bodyBox.classList.add('body-box');
+    infoContainer.appendChild(bodyBox);
+
     const description = document.createElement('div');
     description.classList.add('description');
-    infoContainer.appendChild(description);
+    bodyBox.appendChild(description);
 
     if (model === 'event' || model === 'announcement') {
+        const bottonLabels = document.createElement('div');
+        bottonLabels.classList.add('bottom-labels');
+        bodyBox.appendChild(bottonLabels);
+
         const expiredText = document.createElement('div');
         expiredText.classList.add('expired');
         titleElement.appendChild(expiredText);
-
-        titleText.innerHTML = item.title || 'No title';
-        if (item.expired) expiredText.innerHTML = 'Expired';
 
         const descriptionKey = document.createElement('div');
         descriptionKey.classList.add('key');
@@ -255,6 +331,35 @@ function createItemList(model, item) {
         descriptionValue.innerHTML = item.description || 'No description available';
         description.appendChild(descriptionKey);
         description.appendChild(descriptionValue);
+
+        const comments = document.createElement('div');
+        bottonLabels.appendChild(comments);
+        const commentsKey = document.createElement('div');
+        commentsKey.classList.add('key');
+        commentsKey.innerHTML = 'Comments:';
+        const commentsValue = document.createElement('div');
+        commentsValue.classList.add('value');
+        commentsValue.innerHTML = item.comments || '(?)';
+        comments.appendChild(commentsKey);
+        comments.appendChild(commentsValue);
+
+        titleText.innerHTML = item.title || 'No title';
+        if (item.expired) {
+            expiredText.innerHTML = 'Expired';
+
+            const rating = document.createElement('div');
+            bottonLabels.appendChild(rating);
+            const ratingKey = document.createElement('div');
+            ratingKey.classList.add('key');
+            ratingKey.innerHTML = 'Rating:';
+            const ratingValue = document.createElement('div');
+            ratingValue.classList.add('value');
+            ratingValue.innerHTML = (item.rating + '/5') || 'No rating';
+            rating.appendChild(ratingKey);
+            rating.appendChild(ratingValue);
+        } else {
+            addJoinLeaveButton(item, bottonLabels, elementContainer);
+        }
 
         const location = document.createElement('div');
         mainInfo.appendChild(location);
@@ -359,6 +464,18 @@ function createItemList(model, item) {
             hourBegin.appendChild(hourBeginKey);
             hourBegin.appendChild(hourBeginValue);
         }
+
+        const participants = document.createElement('div');
+        mainInfo.appendChild(participants);
+        const participantsKey = document.createElement('div');
+        participantsKey.classList.add('key');
+        participantsKey.innerHTML = 'Num participants:';
+        const participantsValue = document.createElement('div');
+        participantsValue.classList.add('value');
+        participantsValue.innerHTML = (item.participants.length + '/' + item.maxNumberParticipants) || 'Unlimited';
+        participants.appendChild(participantsKey);
+        participants.appendChild(participantsValue);
+
     } else if (model === 'user' || model === 'organisation') {
         titleText.innerHTML = item.username || 'No username';
 
@@ -423,8 +540,8 @@ function createOrderingOption() {
         options.push({ value: 'birthday:desc', text: 'Age: Oldest first' });
     }
 
-    options.push({ value: 'score:asc', text: 'Score: Low to High' });
-    options.push({ value: 'score:desc', text: 'Score: High to Low' });
+    options.push({ value: 'rating:asc', text: 'Rating: Low to High' });
+    options.push({ value: 'rating:desc', text: 'Rating: High to Low' });
 
     options.forEach((option, index) => {
         const opt = document.createElement('option');
@@ -444,29 +561,29 @@ function createFilterForm() {
     const filterContainer = document.getElementById('filterContainer');
     filterContainer.innerHTML = '';
 
-    // Create the score filter with star score
-    const score = document.createElement('div');
-    const scoreLabel = document.createElement('label');
-    scoreLabel.innerHTML = 'Score:';
-    score.appendChild(scoreLabel);
+    // Create the rating filter with star rating
+    const rating = document.createElement('div');
+    const ratingLabel = document.createElement('label');
+    ratingLabel.innerHTML = 'Rating:';
+    rating.appendChild(ratingLabel);
 
-    const scoreDiv = document.createElement('div');
-    scoreDiv.classList.add('score');
+    const ratingDiv = document.createElement('div');
+    ratingDiv.classList.add('rating');
 
     for (let i = 5; i >= 1; i--) {
         const starLabel = document.createElement('label');
         const starInput = document.createElement('input');
         starInput.setAttribute('type', 'radio');
-        starInput.setAttribute('name', 'score');
+        starInput.setAttribute('name', 'rating');
         starInput.setAttribute('value', i);
         starInput.setAttribute('title', `${i} stars`);
         starLabel.appendChild(starInput);
         starLabel.appendChild(document.createTextNode(` ${i} `));
-        scoreDiv.appendChild(starLabel);
+        ratingDiv.appendChild(starLabel);
     }
 
-    score.appendChild(scoreDiv);
-    filterContainer.appendChild(score);
+    rating.appendChild(ratingDiv);
+    filterContainer.appendChild(rating);
 
     if (radioButtonsValue === 'user') {
         // Create user age filter
@@ -611,10 +728,10 @@ function createFilterForm() {
     }
 
     // jQuery
-    // score
-    $('.score input').change(function () {
+    // rating
+    $('.rating input').change(function () {
         var $radio = $(this);
-        $('.score .selected').removeClass('selected');
+        $('.rating .selected').removeClass('selected');
         $radio.closest('label').addClass('selected');
     });
 
@@ -627,12 +744,12 @@ function createFilterForm() {
     });
 
     // Update the input value on apply event
-    $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+    $('input[name="daterange"]').on('apply.daterangepicker', function (ev, picker) {
         $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
     });
 
     // Clear the input value on cancel event
-    $('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
+    $('input[name="daterange"]').on('cancel.daterangepicker', function (ev, picker) {
         $(this).val('');
     });
 

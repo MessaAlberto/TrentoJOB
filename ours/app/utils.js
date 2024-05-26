@@ -165,12 +165,47 @@ const searchById = async (req, res, model) => {
 
 const editEntity = async (req, res, model) => {
     try {
-        const updatedentity = await model.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.status(200).json(updatedentity);
-    } catch {
+        const activity = await model.findById(req.params.id);
+        if (!activity)
+            return res.status(404).json({ message: 'Not found' });
+
+        const userIdString = String(req.user._id);
+        if (model === Event || model === Announcement) {
+            if (req.body.action === 'join') {
+                if (activity.participants.some(participant => String(participant.id) === userIdString))
+                    return res.status(400).json({ message: 'Already joined' });
+
+                activity.participants.push({ username: req.user.username, id: req.user._id });
+                await activity.save();
+                return res.status(200).json({ message: 'Joined' });
+            } else if (req.body.action === 'leave') {
+                if (!activity.participants.some(participant => String(participant.id) === userIdString))
+                    return res.status(400).json({ message: 'Not joined' });
+
+                activity.participants = activity.participants.filter(participant => String(participant.id) !== userIdString);
+                await activity.save();
+                return res.status(200).json({ message: 'Left' });
+            } else {
+                // For other modifications, ensure only authorized users can edit
+                if (req.user.role !== 'admin' && userIdString !== String(activity.owner.id))
+                    return res.status(403).json({ message: 'Unauthorized access' });
+
+                for (const key in req.body) {
+                    activity[key] = req.body[key];
+                }
+
+                await activity.save();
+                return res.status(200).json({ message: 'Updated' });
+            }
+
+        } else if (model === User || model === Organisation) {
+            // todo
+        }
+    } catch (error) {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 }
+
 
 const erase = async (req, res, model) => {
     try {
