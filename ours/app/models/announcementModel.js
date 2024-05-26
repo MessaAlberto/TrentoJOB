@@ -25,7 +25,7 @@ const Announcement = mongoose.model('Announcement', new mongoose.Schema({
         type: String,
         required: false,
     },
-    score: {
+    rating: {
         type: Number,
         required: true,
         default: 0,
