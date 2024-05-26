@@ -26,7 +26,7 @@ const Event = mongoose.model('Event', new mongoose.Schema({
         required: true,
         default: false,
     },
-    rating: {
+    score: {
         type: Number,
         required: true,
         default: 0,

@@ -29,25 +29,23 @@ const verifySecretToken = (req, res, next) => {
 
 // get access only if authorized
 const privateAccess = (req, res, next) => {
-    // if logged in and admin or owner --> access
-    if (req.user && (req.user.role === 'admin' || req.user._id === req.params.id))
-        next();
-    else
-        res.status(403).json({ message: 'Unauthorized access' });
+    if (  !req.user                         // not guest
+        && req.user.role !== 'admin'        // admin
+        && req.user._id !== req.params.id)  // self
+        return res.status(403);
+    next();
 }
 
-const blockGuest = (model) => async (req, res, next) => {
+const privateContent = (model) => async (req, res, next) => {
     try {
+        // Check the ownerId of the entity
         const entity = await model.findById(req.params.id);
 
-        if (!entity)
-            return res.status(404).json({ message: 'Entity not found' });
-
-        if (req.user)
-            next();
-        else
-            res.status(403).json({ message: 'Not now' });
-
+        // Check if the entity exists and if the user is the owner
+        if (!entity || (entity.owner.id !== req.user._id))
+            return res.status(403).json({ message: 'Unauthorized access' });
+        next();
+        
     } catch {
         res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -64,6 +62,6 @@ module.exports = {
     printf,
     verifySecretToken,
     privateAccess,
-    blockGuest,
+    privateContent,
     checkRole,
 }

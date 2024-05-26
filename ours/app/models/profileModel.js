@@ -28,7 +28,7 @@ const Profile = mongoose.model('Profile', new mongoose.Schema({
         required: false,
         default: null,
     },
-    rating: {
+    score: {
         type: Number,
         required: true,
         default: 0,
