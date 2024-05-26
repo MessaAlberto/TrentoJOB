@@ -5,33 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Announcement Registration</title>
+    
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="./script/header-sidebar.js"></script>
     <script src="./script/createAnnouncement.js"></script>
-    <link rel="stylesheet" href="./style/header.css">
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
+    <link rel="stylesheet" href="./style/header-sidebar.css">
     <link rel="stylesheet" href="./style/createAnnouncement.css">
 </head>
 
 <body>
-    <div class="header">
-        <div class="header-left">
-            <h2>TrentoJOB</h2>
-        </div>
-        <div class="header-right" id="sign-in-up">
-            <button class="logButton" onclick="signUp()">Sign Up</button>
-            <button class="logButton" onclick="login()">Log In</button>
-        </div>
-        <div class="header-right hidden" id="profile-icon">
-            <span class="usernameLabel" id="usernameLabel"></span>
-            <span class="profileIcon" id="profileIcon">👤</span>
-        </div>
-    </div>
-
-    <div id="sidebar" class="sidebar hidden">
-        <ul>
-            <li><a href="/me.html">View My Profile</a></li>
-            <li><a href="#" onclick="logout()">Logout</a></li>
-        </ul>
-    </div>
+    <div id="header-container"></div>
     
     <section class="forms-section">
         <h1 class="section-title">Announcement Registration</h1>

@@ -21,6 +21,10 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         signUp('organisation');
     });
+
+    document.getElementById('homeTitle').addEventListener('click', function () {
+        window.location.href = "/index.html";
+    });
 });
 
 

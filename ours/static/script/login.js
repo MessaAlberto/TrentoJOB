@@ -1,3 +1,9 @@
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('homeTitle').addEventListener('click', function () {
+        window.location.href = "/index.html";
+    });
+});
+
 function goBack() {
     window.location.href = "/index.html";
 }

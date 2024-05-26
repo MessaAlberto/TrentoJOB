@@ -16,6 +16,13 @@ body {
     margin-top: 60px;
 }
 
+#header-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+}
+
 .header {
     position: fixed;
     top: 0;
@@ -36,6 +43,13 @@ body {
     max-height: 60px;
     width: 50%;
 }
+
+#homeTitle {
+    font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
+    display: inline-block;
+    cursor: pointer;
+}
+
 
 .header-right {
     text-align: right;

@@ -708,8 +708,9 @@ function createFilterForm() {
             date.appendChild(dateLabel);
 
             const dateInput = document.createElement('input');
-            dateInput.setAttribute('type', 'date');
+            dateInput.setAttribute('type', 'text');
             dateInput.setAttribute('name', 'date');
+            dateInput.setAttribute('autocomplete', 'off');
             date.appendChild(dateInput);
             filterContainer.appendChild(date);
         } else {

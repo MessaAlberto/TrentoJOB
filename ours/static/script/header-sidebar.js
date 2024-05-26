@@ -1,43 +1,57 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Check if user ID is present in localStorage
-    var userId = localStorage.getItem('userId');
-    if (userId) {
-        var username = localStorage.getItem('username');
-        if (username) {
-            displayUserProfile(username);
+    console.log('DOM fully loaded and parsed');
+    $("#header-container").load("header-sidebar.html", function() {
+        // Ensure the following code runs after header.html is loaded
+
+        var userId = localStorage.getItem('userId');
+        if (userId) {
+            var username = localStorage.getItem('username');
+            if (username) {
+                console.log('Username: ' + username);
+                // if element id=sign-in-up is present
+                if (document.getElementById('sign-in-up')) {
+                    console.log('Element found');
+                } else {
+                    console.log('Element not found');
+                }
+                displayUserProfile(username);
+                console.log('User ID: ' + userId);
+            }
         }
-    }
 
-    var usernameLabel = document.getElementById('usernameLabel');
-    if (usernameLabel) {
-        usernameLabel.addEventListener('click', function () {
-            window.location.href = "/me.html"; // Redirect to /me page
-        });
-    }
+        var usernameLabel = document.getElementById('usernameLabel');
+        if (usernameLabel) {
+            usernameLabel.addEventListener('click', function () {
+                window.location.href = "/me.html"; // Redirect to /me page
+            });
+        }
 
-    // 
-    var profileIcon = document.getElementById('profileIcon');
-    if (profileIcon) {
-        profileIcon.addEventListener('click', function () {
+        var profileIcon = document.getElementById('profileIcon');
+        if (profileIcon) {
+            profileIcon.addEventListener('click', function () {
+                toggleSidebar();
+            });
+        }
+
+        // Hide sidebar
+        document.getElementById('sidebar').addEventListener('mouseleave', function () {
             toggleSidebar();
         });
-    }
+        document.addEventListener('mousemove', function (event) {
+            var mouseX = event.clientX;
+            var windowWidth = window.innerWidth;
+            const sidebar = document.getElementById('sidebar');
 
-    // Hide sidebar
-    document.getElementById('sidebar').addEventListener('mouseleave', function () {  
-        toggleSidebar();
-    });
-    document.addEventListener('mousemove', function(event) {
-        var mouseX = event.clientX;
-        var windowWidth = window.innerWidth;
-        const sidebar = document.getElementById('sidebar');
-    
-        if (mouseX < windowWidth - 220) {
-            sidebar.classList.add('hidden');
-        }
+            if (mouseX < windowWidth - 220) {
+                sidebar.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('homeTitle').addEventListener('click', function () {
+            window.location.href = "/index.html";
+        });
     });
 });
-
 
 function signUp() {
     window.location.href = "registration.html";
@@ -66,13 +80,12 @@ function logout() {
     xhr.send();
 }
 
-
 function displayUserProfile(username) {
-    const singInUp = document.getElementById('sign-in-up');
+    const signInUp = document.getElementById('sign-in-up');
     const userProfile = document.getElementById('profile-icon');
     const usernameLabel = document.getElementById('usernameLabel');
 
-    singInUp.classList.add('hidden');
+    signInUp.classList.add('hidden');
     usernameLabel.innerHTML = username;
     userProfile.classList.remove('hidden');
 }
