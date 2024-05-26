@@ -387,7 +387,7 @@ function createItemList(model, item) {
         if (model === 'announcement') {
             ownerValue.addEventListener('click', function (event) {
                 event.preventDefault();
-                fecthObject('User', item.owner.id);
+                fecthObject(item.owner.role, item.owner.id);
             });
 
             if (item.date_begin) {
@@ -439,7 +439,7 @@ function createItemList(model, item) {
         } else {
             ownerValue.addEventListener('click', function (event) {
                 event.preventDefault();
-                fecthObject('Organisation', item.owner.id);
+                fecthObject(item.owner.role, item.owner.id);
             });
 
             const dateBegin = document.createElement('div');

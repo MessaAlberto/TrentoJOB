@@ -42,7 +42,8 @@ const newActivity = async (req, res, model) => {
         let activity = new model(req.body);
         activity.owner = {
             username: req.user.username,
-            id: req.user._id
+            id: req.user._id, 
+            role: req.user.role
         };
 
         // save in db
