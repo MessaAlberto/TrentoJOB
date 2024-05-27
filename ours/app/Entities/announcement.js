@@ -19,4 +19,3 @@ router.delete('/:id', blockGuest(Announcement), async (req, res) => erase(req, r
 
 
 module.exports = router;
-

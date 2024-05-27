@@ -45,16 +45,6 @@ const Message = new mongoose.Schema({
         required: true,
         default: Date.now,
     },
-});
-
-const Attachment = Message.discriminator('Attachment', {
-    file: {
-        type: File,
-        required: true,
-    }
-});
-
-const PlainText = Message.discriminator('PlainText', {
     text: {
         type: String,
         required: true,
@@ -83,7 +73,5 @@ module.exports = {
     Participant,
     Review,
     Message,
-    Attachment,
-    PlainText,
     chatStatus,
 }
