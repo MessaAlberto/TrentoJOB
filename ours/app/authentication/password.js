@@ -1,55 +1,79 @@
-const crypto = require('crypto');
-const { Profile } = require('../models/profileModel');
 const router = require("express").Router();
+const mail = require('../nodeMail');
+const {sign, verify} = require('jsonwebtoken');
+const { Profile } = require('../models/profileModel');
+const {resetPasswordValidation} = require("../validation");
 const path = require('path');
-const jwt = require('jsonwebtoken');
-const Joi = require('joi');
 
-// Funzione di validazione della password
-const passwordSchema = Joi.string().min(8).max(255).required();
+router.post('/', async (req, res) => {
+    try {
+        const user = await Profile.findOne({email: req.body.email});
+        if (!user)
+            return res.status(404).json({message: 'User not found'});
+
+        // send email
+        const email_token = sign({userId: user._id}, process.env.JWT_SECRET_MAIL, {expiresIn: process.env.JWT_EXPIRE_MAIL});
+        const html =
+            `<!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Password Reset</title>
+            </head>
+            <body>
+                <p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
+                <p>Please click the following link to reset your password:</p>
+                <a href="http://${req.headers.host}/password?token=${email_token}">Reset Password</a>
+                <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+            </body>
+            </html>`;
+        mail(user.email, 'Password Reset', html);
+
+        console.log('Received reset request for email:', user.email);
+
+        res.status(200).json({message: 'A reset link has been sent to your email address'});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: 'Internal Server Error'});
+    }
+});
 
 // Servire la pagina di reset della password
 router.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../static/reset_password.html'));
+    try {
+        res.sendFile(path.join(__dirname, '../../static/reset_password.html'));
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: 'Internal Server Error'});
+    }
 });
 
-router.patch('/:token', async (req, res) => {
+router.patch('/:token', resetPasswordValidation, async (req, res) => {
     const token = req.params.token;
     const { password } = req.body;
 
     try {
-        // Validazione della password
-        const { error } = passwordSchema.validate(password);
-        if (error) {
-            return res.status(400).json({ message: error.details[0].message });
-        }
 
-        console.log('Token:', token);
-        console.log('Password:', password);
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_MAIL);
+        const decoded = verify(token, process.env.JWT_SECRET_MAIL);
         const userId = decoded.userId; // Ottieni l'ID dell'utente dal token decodificato
 
-        console.log('User ID:', userId);//664601c12104e3abf6b3d50c
+        const user = await Profile.findByIdAndUpdate(userId,
+            {password: password},
+            {new: true});
 
-        const user = await Profile.findByIdAndUpdate(userId, {
-            password: password,
-            $unset: {
-                resetPasswordToken: '',
-                resetPasswordExpires: ''
-            }
-        }, { new: true });
+        if (!user)
+            return res.status(400).json({message: 'Bad Request'});
 
-        if (!user || user.resetPasswordToken !== token || user.resetPasswordExpires < Date.now()) {
-            return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
-        }
-
-        res.status(200).json({ message: 'Password has been successfully reset.' });
-    } catch (error) {
-        console.error('Error saving user:', error);
-        res.status(500).json({ message: 'An error occurred. Please try again later.', error });
+        res.status(200).json({message: 'Password has been successfully reset.'});
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({message: 'Internal Server Error'});
     }
 });
+
+
+
 
 
 module.exports = router;

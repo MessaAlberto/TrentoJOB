@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(email);  // DEBUG
         
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/reset', true);
+        xhr.open('POST', '/password', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         
         xhr.onreadystatechange = function() {
