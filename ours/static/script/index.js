@@ -72,8 +72,9 @@ async function fetchAndDisplayItems(model, items) {
                 markerColor: 'green',
                 prefix: 'fa'
             });
-        } else
+        } else {
             return;
+        }
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -84,14 +85,26 @@ async function fetchAndDisplayItems(model, items) {
             const coordinates = await getCoordinatesFromLocation(location);
             if (coordinates) {
                 const [longitude, latitude] = coordinates;
-                const { title } = item;
-                L.marker([latitude, longitude], { icon }).addTo(map).bindPopup(title);
+                const { title, owner} = item;
+                const ownerLink = `<a href="/user.html?id=${owner._id}" class="owner-link">${owner.username || 'Unknown owner'}</a>`;
+                const popupContent = `
+                    <div>
+                        <h3>${title}</h3>
+                        <p><strong>Location:</strong> ${location}</p>
+                        <p><strong>Owner:</strong> ${ownerLink}</p>
+                    </div>`;
+                const marker = L.marker([latitude, longitude], { icon }).addTo(map).bindPopup(popupContent);
+                marker.on('click', function(event) {
+                    event.preventDefault();
+                    window.location.href = `/user.html?id=${owner.id}`;
+                });
             }
         });
     } catch (error) {
         console.error('Error during items fetch:', error);
     }
 }
+
 
 function searchInputBar(event) {
     if (event.keyCode === 13) {

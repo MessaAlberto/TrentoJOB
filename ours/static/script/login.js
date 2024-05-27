@@ -7,6 +7,11 @@ function goToRegistration() {
     window.location.href = "/registration.html";
 }
 
+function goToForgotPassword(){
+    // Redirect to forgot password page
+    window.location.href = "/forgot_password.html";
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Prevent the default form submission behavior
     document.getElementById('loginButton').addEventListener('click', function (event) {
