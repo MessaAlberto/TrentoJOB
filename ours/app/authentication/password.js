@@ -58,6 +58,8 @@ router.patch('/:token/:_id', resetPasswordValidation, async (req, res) => {
         const hashedPassword = await hash(password, 10);
         console.log('Hashed password:', password);
 
+        password = await hash(password, 10);
+
         const user = await Profile.findByIdAndUpdate(userId,
             {password: hashedPassword},
             {new: true});
