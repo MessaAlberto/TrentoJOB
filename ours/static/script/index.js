@@ -75,8 +75,9 @@ async function displayItemsOnMap(model, items) {
                 markerColor: 'green',
                 prefix: 'fa'
             });
-        } else
+        } else {
             return;
+        }
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
