@@ -1,5 +1,6 @@
 const {verify} = require("jsonwebtoken");
 const {Profile} = require("./models/profileModel");
+const {Chat} = require("./models/chatModel");
 
 // print method and url
 const printf = (req, res, next) => {
@@ -53,6 +54,19 @@ const blockGuest = (model) => async (req, res, next) => {
     }
 };
 
+const privateChat = async (req, res, next) => {
+    try {
+        const chat = await Chat.findById(req.params.id);
+
+        if (!chat || (chat.memberA.id !== req.user._id.toString() && chat.memberB.id !== req.user._id.toString()))
+            return res.status(403).json({ message: 'Unauthorized access' });
+        next();
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: 'Internal Server Error'});
+    }
+};
 
 const checkRole = (role) => (req, res, next) => {
     if (!req.user || req.user.role !== role)
@@ -65,5 +79,6 @@ module.exports = {
     verifySecretToken,
     privateAccess,
     blockGuest,
+    privateChat,
     checkRole,
 }
