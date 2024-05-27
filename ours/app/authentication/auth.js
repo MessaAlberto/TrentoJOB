@@ -13,8 +13,10 @@ router.post('/', loginValidation, async (req, res) => {
         const user = await Profile.findOne({ email: req.body.email });
 
         // If user doesn't exist or password is wrong
-        if (!user || !(await compare(req.body.password, user.password)))
+        if (!user || !(await compare(req.body.password, user.password))) {
             return res.status(400).json({message: 'Email or password is wrong'});
+
+        }
 
         // If email is not confirmed
         if (!user.confirmed)
