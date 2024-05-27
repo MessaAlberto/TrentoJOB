@@ -156,6 +156,7 @@ const searchById = async (req, res, model) => {
         const output = await model.findById(req.params.id).select(fields);
         if (output) {
             res.status(200).json(output);
+            console.log("Funziona");
         } else {
             res.status(404).json({ error: 'Not found' });
         }
