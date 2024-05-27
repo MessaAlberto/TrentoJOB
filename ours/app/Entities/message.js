@@ -3,10 +3,12 @@ const router = require('express').Router();
 const {Chat} = require("../models/chatModel");
 const {Profile} = require("../models/profileModel");
 const {messageValidation} = require("../validation");
-const {Message} = require("../models/subModels");
+const {privateChat} = require("../middleware");
+const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Types;
 
 // new message
-router.post('/:id', messageValidation, async (req, res) => {
+router.post('/:id', privateChat, messageValidation, async (req, res) => {
     try {
         // no message
         if (!req.body)
@@ -51,5 +53,38 @@ router.post('/:id', messageValidation, async (req, res) => {
         res.status(500).json({message: 'Internal Server Error'});
     }
 });
+
+// only get new messages
+router.get("/:id", privateChat, async (req, res) => {
+    try {
+        const newMex = req.user.chats.find(obj => obj.id.toString() === req.params.id).new;
+
+        // no chat or no new messages
+        if (!newMex)
+            return res.status(400).send("Bad Request");
+
+        const id = new ObjectId(req.params.id);
+
+        const messages = await Chat.aggregate([
+            {$match: {_id: id}},
+            {$project: {messages: {$slice: ["$messages", -newMex] }}}]);
+
+        if (!messages)
+            return res.status(400).send("Bad Request");
+
+        // reset notificaions
+        await Profile.findByIdAndUpdate(
+            req.user._id,
+            {$set: {'chats.$[elem].new': 0}},
+            {arrayFilters: [{'elem.id': req.params.id}]});
+
+        res.status(200).json({messages});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: 'Internal Server Error'})
+    }
+});
+
+
 
 module.exports = router;

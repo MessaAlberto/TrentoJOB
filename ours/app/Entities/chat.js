@@ -13,7 +13,8 @@ router.post('/:id', async (req, res) => {
 
         const id = req.user._id.toString();
 
-        const memberB = await Profile.findById(req.params.id);
+        const memberB = await Profile.findById(req.params.id).select('username');
+
         // must exist and not be self
         if (!memberB || id === req.params.id)
             return res.status(400).json({message: "Bad Request"});

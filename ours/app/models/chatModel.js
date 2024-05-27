@@ -10,9 +10,10 @@ const Chat = mongoose.model('Chat', new mongoose.Schema({
         type: Participant,
         required: true,
     },
-    messages: [{
-        type: Message,
-    }],
+    messages: {
+        type: [Message],
+        required: true,
+    },
     date: {
         type: Date,
         required: true,
