@@ -4,6 +4,7 @@ const {sign, verify} = require('jsonwebtoken');
 const { Profile } = require('../models/profileModel');
 const {resetPasswordValidation} = require("../validation");
 const path = require('path');
+const {hash} = require("bcrypt");
 
 router.post('/', async (req, res) => {
     try {
@@ -54,9 +55,10 @@ router.patch('/:token', resetPasswordValidation, async (req, res) => {
     const { password } = req.body;
 
     try {
-
         const decoded = verify(token, process.env.JWT_SECRET_MAIL);
         const userId = decoded.userId; // Ottieni l'ID dell'utente dal token decodificato
+
+        password = await hash(password, 10);
 
         const user = await Profile.findByIdAndUpdate(userId,
             {password: password},
