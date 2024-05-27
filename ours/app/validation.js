@@ -65,11 +65,13 @@ const resetEmailValidation = (req, res, next) => {
 
 const resetPasswordValidation = (req, res, next) => {
     const schema = Joi.object({
-        email: Joi.string().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+        password: Joi.string().min(6).max(128).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
     })
     const validation = schema.validate(req.body);
-    if (validation.error)
+    if (validation.error) {
         return res.status(401).json({message: 'validation error', error: validation.error});
+
+    }
     next();
 }
 

@@ -32,8 +32,7 @@ app.use(printf, verifySecretToken);
  * Resource routing
  */
 const authURL = require('./authentication/auth');
-const passwordURL = require('./authentication/password.js'); 
-const forgotPasswordURL = require('./authentication/authPassword.js');
+const passwordURL = require('./authentication/password.js');
 const adminURL = require('./Entities/admin');
 const userURL = require('./Entities/user.js');
 const organisationURL = require('./Entities/organisation.js');
@@ -42,8 +41,7 @@ const announcementURL = require('./Entities/announcement.js');
  
 
 app.use('/auth', authURL);
-app.use('/password', passwordURL); 
-app.use('/reset', forgotPasswordURL); 
+app.use('/password', passwordURL);
 app.use('/admin', adminURL);
 app.use('/user', userURL);
 app.use('/organisation', organisationURL);
