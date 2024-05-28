@@ -37,21 +37,10 @@ const privateAccess = (req, res, next) => {
         res.status(403).json({ message: 'Unauthorized access' });
 }
 
-const blockGuest = (model) => async (req, res, next) => {
-    try {
-        const entity = await model.findById(req.params.id);
-
-        if (!entity)
-            return res.status(404).json({ message: 'Entity not found' });
-
-        if (req.user)
-            next();
-        else
-            res.status(403).json({ message: 'Not now' });
-
-    } catch {
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
+const blockGuest = async (req, res, next) => {
+    if (!req.user)
+        return res.status(403).json({ message: 'Unauthorized access' });
+    next();
 };
 
 const privateChat = async (req, res, next) => {

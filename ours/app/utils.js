@@ -148,13 +148,18 @@ const search = async (req, res, model) => {
 const searchById = async (req, res, model) => {
     let fields = '-password -refresh_token -confirmed -verified -taxIdCode';
     try {
-        if (  !req.user                         // not guest
-            || (req.user.role !== 'admin'        // admin
-            && req.user._id !== req.params.id))  // self
+        if (!req.user // not guest
+            || (req.user.role !== 'admin' // admin
+            && String(req.user._id) !== req.params.id))  // self
             fields += ' -chats';
 
         const output = await model.findById(req.params.id).select(fields);
+
         if (output) {
+            if (!fields.includes(' -chats') && output.chats) {
+                // Sort chats by last message date
+                output.chats = output.chats.sort((a, b) => new Date(b.lastDate) - new Date(a.lastDate));
+            }
             res.status(200).json(output);
         } else {
             res.status(404).json({ error: 'Not found' });
@@ -162,7 +167,7 @@ const searchById = async (req, res, model) => {
     } catch {
         res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+};
 
 const editEntity = async (req, res, model) => {
     try {
