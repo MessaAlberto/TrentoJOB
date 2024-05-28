@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chats</title>
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="./script/header-sidebar.js"></script>
+    <script src="./script/chat.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
+    <link rel="stylesheet" href="./style/header-sidebar.css">
+    <link rel="stylesheet" href="./style/chat.css">
+</head>
+
+<body>
+    <div id="sidebar" class="sidebar hidden">
+        <ul>
+            <li><a href="/me.html">View My Profile</a></li>
+            <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+    </div>
+
+    <div id="header-container"></div>
+
+    <div class="container">
+        <div class="chat-list">
+            <h1 id="chatTitle">Chats</h1>
+            <div class="dynamic-list" id="dynamicList">
+                <!-- Dynamic chat list -->
+            </div>
+        </div>
+
+        <div class="view-chat">
+            <canvas id="nokey"></canvas>
+            <div class="chat-container" id="chatContainer">
+                <!-- Dynamic chat -->
+            </div>
+        </div>
+    </div>
+
+</body>

@@ -66,7 +66,21 @@ const chatStatus = new mongoose.Schema({
         type: Number,
         required: true,
         default: 0,
-    }
+    },
+    myTurn: {
+        type: Boolean,
+        required: true,
+    },
+    lastMessage: {
+        type: String,
+        required: false,
+        minlength: 1,
+        maxlength: 1024,
+    },
+    lastDate: {
+        type: Date,
+        required: false,
+    },
 })
 
 module.exports = {
