@@ -24,14 +24,14 @@ const verifySecretToken = (req, res, next) => {
         if (!user) return res.status(403).json({message: 'User does not exist'});
 
         req.user = user;
-        next()
+        next();
     });
 }
 
 // get access only if authorized
 const privateAccess = (req, res, next) => {
     // if logged in and admin or owner --> access
-    if (req.user && (req.user.role === 'admin' || req.user._id === req.params.id))
+    if (req.user && (req.user.role === 'admin' || String(req.user._id) === String(req.params.id)))
         next();
     else
         res.status(403).json({ message: 'Unauthorized access' });
