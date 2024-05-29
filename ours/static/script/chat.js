@@ -44,21 +44,6 @@ function displayList(data) {
         const chat = createChatContainer(item);
         list.appendChild(chat);
     });
-    data.forEach(item => {
-        const chat = createChatContainer(item);
-        list.appendChild(chat);
-    });
-    data.forEach(item => {
-        const chat = createChatContainer(item);
-        list.appendChild(chat);
-    });
-    data.forEach(item => {
-        const chat = createChatContainer(item);
-        list.appendChild(chat);
-    });data.forEach(item => {
-        const chat = createChatContainer(item);
-        list.appendChild(chat);
-    });
 }
 
 function createChatContainer(item) {
