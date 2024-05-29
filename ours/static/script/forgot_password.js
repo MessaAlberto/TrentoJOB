@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         
         var email = document.getElementById('email').value;
-        console.log(email);  // DEBUG
+        console.log(email);  
         
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/password', true);
