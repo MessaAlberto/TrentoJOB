@@ -2,7 +2,9 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('reset-password-form').addEventListener('submit', function (e) {
         e.preventDefault();
 
-        var token = new URLSearchParams(window.location.search).get('token');
+        var urlParams = new URLSearchParams(window.location.search);
+        var _id = urlParams.get('userId');
+        var token = urlParams.get('token');
         var password = document.getElementById('password').value;
         var confirmPassword = document.getElementById('confirm-password').value;
 
@@ -13,21 +15,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.log('Token:', token);
         console.log('Password:', password);
+        console.log('ID: ', _id);
 
         var xhr = new XMLHttpRequest();
-        xhr.open('PATCH', `/password/${token}`, true);
+        xhr.open('PATCH', `/password/${token}/${_id}`, true);
         xhr.setRequestHeader('Content-Type', 'application/json');
 
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
+                    window.location.href = './login.html';
                     alert('Password changed successfully');
                 } else {
+
                     console.error('Errore durante il cambio della password:', xhr.statusText);
                 }
             }
         };
 
-        xhr.send(JSON.stringify({ password: password }));
+        xhr.send(JSON.stringify({
+            password: password
+        }));
     });
 });
