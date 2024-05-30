@@ -35,27 +35,27 @@ const Review = new mongoose.Schema({
     }
 });
 
+const Comment = new mongoose.Schema({
+    user: {
+        type: Participant,
+        required: true,
+    },
+    text: {
+        type: String,
+        required: true,
+        maxlength: 1024,
+    },
+    date: {
+        type: Date,
+        required: true,
+        default: Date.now(),
+    }
+});
+
+
+
 module.exports = {
     Participant,
     Review,
+    Comment,
 }
-
-/*const mongoose = require('mongoose');
-
-// Definisci lo schema per i partecipanti
-const participantSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-    },
-    id: {
-        type: String,
-        required: true,
-    },
-});
-
-// Crea il modello Participant utilizzando lo schema definito sopra
-const Participant = mongoose.model('Participant', participantSchema);
-
-module.exports = Participant;
-*/
