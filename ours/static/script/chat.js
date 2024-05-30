@@ -273,10 +273,10 @@ async function displayChat(chat) {
         chatBody.scrollTop = chatBody.scrollHeight;
 
         // Send message to server
-        const url = '/chat/message/' + chat._id;
+        const url = '/chat/' + chat._id;
 
         fetch(url, {
-            method: 'POST',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + localStorage.token,
