@@ -16,6 +16,13 @@ body {
     margin-top: 60px;
 }
 
+#header-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+}
+
 .header {
     position: fixed;
     top: 0;
@@ -37,17 +44,25 @@ body {
     width: 50%;
 }
 
+#homeTitle {
+    font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
+    display: inline-block;
+    cursor: pointer;
+}
+
+
 .header-right {
     text-align: right;
     max-height: 60px;
     width: 50%;
+    height: auto;
 }
 
 .logButton {
     display: inline-block;
     padding: 10px 20px;
     margin: 10px 10px 10px 0;
-    font-size: 18px;
+    font-size: 14px;
     background-color: #007bff;
     color: #fff;
     border: none;

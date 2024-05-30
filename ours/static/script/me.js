@@ -1,14 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Check if user ID is present in localStorage
-    var userId = localStorage.getItem('userId');
-    if (userId) {
-        var username = localStorage.getItem('username');
-        if (username) {
-            document.getElementById('usernameLabel').textContent = username;
-        }
-    }
+    document.getElementById('homeTitle').addEventListener('click', function () {
+        window.location.href = "/index.html";
+    });
 });
-
 
 function logout() {
     localStorage.removeItem('userId');

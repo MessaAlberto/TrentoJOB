@@ -7,12 +7,13 @@
     display: flex;
     flex-direction: row;
     width: 100%;
-    height: calc(100vh - 60px);
-    min-height: 90%;
+    min-height: calc(100vh - 65px);;
 }
 
 .search-column {
+    display: flex;
     flex-direction: column;
+    align-items: center;
     margin: 10px;
     height: 100%;
     width: 200px;
@@ -20,11 +21,11 @@
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+    gap: 5px;
 }
 
 .search-bar-container {
     margin-top: 10px;
-    margin-bottom: 20px;
     text-align: center;
 }
 
@@ -55,6 +56,107 @@
 .search-button:hover {
     background-color: #0056b3;
 }
+
+
+.order-by-container {
+    display: flex;
+    width: 90%;
+    flex-direction: column;
+    margin-top: 10px;
+    padding: 10px;
+    border-top: 2px solid #ccc;
+}
+
+
+.dynamic-filter {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-y: auto;
+    padding-right: 10px;
+    border-top: 2px solid #ccc;
+}
+
+.filter-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#filterForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#filterContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;    
+}
+
+#filterContainer > * {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.filter-button {
+    padding: 5px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.filter-button:hover {
+    background-color: #0056b3;
+}
+
+
+.rating {
+    unicode-bidi: bidi-override;
+    direction: rtl;
+    width: 8em;
+}
+
+.rating input {
+    position: absolute;
+    left: -999999px;
+}
+
+.rating label {
+    display: inline-block;
+    font-size: 0;
+}
+
+.rating > label:before {
+    position: relative;
+    font: 24px/1 FontAwesome;
+    display: block;
+    content: "\f005";
+    color: #ccc;
+    background: -webkit-linear-gradient(-45deg, #d9d9d9 0%, #b3b3b3 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.rating > label:hover:before,
+.rating > label:hover ~ label:before,
+.rating > label.selected:before,
+.rating > label.selected ~ label:before {
+    color: #f0ad4e;
+    background: -webkit-linear-gradient(-45deg, #fcb551 0%, #d69a45 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 
 .main-content {
     display: flex;
@@ -188,6 +290,10 @@ input:not(:checked)+label:hover {
     padding-right: 10px;
 }
 
+.dynamic-list::-webkit-scrollbar {
+    display: none;
+}
+
 .element-container {
     overflow: hidden;
     min-width: 260px;
@@ -238,6 +344,43 @@ input:not(:checked)+label:hover {
     font-weight: bold;
 }
 
+.body-box {
+    position: relative;
+    padding-bottom: 50px;
+    width: 100%;
+}
+
+.bottom-labels {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    /* flex-direction: row; */
+    
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px 8px 8px 8px;
+
+}
+
+.bottom-labels > * {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+.join-leave-button {
+    padding: 5px 10px;
+    font-size: 11px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
 
 #showObject {
@@ -317,44 +460,4 @@ input:not(:checked)+label:hover {
 }
 
 
-
-
-.rating {
-    unicode-bidi: bidi-override;
-    direction: rtl;
-    width: 8em;
-}
-
-.rating input {
-    position: absolute;
-    left: -999999px;
-}
-
-.rating label {
-    display: inline-block;
-    font-size: 0;
-}
-
-.rating > label:before {
-    position: relative;
-    font: 24px/1 FontAwesome;
-    display: block;
-    content: "\f005";
-    color: #ccc;
-    background: -webkit-linear-gradient(-45deg, #d9d9d9 0%, #b3b3b3 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.rating > label:hover:before,
-.rating > label:hover ~ label:before,
-.rating > label.selected:before,
-.rating > label.selected ~ label:before {
-    color: #f0ad4e;
-    background: -webkit-linear-gradient(-45deg, #fcb551 0%, #d69a45 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
 

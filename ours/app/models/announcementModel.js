@@ -25,6 +25,11 @@ const Announcement = mongoose.model('Announcement', new mongoose.Schema({
         type: String,
         required: false,
     },
+    rating: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
     owner: {
         type: Participant,
         required: true,
