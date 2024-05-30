@@ -7,8 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx = canvas.getContext('2d');
     goMovie();
 
-
     fetchList();
+    // evry 20 seconds fetch list
+    setInterval(() => {
+        fetchList();
+    }, 20000);
 
 });
 
@@ -193,10 +196,10 @@ async function displayChat(chat) {
     inputContainer.className = 'input-container';
     chatContainer.appendChild(inputContainer);
 
-    const documentButon = document.createElement('button');
-    documentButon.className = 'document-button';
-    documentButon.innerHTML = '&#128206;';
-    inputContainer.appendChild(documentButon);
+    const documentButton = document.createElement('button');
+    documentButton.className = 'document-button';
+    documentButton.innerHTML = '&#128206;';
+    inputContainer.appendChild(documentButton);
 
     const inputText = document.createElement('input');
     inputText.className = 'input-text';
@@ -243,17 +246,131 @@ async function displayChat(chat) {
     // Scroll to the bottom of the chat body
     chatBody.scrollTop = chatBody.scrollHeight;
 
+    const sendMessage = () => {
+        const messageText = inputText.value.trim();
+        if (messageText === '') return;
+        
+        inputText.value = '';
+
+        // Add new message to chat body
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message mine';
+
+        const textElement = document.createElement('span');
+        textElement.className = 'text';
+        textElement.textContent = messageText;
+        messageElement.appendChild(textElement);
+
+        const dateElement = document.createElement('span');
+        dateElement.className = 'date';
+        const today = new Date();
+        dateElement.textContent = 'Today ' + today.getHours() + ':' + today.getMinutes();
+        messageElement.appendChild(dateElement);
+
+        chatBody.appendChild(messageElement);
+
+        // Scroll to the bottom of the chat body
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        // Send message to server
+        const url = '/chat/message/' + chat._id;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.token,
+            },
+            body: JSON.stringify({ text: messageText })
+        }).then(async response => {
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+            } else {
+                throw new Error('Failed to fetch');
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+
+        // Upload last message to user.chatStatus
+        const myLastMessage = '/' + localStorage.getItem('role') + '/' + localStorage.getItem('userId');
+
+        fetch(myLastMessage, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.token,
+            },
+            body: JSON.stringify({
+                action: 'addMessage',
+                chatId: chat._id,
+                lastMessage: messageText,
+                lastDate: new Date().toISOString(),
+                new: 0,
+                myTurn: false,
+            })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update chat status');
+            }
+            return response.json();
+        }).then(data => {
+            console.log('Chat status updated', data);
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+
+        if (chat.memberA.id === localStorage.userId)
+            otherId = chat.memberB.id;
+        else
+            otherId = chat.memberA.id;
+        const otherLastMessage = '/' + localStorage.getItem('role') + '/' + otherId;
+
+        fetch(otherLastMessage, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.token,
+            },
+            body: JSON.stringify({
+                action: 'addMessage',
+                chatId: chat._id,
+                lastMessage: messageText,
+                lastDate: new Date().toISOString(),
+                new: 1,
+                myTurn: true,
+            })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update chat status');
+            }
+            return response.json();
+        }
+        ).then(data => {
+            console.log('Chat status updated', data);
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+
+        fetchList();
+    };
+
+    sendButton.addEventListener('click', sendMessage);
+    
+    inputText.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+
     reportButton.addEventListener('click', () => {
         alert('/* Reported TODO */');
     });
 
     deleteButton.addEventListener('click', () => {
         alert('/* Deleted TODO */');
-    });
-
-    sendButton.addEventListener('click', () => {
-        inputText.value = '';
-        alert('/* Sent TODO */');
     });
 
     return chatContainer;
@@ -504,17 +621,6 @@ function goMovie() {
     initBalls(BALL_NUM);
     window.requestAnimationFrame(render);
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
     createOrderingOption();
 
     fetchList('event');
+    fetchNewMessages();
 });
 
 
@@ -806,5 +807,57 @@ async function fecthObject(model, ownerId) {
 
     } catch (error) {
         console.error('There has been a problem with your fetch operation:', error);
+    }
+}
+
+
+fetchNewMessages = async () => {
+    var userId = localStorage.getItem('userId');
+    if (userId) {
+        const url = '/' + localStorage.getItem('role') + '/' + userId;
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.token,
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            const item = await response.json();
+            let contNotifications = 0;
+            item.chats.forEach(item => {
+                if (item.new) {
+                    contNotifications += item.new;
+                }
+            });
+
+            if (contNotifications) {
+                const profileHeader = document.getElementById('profile-icon');
+                
+                const notification = document.createElement('div');
+                notification.classList.add('notification');
+                notification.id = 'notification';
+                if (contNotifications == 1) {
+                    notification.innerHTML = contNotifications + ' new message';
+                } else {
+                    notification.innerHTML = contNotifications + ' new messages';
+                }
+                // put it as first element
+                profileHeader.insertBefore(notification, profileHeader.firstChild);
+
+                notification.addEventListener('click', function () {
+                    window.location.href = "/chat.html";
+                });
+            }
+            
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
     }
 }
