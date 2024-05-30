@@ -2,11 +2,13 @@
 const router = require('express').Router();
 const {commentValidation} = require("../validation");
 const {privateAccess} = require("../middleware");
+const {Event} = require("../models/eventModel");
 
 
 router.post('/:id', commentValidation, async (req, res) => {
+    const eventId = req.params.id;
     try {
-        const event = await Event.findById(req.params.id);
+        const event = await Event.findById(eventId);
         if (!event)
             return res.status(400).json({ message: 'Bad Request' });
 
@@ -19,10 +21,10 @@ router.post('/:id', commentValidation, async (req, res) => {
             text: req.body.text,
         });
 
-        await Event.findByIdAndUpdate(req.params.id,
+        await Event.findByIdAndUpdate(eventId,
             {$push: {comments: newComment}});
 
-        res.status(201).json({ message: 'Comment added', comment: savedComment });
+        res.status(201).json({message: 'Comment added'});
     } catch (err) {
         console.error(err);
         res.status(500).json({message: 'Internal Server Error'});
@@ -30,18 +32,20 @@ router.post('/:id', commentValidation, async (req, res) => {
 });
 
 router.delete('/:id', privateAccess, async (req, res) => {
+    const commentId = req.params.id;
+    const eventId = req.body.id;
     try {
-        const event = await Event.findById(req.body.eventid);
+        const event = await Event.findById(eventId);
         if (!event)
             return res.status(400).json({ message: 'Bad Request' });
 
-        const commentExists = event.comments.some(comment => comment._id.toString() === req.params.id);
+        const commentExists = event.comments.some(comment => comment._id.toString() === commentId);
         if (!commentExists)
             return res.status(400).json({ message: 'Bad Request' });
 
         await Event.findByIdAndUpdate(
-            req.params.id,
-            {$pull: {comments: {id: req.params.id}}});
+            eventId,
+            {$pull: {comments: {id: commentId}}});
 
         res.status(200).json({ message: 'Comment deleted' });
     } catch (err) {
