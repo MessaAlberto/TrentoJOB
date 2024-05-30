@@ -78,10 +78,8 @@ const search = async (req, res, model) => {
                 query.maxNumberParticipants = { $lte: Number(query.maxNumberParticipants) };
 
             if (model === Event) {
-                if (query.date){
+                if (query.date)
                     query.date = { $gte: query.date };
-                    console.log(query.date);
-                }
             } else {
                 if (query.daterange) {
                     const [startDateStr, endDateStr] = query.daterange.split(' - ');
@@ -181,7 +179,6 @@ const editEntity = async (req, res, model) => {
 
                 if (activity.participants.some(participant => participant.id === req.user._id))
                     return res.status(400).json({ message: 'Already joined' });
-                console.log(req.user.username, req.user._id, req.user.role)
 
                 activity.participants.push({ username: req.user.username, id: req.user._id, role: req.user.role });
                 await activity.save();
