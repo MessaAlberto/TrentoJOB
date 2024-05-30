@@ -15,6 +15,9 @@ router.put('/:id', blockGuest(Event), async (req, res) => editEntity(req, res, E
 
 router.delete('/:id', blockGuest(Event), async (req, res) => erase(req, res, Event));
 
+const commentURL = require('./comment');
+
+router.use('/comment', commentURL);
 
 
 module.exports = router;
