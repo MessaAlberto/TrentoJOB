@@ -12,14 +12,15 @@ document.addEventListener('DOMContentLoaded', function () {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200) {
                     const user = JSON.parse(xhr.responseText);
-                    
-
-                    // Popolare la pagina HTML con i dati dell'utente
+                    console.log('User profile:', user);
+                
                     document.getElementById('username').textContent = user.username || 'Unknown';
                     document.getElementById('email').textContent = user.email || 'Unknown';
-                    document.getElementById('confirmed').textContent = user.confirmed ? 'Yes' : 'No';
-                    document.getElementById('role').textContent = user.role || 'Unknown';
-                    // Aggiungi altri campi dell'utente qui, come indirizzo, immagine profilo, ecc.
+                    document.getElementById('birthday').textContent = user.birthday || 'Unknown';
+                    document.getElementById('phone').textContent = user.phone || 'Unknown';
+                    document.getElementById('sex').textContent = user.sex || 'Unknown';
+                    document.getElementById('taxIdCode').textContent = user.taxIdCode || 'Unknown';
+                    document.getElementById('bio').textContent = user.bio || 'Unknown';
 
                 } else {
                     console.error('Error fetching user profile:', xhr.statusText);

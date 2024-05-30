@@ -27,8 +27,9 @@ const register = async (req, res, model, role) => {
         const url = `http://localhost:${process.env.PORT}/auth/${email_token}`;
         const html = `link valid for 48h: <a href="${url}">Click here to confirm</a>`;
         mail(req.body.email, "Email confirmation", html);
-    } catch {
-        res.status(500).json({ message: 'Internal Server Error' });
+    } catch (error){
+        console.log(error);
+        res.status(500).json({ message: 'Internal Server Error', error: error});
     }
 };
 
@@ -156,7 +157,7 @@ const searchById = async (req, res, model) => {
         const output = await model.findById(req.params.id).select(fields);
         if (output) {
             res.status(200).json(output);
-            console.log("Funziona");
+            console.log(output);
         } else {
             res.status(404).json({ error: 'Not found' });
         }
