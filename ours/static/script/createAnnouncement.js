@@ -42,7 +42,7 @@ function createAnnouncement() {
     xhr.onload = function () {
         if (xhr.status === 201) {
             // Parse the response JSON
-            var response = JSON.parse(xhr.responseText);
+            //var response = JSON.parse(xhr.responseText);
             window.location.href = "/me.html";
         } else {
             alert("An error occurred during announcement creation.");
