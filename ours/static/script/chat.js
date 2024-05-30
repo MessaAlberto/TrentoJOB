@@ -293,66 +293,6 @@ async function displayChat(chat) {
             console.error('Error:', error);
         });
 
-        // Upload last message to user.chatStatus
-        const myLastMessage = '/' + localStorage.getItem('role') + '/' + localStorage.getItem('userId');
-
-        fetch(myLastMessage, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.token,
-            },
-            body: JSON.stringify({
-                action: 'addMessage',
-                chatId: chat._id,
-                lastMessage: messageText,
-                lastDate: new Date().toISOString(),
-                new: 0,
-                myTurn: false,
-            })
-        }).then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to update chat status');
-            }
-            return response.json();
-        }).then(data => {
-            console.log('Chat status updated', data);
-        }).catch(error => {
-            console.error('Error:', error);
-        });
-
-        if (chat.memberA.id === localStorage.userId)
-            otherId = chat.memberB.id;
-        else
-            otherId = chat.memberA.id;
-        const otherLastMessage = '/' + localStorage.getItem('role') + '/' + otherId;
-
-        fetch(otherLastMessage, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.token,
-            },
-            body: JSON.stringify({
-                action: 'addMessage',
-                chatId: chat._id,
-                lastMessage: messageText,
-                lastDate: new Date().toISOString(),
-                new: 1,
-                myTurn: true,
-            })
-        }).then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to update chat status');
-            }
-            return response.json();
-        }
-        ).then(data => {
-            console.log('Chat status updated', data);
-        }).catch(error => {
-            console.error('Error:', error);
-        });
-
         fetchList();
     };
 
@@ -386,7 +326,7 @@ async function displayChat(chat) {
 
 
 
-var BALL_NUM = 30;
+var BALL_NUM = 100;
 
 var ball = {
     x: 0,

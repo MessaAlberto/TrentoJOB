@@ -21,8 +21,8 @@ router.post('/:id', async (req, res) => {
 
         // new chat
         let newChat = new Chat;
-        newChat.memberA = {username: req.user.username, id: id};
-        newChat.memberB = {username: memberB.username, id: req.params.id};
+        newChat.memberA = {username: req.user.username, id: id, role: req.user.role};
+        newChat.memberB = {username: memberB.username, id: req.params.id, role: req.user.role};
         const savedChat = await newChat.save();
 
         const chatId = savedChat._id.toString();

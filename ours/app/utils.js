@@ -205,30 +205,7 @@ const editEntity = async (req, res, model) => {
             }
 
         } else if (model === User || model === Organisation) {
-            if (req.body.action === 'addMessage') {
-                const user = await model.findByIdAndUpdate(req.params.id);
-                if (!user) return res.status(404).json({ message: 'Not found' });
-
-                const chatIndex = user.chats.findIndex(chat => String(chat.id) === String(req.body.chatId));
-                if (chatIndex === -1) return res.status(404).json({ message: 'Chat not found' });
-
-                // don't allow access to other users' chats
-                if (userIdString !== String(user.id) && userIdString !== String(user.chats[chatIndex].other.id))
-                    return res.status(403).json({ message: 'Unauthorized access' });
-
-                const chat = user.chats[chatIndex];
-                
-                chat.lastMessage = String(req.body.lastMessage);
-                chat.lastDate = new Date(req.body.lastDate);
-                chat.new = req.body.new;
-                chat.myTurn = req.body.myTurn;
-
-                await user.save({ validateModifiedOnly: true });
-                return res.status(200).json({ message: 'Chat status updated' });
-            } else {
-                // For other modifications
-
-            }
+            
         }
     } catch (error) {
         res.status(500).json({ message: 'Internal Server Error', error: error });

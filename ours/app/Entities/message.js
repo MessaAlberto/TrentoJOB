@@ -44,13 +44,36 @@ router.post('/:id', privateChat, messageValidation, async (req, res) => {
 
         await Profile.findByIdAndUpdate(
             otherMemberId,
-            {$inc: { 'chats.$[elem].new': 1 } },
-            {arrayFilters: [{ 'elem.id': chat._id }]});
+            {
+                $set: {
+                    'chats.$[elem].lastMessage': req.body.text,
+                    'chats.$[elem].lastDate': new Date(),
+                    'chats.$[elem].myTurn': true,
+                },
+                $inc: { 'chats.$[elem].new': 1 }
+            },
+            {
+                arrayFilters: [{ 'elem.id': chat._id }]
+            });
 
-        res.status(200).json({message: 'message sent'});
+        await Profile.findByIdAndUpdate(
+            id,
+            {
+                $set: {
+                    'chats.$[elem].lastMessage': req.body.text,
+                    'chats.$[elem].lastDate': new Date(),
+                    'chats.$[elem].myTurn': false,
+                },
+                $inc: { 'chats.$[elem].new': 0 }
+            },
+            {
+                arrayFilters: [{ 'elem.id': chat._id }]
+            });
+
+        res.status(200).json({ message: 'message sent' });
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
@@ -66,8 +89,8 @@ router.get("/:id", privateChat, async (req, res) => {
         const id = new ObjectId(req.params.id);
 
         const messages = await Chat.aggregate([
-            {$match: {_id: id}},
-            {$project: {messages: {$slice: ["$messages", -newMex] }}}]);
+            { $match: { _id: id } },
+            { $project: { messages: { $slice: ["$messages", -newMex] } } }]);
 
         if (!messages)
             return res.status(400).send("Bad Request");
@@ -75,13 +98,13 @@ router.get("/:id", privateChat, async (req, res) => {
         // reset notificaions
         await Profile.findByIdAndUpdate(
             req.user._id,
-            {$set: {'chats.$[elem].new': 0}},
-            {arrayFilters: [{'elem.id': req.params.id}]});
+            { $set: { 'chats.$[elem].new': 0 } },
+            { arrayFilters: [{ 'elem.id': req.params.id }] });
 
-        res.status(200).json({messages});
+        res.status(200).json({ messages });
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: 'Internal Server Error'})
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 });
 
