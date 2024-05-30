@@ -52,7 +52,7 @@ async function getCoordinatesFromLocation(location) {
 
 async function fetchAndDisplayItems(model, items) {
     try {
-        // clean the map
+        // Clean the map
         map.eachLayer(function (layer) {
             if (layer instanceof L.Marker) {
                 map.removeLayer(layer);
@@ -81,12 +81,14 @@ async function fetchAndDisplayItems(model, items) {
         }).addTo(map);
 
         items.forEach(async item => {
+            console.log(items);
             const location = item.location;
+            const user = item.owner.id;
             const coordinates = await getCoordinatesFromLocation(location);
             if (coordinates) {
                 const [longitude, latitude] = coordinates;
-                const { title, owner} = item;
-                const ownerLink = `<a href="/user.html?id=${owner._id}" class="owner-link">${owner.username || 'Unknown owner'}</a>`;
+                const { title, owner } = item;
+                const ownerLink = `<a href="/user.html?id=${user}" class="owner-link">${owner.username || 'Unknown owner'}</a>`;
                 const popupContent = `
                     <div>
                         <h3>${title}</h3>
@@ -96,12 +98,12 @@ async function fetchAndDisplayItems(model, items) {
                 const marker = L.marker([latitude, longitude], { icon }).addTo(map).bindPopup(popupContent);
                 marker.on('click', function(event) {
                     event.preventDefault();
-                    window.location.href = `/user.html?id=${owner.id}`;
+                    window.location.href = `/user.html?id=${user}`;
                 });
             }
         });
-    } catch (error) {
-        console.error('Error during items fetch:', error);
+    } catch (err) {
+        console.error('Error during items fetch:', err);
     }
 }
 
