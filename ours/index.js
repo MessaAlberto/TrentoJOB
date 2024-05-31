@@ -1,21 +1,14 @@
 require('dotenv').config();
 const http = require('http');
+const socketio = require('socket.io'); // Import socket.io
+
 const app = require('./app');
 const databaseConnect = require('./app/database');
-const socketHandler = require('./app/socket');
 
 const server = http.createServer(app);
-const io = require('socket.io')(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
+const io = socketio(server); // Create a WebSocket server instance
 
 const port = process.env.PORT || 8080;
-
-// Initialize Socket.IO
-socketHandler(io);
 
 // Connect to the database and start the server
 databaseConnect().then(() => {
@@ -24,4 +17,25 @@ databaseConnect().then(() => {
     });
 }).catch(err => {
     console.error('Database connection error:', err);
+});
+
+// WebSocket logic
+io.on('connection', (socket) => {
+    console.log('A user connected');
+
+    socket.on('joinRoom', ({ user1, user2 }) => {
+        const room = [user1, user2].sort().join('_');
+        socket.join(room);
+    });
+
+    socket.on("sendMessage", (message) => {
+        const room = [message.senderId, message.receiverId].sort().join("_");
+        io.to(room).emit("receiveMessage", message);
+    });
+
+    
+    // Handle disconnection
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    });
 });

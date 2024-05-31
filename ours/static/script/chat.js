@@ -1,18 +1,47 @@
+// Initialize WebSocket connection
+const socket = io();
+var openedChatId = '';
 var canvas = '';
-document.addEventListener('DOMContentLoaded', () => {
-    canvas = document.getElementById('nokey'),
 
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Handle receiving messages
+    socket.on("receiveMessage", (message) => {
+        // Add new message to chat body
+        const chatBody = document.querySelector('.chat-body');
+        const messageElement = document.createElement('div');
+        if (message.senderId !== localStorage.getItem('userId'))
+            messageElement.className = 'message not-mine';
+        else
+            messageElement.className = 'message mine';
+        const textElement = document.createElement('span');
+        textElement.className = 'text';
+        textElement.textContent = message.payload;
+        messageElement.appendChild(textElement);
+
+        const dateElement = document.createElement('span');
+        dateElement.className = 'date';
+        const today = new Date();
+        dateElement.textContent = 'Today ' + today.getHours() + ':' + today.getMinutes();
+        messageElement.appendChild(dateElement);
+
+        chatBody.appendChild(messageElement);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        fetchList();
+    });
+
+    canvas = document.getElementById('nokey'),
         can_w = parseInt(canvas.getAttribute('width')),
         can_h = parseInt(canvas.getAttribute('height')),
         ctx = canvas.getContext('2d');
     goMovie();
 
     fetchList();
-    // evry 20 seconds fetch list
+    // fetchList() every 10 seconds
     setInterval(() => {
         fetchList();
-    }, 20000);
-
+    }, 10000);
 });
 
 
@@ -63,16 +92,19 @@ function createChatContainer(item) {
     otherUsername.innerHTML = item.other.username;
     chatHeader.appendChild(otherUsername);
 
-    const date = document.createElement('p');
-    date.className = 'list-date';
-    const today = new Date();
-    const lastDate = new Date(item.lastDate);
-    if (today.getDate() === lastDate.getDate() && today.getMonth() === lastDate.getMonth() && today.getFullYear() === lastDate.getFullYear()) {
-        date.innerHTML = lastDate.getHours() + ':' + lastDate.getMinutes();
-    } else {
-        date.innerHTML = lastDate.getDate() + '/' + (lastDate.getMonth() + 1) + '/' + lastDate.getFullYear();
+    if (item.lastDate) {
+        const date = document.createElement('p');
+        date.className = 'list-date';
+        const today = new Date();
+
+        const lastDate = new Date(item.lastDate);
+        if (today.getDate() === lastDate.getDate() && today.getMonth() === lastDate.getMonth() && today.getFullYear() === lastDate.getFullYear()) {
+            date.innerHTML = lastDate.getHours() + ':' + lastDate.getMinutes();
+        } else {
+            date.innerHTML = lastDate.getDate() + '/' + (lastDate.getMonth() + 1) + '/' + lastDate.getFullYear();
+        }
+        chatHeader.appendChild(date);
     }
-    chatHeader.appendChild(date);
 
     const lastMessageContainer = document.createElement('div');
     lastMessageContainer.className = 'last-message-container';
@@ -88,7 +120,7 @@ function createChatContainer(item) {
     }
     lastMessageContainer.appendChild(lastMessage);
 
-    if (item.new) {
+    if (item.new && openedChatId !== String(item.id)) {
         const newMessages = document.createElement('p');
         newMessages.className = 'new-messages';
         newMessages.innerHTML = item.new;
@@ -101,11 +133,6 @@ function createChatContainer(item) {
     chatButtons.className = 'list-chat-buttons';
     chatContainer.appendChild(chatButtons);
 
-    const reportButton = document.createElement('button');
-    reportButton.className = 'report-button';
-    reportButton.innerHTML = 'Report';
-    chatButtons.appendChild(reportButton);
-
     const deleteButton = document.createElement('button');
     deleteButton.className = 'delete-button';
     deleteButton.innerHTML = 'Delete';
@@ -113,11 +140,6 @@ function createChatContainer(item) {
 
     chatContainer.addEventListener('click', () => {
         openChat(item.id);
-    });
-
-    reportButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        alert('/* Reported TODO */');
     });
 
     deleteButton.addEventListener('click', (e) => {
@@ -131,6 +153,8 @@ function createChatContainer(item) {
 
 
 async function openChat(chatId) {
+    if (openedChatId === chatId) return;
+    openedChatId = chatId;
     // Clear new messages from element chat list
     const chat = document.querySelector('.list-chat-container');
     const newMessages = chat.querySelector('.new-messages');
@@ -141,7 +165,9 @@ async function openChat(chatId) {
 
     const url = '/chat/' + chatId;
 
-    fetch(url, {
+    let memberA = '';
+    let memberB = '';
+    await fetch(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -150,11 +176,16 @@ async function openChat(chatId) {
     }).then(async response => {
         if (response.ok) {
             const chat = await response.json();
+            memberA = chat.memberA.id;
+            memberB = chat.memberB.id;
             displayChat(chat);
         } else {
             throw new Error('Failed to fetch');
         }
     });
+
+    // join room
+    socket.emit('joinRoom', { user1: memberA, user2: memberB });
 }
 
 
@@ -177,11 +208,6 @@ async function displayChat(chat) {
     const chatButtons = document.createElement('div');
     chatButtons.className = 'chat-buttons';
     chatHeader.appendChild(chatButtons);
-
-    const reportButton = document.createElement('button');
-    reportButton.className = 'report-button';
-    reportButton.innerHTML = 'Report';
-    chatButtons.appendChild(reportButton);
 
     const deleteButton = document.createElement('button');
     deleteButton.className = 'delete-button';
@@ -247,30 +273,17 @@ async function displayChat(chat) {
     chatBody.scrollTop = chatBody.scrollHeight;
 
     const sendMessage = () => {
+
         const messageText = inputText.value.trim();
         if (messageText === '') return;
-        
+
+        const messageJson = {
+            senderId: localStorage.userId,
+            receiverId: chat.memberA.id === localStorage.userId ? chat.memberB.id : chat.memberA.id,
+            payload: inputText.value,
+        };
+
         inputText.value = '';
-
-        // Add new message to chat body
-        const messageElement = document.createElement('div');
-        messageElement.className = 'message mine';
-
-        const textElement = document.createElement('span');
-        textElement.className = 'text';
-        textElement.textContent = messageText;
-        messageElement.appendChild(textElement);
-
-        const dateElement = document.createElement('span');
-        dateElement.className = 'date';
-        const today = new Date();
-        dateElement.textContent = 'Today ' + today.getHours() + ':' + today.getMinutes();
-        messageElement.appendChild(dateElement);
-
-        chatBody.appendChild(messageElement);
-
-        // Scroll to the bottom of the chat body
-        chatBody.scrollTop = chatBody.scrollHeight;
 
         // Send message to server
         const url = '/chat/' + chat._id;
@@ -283,12 +296,11 @@ async function displayChat(chat) {
             },
             body: JSON.stringify({ text: messageText })
         }).then(async response => {
-            if (response.ok) {
-                const data = await response.json();
-                console.log(data);
-            } else {
+            if (!response.ok) {
                 throw new Error('Failed to fetch');
             }
+
+            socket.emit('sendMessage', messageJson);
         }).catch(error => {
             console.error('Error:', error);
         });
@@ -297,16 +309,11 @@ async function displayChat(chat) {
     };
 
     sendButton.addEventListener('click', sendMessage);
-    
+
     inputText.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             sendMessage();
         }
-    });
-
-
-    reportButton.addEventListener('click', () => {
-        alert('/* Reported TODO */');
     });
 
     deleteButton.addEventListener('click', () => {

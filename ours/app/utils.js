@@ -133,9 +133,6 @@ const search = async (req, res, model) => {
             delete query.sortBy;
         }
 
-        console.log("query: ", query);
-        console.log("sort: ", sort);
-
         // Query the database with the constructed query object, sort criteria, and selected fields
         const output = await model.find(query).sort(sort).select(fields);
 
