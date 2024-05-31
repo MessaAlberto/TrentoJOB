@@ -73,9 +73,10 @@ const chatStatus = new mongoose.Schema({
     },
     lastMessage: {
         type: String,
-        required: false,
+        required: true,
         minlength: 1,
         maxlength: 1024,
+        default: ' ',
     },
     lastDate: {
         type: Date,

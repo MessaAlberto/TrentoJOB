@@ -184,7 +184,6 @@ function addFiltersToQuery() {
 
 
 function addJoinLeaveButton(item, buttonContainer, elementContainer) {
-    // Only logged in users can join events
     const userId = localStorage.getItem('userId');
     const username = localStorage.getItem('username');
 
@@ -195,42 +194,32 @@ function addJoinLeaveButton(item, buttonContainer, elementContainer) {
         const isParticipant = item.participants.some(participant => String(participant.id) === userId);
 
         if (isParticipant) {
-            if (radioButtonsValue === 'event') {
-
-                joinButton.innerHTML = 'Leave';
-                joinButton.addEventListener('click', function () {
-                    fetch('/event/' + item._id, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + localStorage.token,
-                        },
-                        body: JSON.stringify({ userId: userId, username: username, action: 'leave' }),
-                    }).then(response => {
-                        if (response.ok) {
-                            // reload the element
-                            fetch('/event/' + item._id).then(response => response.json()).then(item => {
-                                const newElement = createItemList('event', item);
-                                elementContainer.replaceWith(newElement);
-                            });
-                        }
-                    });
+            joinButton.innerHTML = 'Leave';
+            joinButton.addEventListener('click', function () {
+                fetch('/' + radioButtonsValue + '/' + item._id, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.token,
+                    },
+                    body: JSON.stringify({ userId: userId, username: username, action: 'leave' }),
+                }).then(response => {
+                    if (response.ok) {
+                        // reload the element
+                        fetch('/' + radioButtonsValue + '/' + item._id).then(response => response.json()).then(item => {
+                            const newElement = createItemList(radioButtonsValue, item);
+                            elementContainer.replaceWith(newElement);
+                        });
+                    }
                 });
-            } else {
-                // open chat: todo
-                // for the moment write a button that open alert 'open chat'
-                joinButton.innerHTML = 'Open Chat';
-                joinButton.addEventListener('click', function () {
-                    alert('Open chat');
-                });
-            }
-
+            });
         } else if (item.maxNumberParticipants && item.participants.length >= item.maxNumberParticipants) {
             joinButton.innerHTML = 'Full';
             joinButton.disabled = true;
         } else {
             radioButtonsValue === 'event' ? joinButton.innerHTML = 'Join' : joinButton.innerHTML = 'Apply';
             joinButton.addEventListener('click', function () {
+                // update the notice
                 fetch('/' + radioButtonsValue + '/' + item._id, {
                     method: 'PUT',
                     headers: {
@@ -246,6 +235,18 @@ function addJoinLeaveButton(item, buttonContainer, elementContainer) {
                             elementContainer.replaceWith(newElement);
                         });
                     }
+                }).catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+                // create a chat
+                fetch('/chat/' + item.owner.id, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.token,
+                    }
+                }).catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
                 });
             });
         }
@@ -828,7 +829,7 @@ fetchNewMessages = async () => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            
+
             const item = await response.json();
             let contNotifications = 0;
             item.chats.forEach(item => {
@@ -839,7 +840,7 @@ fetchNewMessages = async () => {
 
             if (contNotifications) {
                 const profileHeader = document.getElementById('profile-icon');
-                
+
                 const notification = document.createElement('div');
                 notification.classList.add('notification');
                 notification.id = 'notification';
@@ -855,7 +856,7 @@ fetchNewMessages = async () => {
                     window.location.href = "/chat.html";
                 });
             }
-            
+
         } catch (error) {
             console.error('There has been a problem with your fetch operation:', error);
         }

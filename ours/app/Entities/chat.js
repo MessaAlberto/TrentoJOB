@@ -1,56 +1,64 @@
 // Route to handle requests for /chat
 const router = require('express').Router();
-const {Chat} = require("../models/chatModel");
-const {privateChat} = require("../middleware");
-const {messageValidation} = require("../validation");
-const {Profile} = require("../models/profileModel");
+const { Chat } = require("../models/chatModel");
+const { privateChat, blockGuest } = require("../middleware");
+const { messageValidation } = require("../validation");
+const { Profile } = require("../models/profileModel");
 
 // create chat
-router.post('/:id', async (req, res) => {
+router.post('/:id', blockGuest, async (req, res) => {
     try {
-        // must be logged in
-        if (!req.user)
-            return res.status(403).send("Not logged in");
-
         const id = req.user._id.toString();
 
-        const memberB = await Profile.findById(req.params.id).select('username');
+        const memberB = await Profile.findById(req.params.id).select('username chats');
 
         // must exist and not be self
         if (!memberB || id === req.params.id)
-            return res.status(400).json({message: "Bad Request"});
+            return res.status(400).json({ message: "Bad Request" });
 
-        // new chat
-        let newChat = new Chat;
-        newChat.memberA = {username: req.user.username, id: id, role: req.user.role};
-        newChat.memberB = {username: memberB.username, id: req.params.id, role: req.user.role};
-        const savedChat = await newChat.save();
+        let alreadyExists = false;
+        // mustn't have a chat already
+        memberB.chats.forEach(chat => {
+            if (chat.other.id === id)
+                alreadyExists = true;
+        });
 
-        const chatId = savedChat._id.toString();
+        if (!alreadyExists) {
+            // new chat
+            let newChat = new Chat;
+            newChat.memberA = { username: req.user.username, id: id, role: req.user.role };
+            newChat.memberB = { username: memberB.username, id: req.params.id, role: req.user.role };
+            const savedChat = await newChat.save();
 
-        // status update on the user side
-        const statusA = {
-            id: chatId,
-            other: newChat.memberB,
+            const chatId = savedChat._id.toString();
+
+            // status update on the user side
+            const statusA = {
+                id: chatId,
+                other: newChat.memberB,
+                myTurn: false,
+            }
+            // add chat to profile A
+            await Profile.findByIdAndUpdate(id,
+                { $push: { chats: statusA } });
+
+            const statusB = {
+                id: chatId,
+                other: newChat.memberA,
+            };
+
+            // add chat to profile B
+            await Profile.findByIdAndUpdate(req.params.id,
+                { $push: { chats: statusB } });
+
+            res.status(200).json({ chat_id: chatId });
+            console.log('done ' + chatId);
+        } else {
+            res.status(200).json({ message: "Chat already exists" });
         }
-        // add chat to profile A
-        await Profile.findByIdAndUpdate(id,
-            {$push: {chats: statusA}});
-
-        const statusB = {
-            id: chatId,
-            other: newChat.memberA,
-        };
-
-        // add chat to profile B
-        await Profile.findByIdAndUpdate(req.params.id,
-            {$push: {chats: statusB}});
-
-        res.status(200).json({chat_id: chatId});
-        console.log('done ' + chatId);
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
@@ -70,7 +78,7 @@ router.patch('/:id', privateChat, messageValidation, async (req, res) => {
         const id = req.user._id.toString();
 
         if (!chat || (id !== chat.memberA.id && id !== chat.memberB.id))
-            return res.status(400).json({message: "Bad Request"});
+            return res.status(400).json({ message: "Bad Request" });
 
         // new message
         const message = {
@@ -83,7 +91,7 @@ router.patch('/:id', privateChat, messageValidation, async (req, res) => {
 
         // add message
         await Chat.findByIdAndUpdate(req.params.id,
-            {$push: {messages: message}});
+            { $push: { messages: message } });
 
         // add notification
         const otherMemberId = id === chat.memberA.id ? chat.memberB.id : chat.memberA.id;
@@ -133,18 +141,18 @@ router.get('/:id', privateChat, async (req, res) => {
         // reset notificaions
         await Profile.findByIdAndUpdate(
             req.user._id,
-            {$set: {'chats.$[elem].new': 0}},
-            {arrayFilters: [{'elem.id': output._id}]});
+            { $set: { 'chats.$[elem].new': 0 } },
+            { arrayFilters: [{ 'elem.id': output._id }] });
 
         res.status(200).json(output);
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
 router.delete('/:id', privateChat, async (req, res) => {
-   const chatId = req.params.id;
+    const chatId = req.params.id;
     try {
         const output = await Chat.findByIdAndDelete(chatId);
         if (!output)
@@ -154,17 +162,17 @@ router.delete('/:id', privateChat, async (req, res) => {
         // member A
         await Profile.findByIdAndUpdate(
             output.memberA.id,
-            {$pull: {chats: { id: chatId}}});
+            { $pull: { chats: { id: chatId } } });
 
         // member B
         await Profile.findByIdAndUpdate(
             output.memberB.id,
-            {$pull: {chats: {id: chatId}}});
+            { $pull: { chats: { id: chatId } } });
 
         res.status(200).json(output);
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
