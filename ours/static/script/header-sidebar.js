@@ -1,22 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('DOM fully loaded and parsed');
     $("#header-container").load("header-sidebar.html", function() {
         // Ensure the following code runs after header.html is loaded
 
         var userId = localStorage.getItem('userId');
         if (userId) {
             var username = localStorage.getItem('username');
-            if (username) {
-                console.log('Username: ' + username);
-                // if element id=sign-in-up is present
-                if (document.getElementById('sign-in-up')) {
-                    console.log('Element found');
-                } else {
-                    console.log('Element not found');
-                }
+            if (username)
                 displayUserProfile(username);
-                console.log('User ID: ' + userId);
-            }
         }
 
         var usernameLabel = document.getElementById('usernameLabel');

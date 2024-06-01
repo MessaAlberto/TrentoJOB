@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const {Chat} = require("./chatModel");
+const {chatStatus} = require("./subModels");
 
 const Profile = mongoose.model('Profile', new mongoose.Schema({
     username: {
@@ -38,7 +40,10 @@ const Profile = mongoose.model('Profile', new mongoose.Schema({
         required: true,
         enum: ['user', 'organisation', 'admin'],
         default: 'user',
-    }
+    },
+    chats: [{
+        type: chatStatus,
+    }]
 }));
 
 const User = Profile.discriminator('User', new mongoose.Schema({

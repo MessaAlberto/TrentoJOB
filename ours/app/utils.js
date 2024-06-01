@@ -42,7 +42,7 @@ const newActivity = async (req, res, model) => {
         let activity = new model(req.body);
         activity.owner = {
             username: req.user.username,
-            id: req.user._id, 
+            id: req.user._id,
             role: req.user.role
         };
 
@@ -83,26 +83,26 @@ const search = async (req, res, model) => {
             } else {
                 if (query.daterange) {
                     const [startDateStr, endDateStr] = query.daterange.split(' - ');
-                
+
                     // Function to convert 'DD/MM/YYYY' to 'MM/DD/YYYY'
                     const convertDateFormat = (dateStr) => {
                         const [day, month, year] = dateStr.split('/');
                         return `${month}/${day}/${year}`;
                     };
-                
+
                     const startDate = new Date(convertDateFormat(startDateStr));
                     const endDate = new Date(convertDateFormat(endDateStr));
                     delete query.daterange;
-                
+
                     if (startDate) {
                         query.date_begin = { $gte: startDate };
                     }
-                
+
                     if (endDate) {
                         query.date_stop = { $lte: endDate };
                     }
                 }
-                
+
             }
         }
 
@@ -133,9 +133,6 @@ const search = async (req, res, model) => {
             delete query.sortBy;
         }
 
-        console.log("query: ", query);
-        console.log("sort: ", sort);
-
         // Query the database with the constructed query object, sort criteria, and selected fields
         const output = await model.find(query).sort(sort).select(fields);
 
@@ -148,13 +145,18 @@ const search = async (req, res, model) => {
 const searchById = async (req, res, model) => {
     let fields = '-password -refresh_token -confirmed -verified -taxIdCode';
     try {
-        if (  !req.user                         // not guest
-            || (req.user.role !== 'admin'        // admin
-            && req.user._id !== req.params.id))  // self
+        if (!req.user // not guest
+            || (req.user.role !== 'admin' // admin
+                && String(req.user._id) !== req.params.id))  // self
             fields += ' -chats';
 
         const output = await model.findById(req.params.id).select(fields);
+
         if (output) {
+            if (!fields.includes(' -chats') && output.chats) {
+                // Sort chats by last message date
+                output.chats = output.chats.sort((a, b) => new Date(b.lastDate) - new Date(a.lastDate));
+            }
             res.status(200).json(output);
         } else {
             res.status(404).json({ error: 'Not found' });
@@ -162,7 +164,7 @@ const searchById = async (req, res, model) => {
     } catch {
         res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+};
 
 const editEntity = async (req, res, model) => {
     try {
@@ -171,13 +173,12 @@ const editEntity = async (req, res, model) => {
             return res.status(404).json({ message: 'Not found' });
 
         const userIdString = String(req.user._id);
-        console.log("userIdString: ", userIdString);
         if (model === Event || model === Announcement) {
             if (req.body.action === 'join') {
                 if (activity.participants.some(participant => String(participant.id) === userIdString))
                     return res.status(400).json({ message: 'Already joined' });
 
-                activity.participants.push({ username: req.user.username, id: req.user._id, role: req.user.role});
+                activity.participants.push({ username: req.user.username, id: req.user._id, role: req.user.role });
                 await activity.save();
                 return res.status(200).json({ message: 'Joined' });
             } else if (req.body.action === 'leave') {
@@ -201,10 +202,10 @@ const editEntity = async (req, res, model) => {
             }
 
         } else if (model === User || model === Organisation) {
-            // todo
+            
         }
     } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: 'Internal Server Error', error: error });
     }
 }
 

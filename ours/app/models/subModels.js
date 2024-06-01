@@ -35,27 +35,58 @@ const Review = new mongoose.Schema({
     }
 });
 
-module.exports = {
-    Participant,
-    Review,
-}
-
-/*const mongoose = require('mongoose');
-
-// Definisci lo schema per i partecipanti
-const participantSchema = new mongoose.Schema({
-    username: {
-        type: String,
+const Message = new mongoose.Schema({
+    sender: {
+        type: Participant,
         required: true,
     },
+    date: {
+        type: Date,
+        required: true,
+        default: Date.now,
+    },
+    text: {
+        type: String,
+        required: true,
+        minlength: 1,
+        maxlength: 1024,
+    },
+});
+
+const chatStatus = new mongoose.Schema({
     id: {
         type: String,
         required: true,
     },
-});
+    other: {
+        type: Participant,
+        required: true,
+    },
+    new: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
+    myTurn: {
+        type: Boolean,
+        required: true,
+    },
+    lastMessage: {
+        type: String,
+        required: true,
+        minlength: 1,
+        maxlength: 1024,
+        default: ' ',
+    },
+    lastDate: {
+        type: Date,
+        required: false,
+    },
+})
 
-// Crea il modello Participant utilizzando lo schema definito sopra
-const Participant = mongoose.model('Participant', participantSchema);
-
-module.exports = Participant;
-*/
+module.exports = {
+    Participant,
+    Review,
+    Message,
+    chatStatus,
+}

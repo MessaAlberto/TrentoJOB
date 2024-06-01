@@ -1,27 +1,41 @@
-// Allows to use environment variables
 require('dotenv').config();
+const http = require('http');
+const socketio = require('socket.io'); // Import socket.io
 
-const app = require('./app/app.js');
-const mongoose = require('mongoose');
+const app = require('./app');
+const databaseConnect = require('./app/database');
 
-/**
- * https://devcenter.heroku.com/articles/preparing-a-codebase-for-heroku-deployment#4-listen-on-the-correct-port
- */
+const server = http.createServer(app);
+const io = socketio(server); // Create a WebSocket server instance
+
 const port = process.env.PORT || 8080;
 
-
-/**
- * Configure mongoose
- */
-// mongoose.Promise = global.Promise;
-const clientOptions = {serverApi: { version: '1', strict: true, deprecationErrors: true }};
-app.locals.db = mongoose.connect(process.env.MONGODBURI, clientOptions)
-.then ( () => {
-    
-    console.log("Connected to Database");
-    
-    app.listen(port, () => {
+// Connect to the database and start the server
+databaseConnect().then(() => {
+    server.listen(port, () => {
         console.log(`Server listening on port ${port}`);
     });
+}).catch(err => {
+    console.error('Database connection error:', err);
+});
+
+// WebSocket logic
+io.on('connection', (socket) => {
+    console.log('A user connected');
+
+    socket.on('joinRoom', ({ user1, user2 }) => {
+        const room = [user1, user2].sort().join('_');
+        socket.join(room);
+    });
+
+    socket.on("sendMessage", (message) => {
+        const room = [message.senderId, message.receiverId].sort().join("_");
+        io.to(room).emit("receiveMessage", message);
+    });
+
     
+    // Handle disconnection
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    });
 });
