@@ -3,6 +3,7 @@ const {Event} = require("./models/eventModel");
 const {Announcement} = require("./models/announcementModel");
 const {hash} = require("bcrypt");
 const mail = require("./nodeMail");
+const {emailConfirm} = require("./mailBody");
 const {sign} = require('jsonwebtoken');
 
 
@@ -25,9 +26,10 @@ const register = async (req, res, model, role) => {
         // send email confirmation mail
         const email_token = sign({ _id: savedUser._id }, process.env.JWT_SECRET_MAIL, { expiresIn: process.env.JWT_EXPIRE_MAIL });
         const url = `http://localhost:${process.env.PORT}/auth/${email_token}`;
-        const html = `link valid for 48h: <a href="${url}">Click here to confirm</a>`;
+        const html = emailConfirm(savedUser.username, url);
         mail(req.body.email, "Email confirmation", html);
-    } catch {
+    } catch (err) {
+        console.log(err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };

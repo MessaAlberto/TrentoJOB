@@ -55,7 +55,6 @@ const User = Profile.discriminator('User', new mongoose.Schema({
     phone: {
         type: String,
         required: false,
-        minlength: 3,
         maxlength: 15,
         default: '',
     },
