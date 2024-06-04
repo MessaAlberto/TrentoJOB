@@ -201,9 +201,20 @@ const editEntity = async (req, res, model) => {
             }
 
         } else if (model === User || model === Organisation) {
-            // todo
+            if (req.user.role !== 'admin' && userIdString !== String(activity._id))
+                return res.status(403).json({ message: 'Unauthorized access' });
+
+            for (const key in req.body) {
+                if (!['role', 'password', 'refresh_token'].includes(key)) {
+                    activity[key] = req.body[key];
+                }
+            }
+
+            await activity.save();
+            return res.status(200).json({ message: 'Updated', activity });
         }
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 }
