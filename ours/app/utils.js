@@ -78,8 +78,10 @@ const search = async (req, res, model) => {
                 query.maxNumberParticipants = { $lte: Number(query.maxNumberParticipants) };
 
             if (model === Event) {
-                if (query.date)
+                if (query.date){
                     query.date = { $gte: query.date };
+                    console.log(query.date);
+                }
             } else {
                 if (query.daterange) {
                     const [startDateStr, endDateStr] = query.daterange.split(' - ');
