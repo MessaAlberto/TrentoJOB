@@ -84,25 +84,23 @@ async function displayItemsOnMap(model, items) {
         }).addTo(map);
 
         items.forEach(async item => {
-            console.log(items);
             const location = item.location;
             const user = item.owner.id;
+            const role = item.owner.role;
+            const title = item.title;
+            const owner = item.owner;
             const coordinates = await getCoordinatesFromLocation(location);
             if (coordinates) {
                 const [longitude, latitude] = coordinates;
-                const { title, owner } = item;
-                const ownerLink = `<a href="/user.html?id=${user}" class="owner-link">${owner.username || 'Unknown owner'}</a>`;
+                const titleLink = `<a href="/${model}.html?id=${item._id}&model=${model}" class="title-link">${title}</a>`;
+                const ownerLink = `<a href="/user.html?id=${user}&role=${role}" class="owner-link">${owner.username || 'Unknown owner'}</a>`;
                 const popupContent = `
                     <div>
-                        <h3>${title}</h3>
-                        <p><strong>Location:</strong> ${location}</p>
-                        <p><strong>Owner:</strong> ${ownerLink}</p>
+                        <h3>${titleLink}</h3>
+                        <h6><strong>Location:</strong> ${location}</h6>
+                        <h6><strong>Owner:</strong> ${ownerLink}</h6>
                     </div>`;
-                const marker = L.marker([latitude, longitude], { icon }).addTo(map).bindPopup(popupContent);
-                marker.on('click', function(event) {
-                    event.preventDefault();
-                    window.location.href = `/user.html?id=${user}`;
-                });
+                L.marker([latitude, longitude], { icon }).addTo(map).bindPopup(popupContent);
             }
         });
     } catch (err) {
