@@ -84,9 +84,29 @@ const chatStatus = new mongoose.Schema({
     },
 })
 
+const Comment = new mongoose.Schema({
+    user: {
+        type: Participant,
+        required: true,
+    },
+    text: {
+        type: String,
+        required: true,
+        maxlength: 1024,
+    },
+    date: {
+        type: Date,
+        required: true,
+        default: Date.now(),
+    }
+});
+
+
+
 module.exports = {
     Participant,
     Review,
     Message,
     chatStatus,
+    Comment,
 }
