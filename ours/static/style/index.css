@@ -418,7 +418,7 @@ input:not(:checked)+label:hover {
     cursor: pointer;
 }
 
-
+/* Create Notice Button */
 .create-notice {
     position: fixed;
     bottom: 40px;
@@ -431,13 +431,60 @@ input:not(:checked)+label:hover {
     border-radius: 50%;
     font-size: 24px;
     cursor: pointer;
-    z-index: 999; /* Ensure it's above other content */
+    z-index: 990; /* Ensure it's above other content */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
 }
 
 .create-notice:hover {
     background-color: #0056b3;
+}
+
+/* Create Notice Menu */
+.create-notice-menu {
+    position: fixed;
+    bottom: 110px;
+    right: 40px;
+    width: 200px;
+    color: #fff;
+    background-color: #007bff;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    z-index: 991; /* Ensure it's above other content */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(20px);
+}
+
+.create-notice-menu.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Create Notice Menu Buttons */
+.create-notice-menu button {
+    width: 100%;
+    padding: 15px 20px;
+    border: none;
+    background-color: #007bff;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.3s ease;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.create-notice-menu button:last-child {
+    border-bottom: none;
+}
+
+.create-notice-menu button:hover {
+    background-color: #0056b3;
+}
+
+.create-notice-menu button:focus {
+    outline: none;
+    background-color: #6aabf0;
 }
 
 

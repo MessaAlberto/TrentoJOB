@@ -9,6 +9,16 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
     });
 
+    var createNoticeButton = document.getElementById('createNotice');
+
+    // Check if the click was outside the menu and the button
+    document.addEventListener('click', function (event) {
+        if (event.target !== createNoticeButton && event.target !== createNoticeButton.firstElementChild) {
+            var createNoticeMenu = document.getElementById('createNoticeMenu');
+            createNoticeMenu.classList.add('hidden');
+        }
+    });
+
     // show Trento on the map
     map = L.map('map').setView([46.066422, 11.125760], 13);
 
@@ -186,8 +196,10 @@ function addFiltersToQuery() {
 function addJoinLeaveButton(item, buttonContainer, elementContainer) {
     const userId = localStorage.getItem('userId');
     const username = localStorage.getItem('username');
+    const role = localStorage.getItem('role');
 
-    if (userId && username) {
+    // only logged users can join events and announcements
+    if (userId && username && role === 'user') {
         const joinButton = document.createElement('button');
         joinButton.classList.add('join-leave-button');
 
@@ -266,9 +278,11 @@ function displayCreateButton() {
     }
 }
 
-function createActivity() {
+function createActivityButton() {
     // Check if it is logged in
     var userId = localStorage.getItem('userId');
+    var userRole = localStorage.role;
+
     if (!userId) {
         alert("You must be logged in to create a notice.");
         return;
@@ -276,18 +290,32 @@ function createActivity() {
 
     // Send user to the correct page
     // User --> createAnnouncement
-    // Organisation --> createEvent
-    var userRole = localStorage.role;
+    // Organisation --> createEvent or createAnnouncement
     if (userRole === 'user')
         window.location.href = "/createAnnouncement.html";
-    else if (userRole === 'organisation')
-        window.location.href = "/createEvent.html";
-    else
+    else if (userRole === 'organisation') {
+        toggleCreateNoticeMenu();
+    } else
         alert("You must be logged in to create a notice.");
-
 }
 
+function toggleCreateNoticeMenu() {
+    var createNoticeMenu = document.getElementById('createNoticeMenu');
+    createNoticeMenu.classList.toggle('hidden');
+}
 
+function createActivity(noticeType = '') {
+    var userId = localStorage.getItem('userId');
+    var userRole = localStorage.role;
+    toggleCreateNoticeMenu();
+    if (userId && noticeType === 'event' && userRole === 'organisation') {
+        window.location.href = "/createEvent.html";
+    } else if (userId && noticeType === 'announcement') {
+        window.location.href = "/createAnnouncement.html";
+    } else {
+        alert("You must be logged in as an organisation to create an event.");
+    }
+}
 
 function createItemList(model, item) {
     const elementContainer = document.createElement('div');

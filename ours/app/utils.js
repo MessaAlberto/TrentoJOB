@@ -174,6 +174,9 @@ const editEntity = async (req, res, model) => {
 
         if (model === Event || model === Announcement) {
             if (req.body.action === 'join') {
+                if (activity.owner.id === req.user._id)
+                    return res.status(400).json({ message: 'Owner cannot join' });
+
                 if (activity.participants.some(participant => participant.id === req.user._id))
                     return res.status(400).json({ message: 'Already joined' });
                 console.log(req.user.username, req.user._id, req.user.role)
