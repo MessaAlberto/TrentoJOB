@@ -68,18 +68,6 @@ function updateProfile() {
         return;
     }
 
-    const username = document.getElementById('username').value;
-    const email = document.getElementById('email').value;
-    const birthday = document.getElementById('birthday').value;
-    const phone = document.getElementById('phone').value;
-    const sex = document.getElementById('sex').value;
-    const taxIdCode = document.getElementById('taxIdCode').value;
-    const bio = document.getElementById('bio').value;
-    
-    
-
-    
-
     const url = "/" + role + "/" + userId;
     const xhr = new XMLHttpRequest();
     xhr.open("PUT", url, true); 
@@ -95,9 +83,20 @@ function updateProfile() {
     };
 
     if (role === 'user') {
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const birthday = document.getElementById('birthday').value;
+        const phone = document.getElementById('phone').value;
+        const sex = document.getElementById('sex').value;
+        const taxIdCode = document.getElementById('taxIdCode').value;
+        const bio = document.getElementById('bio').value;
         const dataUser = JSON.stringify({username: username, email: email, birthday: birthday, phone: phone, sex: sex, taxIdCode:taxIdCode, bio: bio});
         xhr.send(dataUser);
     } else {
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const taxIdCode = document.getElementById('taxIdCode').value;
+        const bio = document.getElementById('bio').value;
         const dataOrganisation = JSON.stringify({username: username, email: email, taxIdCode:taxIdCode, bio: bio});
         xhr.send(dataOrganisation);
     }
