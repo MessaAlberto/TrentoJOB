@@ -321,6 +321,17 @@ function createItemList(model, item) {
         bottonLabels.classList.add('bottom-labels');
         bodyBox.appendChild(bottonLabels);
 
+        const participants = document.createElement('div');
+        bottonLabels.appendChild(participants);
+        const participantsKey = document.createElement('div');
+        participantsKey.classList.add('key');
+        participantsKey.innerHTML = 'Num participants:';
+        const participantsValue = document.createElement('div');
+        participantsValue.classList.add('value');
+        participantsValue.innerHTML = (item.participants.length + '/' + item.maxNumberParticipants) || 'Unlimited';
+        participants.appendChild(participantsKey);
+        participants.appendChild(participantsValue);
+
         const expiredText = document.createElement('div');
         expiredText.classList.add('expired');
         titleElement.appendChild(expiredText);
@@ -333,17 +344,6 @@ function createItemList(model, item) {
         descriptionValue.innerHTML = item.description || 'No description available';
         description.appendChild(descriptionKey);
         description.appendChild(descriptionValue);
-
-        const comments = document.createElement('div');
-        bottonLabels.appendChild(comments);
-        const commentsKey = document.createElement('div');
-        commentsKey.classList.add('key');
-        commentsKey.innerHTML = 'Comments:';
-        const commentsValue = document.createElement('div');
-        commentsValue.classList.add('value');
-        commentsValue.innerHTML = item.comments || '(?)';
-        comments.appendChild(commentsKey);
-        comments.appendChild(commentsValue);
 
         titleText.innerHTML = item.title || 'No title';
         if (item.expired) {
@@ -359,6 +359,17 @@ function createItemList(model, item) {
             ratingValue.innerHTML = (item.rating + '/5') || 'No rating';
             rating.appendChild(ratingKey);
             rating.appendChild(ratingValue);
+
+            const comments = document.createElement('div');
+            bottonLabels.appendChild(comments);
+            const commentsKey = document.createElement('div');
+            commentsKey.classList.add('key');
+            commentsKey.innerHTML = 'Comments:';
+            const commentsValue = document.createElement('div');
+            commentsValue.classList.add('value');
+            commentsValue.innerHTML = item.comments || '(?)';
+            comments.appendChild(commentsKey);
+            comments.appendChild(commentsValue);
         } else {
             addJoinLeaveButton(item, bottonLabels, elementContainer);
         }
@@ -466,17 +477,6 @@ function createItemList(model, item) {
             hourBegin.appendChild(hourBeginKey);
             hourBegin.appendChild(hourBeginValue);
         }
-
-        const participants = document.createElement('div');
-        mainInfo.appendChild(participants);
-        const participantsKey = document.createElement('div');
-        participantsKey.classList.add('key');
-        participantsKey.innerHTML = 'Num participants:';
-        const participantsValue = document.createElement('div');
-        participantsValue.classList.add('value');
-        participantsValue.innerHTML = (item.participants.length + '/' + item.maxNumberParticipants) || 'Unlimited';
-        participants.appendChild(participantsKey);
-        participants.appendChild(participantsValue);
 
     } else if (model === 'user' || model === 'organisation') {
         titleText.innerHTML = item.username || 'No username';
