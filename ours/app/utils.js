@@ -18,7 +18,6 @@ const register = async (req, res, model, role) => {
         req.body.password = await hash(req.body.password, 10);
         let user = new model(req.body);
         user.role = role;
-
         // save
         const savedUser = await user.save();
         res.status(201).json({ user: savedUser._id });
@@ -29,7 +28,6 @@ const register = async (req, res, model, role) => {
         const html = emailConfirm(savedUser.username, url);
         mail(req.body.email, "Email confirmation", html);
     } catch (err) {
-        console.log(err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
