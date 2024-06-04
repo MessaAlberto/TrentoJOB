@@ -149,7 +149,7 @@ const searchById = async (req, res, model) => {
     try {
         if (!req.user // not guest
             || (req.user.role !== 'admin' // admin
-                && String(req.user._id) !== req.params.id))  // self
+                && req.user._id !== req.params.id))  // self
             fields += ' -chats';
 
         const output = await model.findById(req.params.id).select(fields);
@@ -174,25 +174,25 @@ const editEntity = async (req, res, model) => {
         if (!activity)
             return res.status(404).json({ message: 'Not found' });
 
-        const userIdString = String(req.user._id);
         if (model === Event || model === Announcement) {
             if (req.body.action === 'join') {
-                if (activity.participants.some(participant => String(participant.id) === userIdString))
+                if (activity.participants.some(participant => participant.id === req.user._id))
                     return res.status(400).json({ message: 'Already joined' });
+                console.log(req.user.username, req.user._id, req.user.role)
 
                 activity.participants.push({ username: req.user.username, id: req.user._id, role: req.user.role });
                 await activity.save();
                 return res.status(200).json({ message: 'Joined' });
             } else if (req.body.action === 'leave') {
-                if (!activity.participants.some(participant => String(participant.id) === userIdString))
+                if (!activity.participants.some(participant => participant.id === req.user._id))
                     return res.status(400).json({ message: 'Not joined' });
 
-                activity.participants = activity.participants.filter(participant => String(participant.id) !== userIdString);
+                activity.participants = activity.participants.filter(participant => participant.id !== req.user._id);
                 await activity.save();
                 return res.status(200).json({ message: 'Left' });
             } else {
                 // For other modifications, ensure only authorized users can edit
-                if (req.user.role !== 'admin' && userIdString !== String(activity.owner.id))
+                if (req.user.role !== 'admin' && req.user._id !== activity.owner.id)
                     return res.status(403).json({ message: 'Unauthorized access' });
 
                 for (const key in req.body) {

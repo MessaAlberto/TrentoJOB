@@ -23,7 +23,17 @@ const verifySecretToken = (req, res, next) => {
         const user = await Profile.findById(id);
         if (!user) return res.status(403).json({message: 'User does not exist'});
 
-        req.user = user;
+        // convert object to string
+        const userObj = user.toObject();
+        userObj._id = userObj._id.toString();
+        userObj.chats = userObj.chats.map(chat => {
+            chat.id = chat.id.toString();
+            chat._id = chat._id.toString();
+            chat.other.id = chat.other.id.toString();
+            return chat;
+        });
+
+        req.user = userObj;
         next();
     });
 }
@@ -47,7 +57,7 @@ const privateChat = async (req, res, next) => {
     try {
         const chat = await Chat.findById(req.params.id);
 
-        if (!chat || (chat.memberA.id !== req.user._id.toString() && chat.memberB.id !== req.user._id.toString()))
+        if (!chat || (chat.memberA.id !== req.user._id && chat.memberB.id !== req.user._id))
             return res.status(403).json({ message: 'Unauthorized access' });
         next();
 

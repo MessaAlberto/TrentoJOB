@@ -217,7 +217,7 @@ function addJoinLeaveButton(item, buttonContainer, elementContainer) {
             joinButton.innerHTML = 'Full';
             joinButton.disabled = true;
         } else {
-            radioButtonsValue === 'event' ? joinButton.innerHTML = 'Join' : joinButton.innerHTML = 'Apply';
+            radioButtonsValue === 'event' ? joinButton.innerHTML = 'Join and create chat' : joinButton.innerHTML = 'Apply and create chat';
             joinButton.addEventListener('click', function () {
                 // update the notice
                 fetch('/' + radioButtonsValue + '/' + item._id, {

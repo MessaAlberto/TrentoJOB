@@ -8,7 +8,7 @@ const { Profile } = require("../models/profileModel");
 // create chat
 router.post('/:id', blockGuest, async (req, res) => {
     try {
-        const id = req.user._id.toString();
+        const id = req.user._id;
 
         const memberB = await Profile.findById(req.params.id).select('username chats');
 
@@ -75,7 +75,7 @@ router.patch('/:id', privateChat, messageValidation, async (req, res) => {
         const chat = await Chat.findById(req.params.id);
 
         // must be part of the chat
-        const id = req.user._id.toString();
+        const id = req.user._id;
 
         if (!chat || (id !== chat.memberA.id && id !== chat.memberB.id))
             return res.status(400).json({ message: "Bad Request" });
