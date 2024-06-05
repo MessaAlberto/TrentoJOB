@@ -6,6 +6,12 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchUserProfile();
 });
 
+function validateTaxIdCode(taxIdCode) {
+    const cfRegex = /^[A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$/;
+    return cfRegex.test(taxIdCode);
+}
+
+
 function fetchUserProfile() {
     const userId = localStorage.getItem('userId');
     const role = localStorage.getItem('role');
@@ -44,6 +50,7 @@ function fetchUserProfile() {
                 document.getElementById('phone').value = user.phone
                 document.getElementById('sex').value = user.sex
                 document.getElementById('taxIdCode').value = user.taxIdCode
+                console.log(user.taxIdCode)
                 document.getElementById('bio').value = user.bio
             } else {
                 buildOrganisationProfile(container, user);
@@ -89,15 +96,18 @@ function updateProfile() {
         const phone = document.getElementById('phone').value;
         const sex = document.getElementById('sex').value;
         const taxIdCode = document.getElementById('taxIdCode').value;
+        if (!validateTaxIdCode(taxIdCode)) {
+            alert("Codice fiscale non valido.");
+            return;
+        }
         const bio = document.getElementById('bio').value;
         const dataUser = JSON.stringify({username: username, email: email, birthday: birthday, phone: phone, sex: sex, taxIdCode:taxIdCode, bio: bio});
         xhr.send(dataUser);
     } else {
         const username = document.getElementById('username').value;
         const email = document.getElementById('email').value;
-        const taxIdCode = document.getElementById('taxIdCode').value;
         const bio = document.getElementById('bio').value;
-        const dataOrganisation = JSON.stringify({username: username, email: email, taxIdCode:taxIdCode, bio: bio});
+        const dataOrganisation = JSON.stringify({username: username, email: email, bio: bio});
         xhr.send(dataOrganisation);
     }
     
@@ -144,7 +154,7 @@ function buildUserProfile(container, user) {
             </div>
             <div class="form-group">
                 <label for="taxIdCode">Codice Fiscale:</label>
-                <input type="text" class="form-control" id="taxIdCode" name="taxIdCode" autocomplete="taxIdCode" disabled>
+                <input type="text" class="form-control" id="taxIdCode" name="taxIdCode" autocomplete="taxIdCode">
             </div>
             <div class="form-group">
                 <label for="bio">Descrizione:</label>

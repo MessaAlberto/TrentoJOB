@@ -146,7 +146,7 @@ const search = async (req, res, model) => {
 }
 
 const searchById = async (req, res, model) => {
-    let fields = '-password -refresh_token -confirmed -verified -taxIdCode';
+    let fields = '-password -refresh_token -confirmed -verified';
     try {
         if (  !req.user                         // not guest
             || (req.user.role !== 'admin'        // admin
