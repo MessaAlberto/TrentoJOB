@@ -37,8 +37,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        document.getElementById('homeTitle').addEventListener('click', function () {
-            window.location.href = "/index.html";
+        document.getElementById('homeTitle').addEventListener('click', function (event) {
+            // if page different from chat.html
+            if (window.location.pathname !== '/chat.html') {
+                window.location.href = "/index.html";
+            }
         });
     });
 });

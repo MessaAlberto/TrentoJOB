@@ -42,6 +42,41 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(() => {
         fetchList();
     }, 10000);
+
+    // wait a second before activate a listener
+    setTimeout(() => {
+        document.getElementById('homeTitle').addEventListener('click', function () {
+            clearNewMessageOnOpenChat();
+        });
+
+        document.getElementById('usernameLabel').addEventListener('click', function () {
+            clearNewMessageOnOpenChat();
+        });
+
+        document.getElementById('mePage').addEventListener('click', function () {
+            clearNewMessageOnOpenChat();
+        });
+
+        function clearNewMessageOnOpenChat() {
+            if (!openedChatId) return;
+
+            fetch('/chat/' + openedChatId, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.token,
+                }
+            }).then(async response => {
+                if (response.ok) {
+                    window.location.href = '/index.html';
+                } else {
+                    throw new Error('Failed to fetch');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    }, 100);
 });
 
 
