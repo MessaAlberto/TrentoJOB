@@ -143,13 +143,13 @@ const search = async (req, res, model) => {
 }
 
 const searchById = async (req, res, model) => {
-    let fields = '-password -refresh_token -confirmed -verified -taxIdCode';
+    let fields = '-password -refresh_token -confirmed -verified -taxIdCode -comments -participants';
     try {
         if (!req.user // not guest
             || (req.user.role !== 'admin' // admin
                 && req.user._id !== req.params.id))  // self
             fields += ' -chats';
-
+            
         const output = await model.findById(req.params.id).select(fields);
 
         if (output) {

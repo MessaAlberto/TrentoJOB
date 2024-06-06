@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {Participant, Comment} = require("./subModels");
+const {Participant, CommentSchema} = require("./subModels");
 
 const Event = mongoose.model('Event', new mongoose.Schema({
     title: {
@@ -27,7 +27,7 @@ const Event = mongoose.model('Event', new mongoose.Schema({
         default: false,
     },
     comments: {
-        type: [Comment],
+        type: [CommentSchema],
     },
     rating: {
         type: Number,

@@ -29,6 +29,7 @@ const organisationURL = require('./app/Entities/organisation');
 const eventURL = require('./app/Entities/event');
 const announcementURL = require('./app/Entities/announcement');
 const chatURL = require('./app/Entities/chat');
+const commentURL = require('./app/Entities/comment');
 
 app.use('/auth', authURL);
 app.use('/admin', adminURL);
@@ -37,6 +38,7 @@ app.use('/organisation', organisationURL);
 app.use('/event', eventURL);
 app.use('/announcement', announcementURL);
 app.use('/chat', chatURL);
+app.use('/comment', commentURL);
 
 // Default 404 handler
 app.use((req, res) => {
