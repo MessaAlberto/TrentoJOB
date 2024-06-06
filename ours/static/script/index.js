@@ -92,7 +92,7 @@ async function displayItemsOnMap(model, items) {
             const coordinates = await getCoordinatesFromLocation(location);
             if (coordinates) {
                 const [longitude, latitude] = coordinates;
-                const titleLink = `<a href="/${model}.html?id=${item._id}&model=${model}" class="title-link">${title}</a>`;
+                const titleLink = `<a href="/displayEvent-Announcement.html?id=${item._id}&model=${model}" class="title-link">${title}</a>`;
                 const ownerLink = `<a href="/user.html?id=${user}&role=${role}" class="owner-link">${owner.username || 'Unknown owner'}</a>`;
                 const popupContent = `
                     <div>
