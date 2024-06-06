@@ -201,7 +201,7 @@ function addJoinLeaveButton(item, buttonContainer, elementContainer) {
     // only logged users can join events and announcements
     if (userId && username && role === 'user') {
         const joinButton = document.createElement('button');
-        joinButton.classList.add('join-leave-button');
+        joinButton.classList.add('bottom-label-button');
 
         const isParticipant = item.participants.some(participant => String(participant.id) === userId);
 
@@ -345,12 +345,12 @@ function createItemList(model, item) {
     bodyBox.appendChild(description);
 
     if (model === 'event' || model === 'announcement') {
-        const bottonLabels = document.createElement('div');
-        bottonLabels.classList.add('bottom-labels');
-        bodyBox.appendChild(bottonLabels);
+        const bottomLabels = document.createElement('div');
+        bottomLabels.classList.add('bottom-labels');
+        bodyBox.appendChild(bottomLabels);
 
         const participants = document.createElement('div');
-        bottonLabels.appendChild(participants);
+        bottomLabels.appendChild(participants);
         const participantsKey = document.createElement('div');
         participantsKey.classList.add('key');
         participantsKey.innerHTML = 'Num participants:';
@@ -378,7 +378,7 @@ function createItemList(model, item) {
             expiredText.innerHTML = 'Expired';
 
             const rating = document.createElement('div');
-            bottonLabels.appendChild(rating);
+            bottomLabels.appendChild(rating);
             const ratingKey = document.createElement('div');
             ratingKey.classList.add('key');
             ratingKey.innerHTML = 'Rating:';
@@ -387,19 +387,8 @@ function createItemList(model, item) {
             ratingValue.innerHTML = (item.rating + '/5') || 'No rating';
             rating.appendChild(ratingKey);
             rating.appendChild(ratingValue);
-
-            const comments = document.createElement('div');
-            bottonLabels.appendChild(comments);
-            const commentsKey = document.createElement('div');
-            commentsKey.classList.add('key');
-            commentsKey.innerHTML = 'Comments:';
-            const commentsValue = document.createElement('div');
-            commentsValue.classList.add('value');
-            commentsValue.innerHTML = item.comments || '(?)';
-            comments.appendChild(commentsKey);
-            comments.appendChild(commentsValue);
         } else {
-            addJoinLeaveButton(item, bottonLabels, elementContainer);
+            addJoinLeaveButton(item, bottomLabels, elementContainer);
         }
 
         const location = document.createElement('div');
@@ -428,7 +417,7 @@ function createItemList(model, item) {
         if (model === 'announcement') {
             ownerValue.addEventListener('click', function (event) {
                 event.preventDefault();
-                fecthObject(item.owner.role, item.owner.id);
+                fecthOwner(item.owner.role, item.owner.id);
             });
 
             if (item.date_begin) {
@@ -480,7 +469,16 @@ function createItemList(model, item) {
         } else {
             ownerValue.addEventListener('click', function (event) {
                 event.preventDefault();
-                fecthObject(item.owner.role, item.owner.id);
+                fecthOwner(item.owner.role, item.owner.id);
+            });
+
+            const comments = document.createElement('button');
+            comments.classList.add('bottom-label-button');
+            comments.innerHTML = 'Comments';
+            bottomLabels.appendChild(comments);
+
+            comments.addEventListener('click', function () {
+                fetchComments(item._id);
             });
 
             const dateBegin = document.createElement('div');
@@ -802,7 +800,7 @@ function createFilterForm() {
 
 
 
-async function fecthObject(model, ownerId) {
+async function fecthOwner(model, ownerId) {
     const url = '/' + model + '/' + ownerId;
 
     try {
@@ -811,7 +809,7 @@ async function fecthObject(model, ownerId) {
             throw new Error('Network response was not ok');
         }
         const item = await response.json();
-        const itemContainer = document.getElementById('showObject');
+        const itemContainer = document.getElementById('showPopUpObject');
 
         const itemElement = createItemList(model, item);
         itemElement.classList.add('single-item-container');
@@ -839,6 +837,137 @@ async function fecthObject(model, ownerId) {
     }
 }
 
+async function fetchComments(noticeId) {
+    // disable sroll in the body
+    document.body.classList.add('no-scroll');
+    const url = '/event/' + noticeId + '/comments';
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.token,
+            }
+        });
+        if (!response.ok) {
+            if (response.status === 403) {
+                alert('You must be logged in to see the comments');
+                document.body.classList.remove('no-scroll');
+            }
+            throw new Error('Network response was not ok');
+        }
+        const item = await response.json();
+        const itemContainer = document.getElementById('showPopUpObject');
+        itemContainer.innerHTML = '';
+        itemContainer.classList.remove('hidden');
+
+        const commentsContainer = document.createElement('div');
+        commentsContainer.classList.add('popUp-comments-container');
+        itemContainer.appendChild(commentsContainer);
+
+        const title = document.createElement('h3');
+        title.classList.add('title-container');
+        title.innerHTML = 'Comment';
+        commentsContainer.appendChild(title);
+
+        const comments = document.createElement('div');
+        comments.classList.add('comments-container');
+        if (item.comments.length === 0) {
+            comments.innerHTML = 'No comments';
+        } else {
+            item.comments.forEach(item => {
+                const comment = document.createElement('div');
+                comment.classList.add('comment');
+                
+                const username = document.createElement('div');
+                username.classList.add('comment-username');
+                username.innerHTML = item.user.username + ': ';
+                comment.appendChild(username);
+
+                const text = document.createElement('div');
+                text.classList.add('comment-text');
+                text.innerHTML = item.text;
+                comment.appendChild(text);
+
+                const date = document.createElement('div');
+                date.classList.add('comment-date');
+                date.innerHTML = item.date.split('T')[0] + ' ' + item.date.split('T')[1].split('.')[0].slice(0, 5);
+                comment.appendChild(date);
+
+                comments.appendChild(comment);
+            });
+        }
+        commentsContainer.appendChild(comments);
+
+        const inputContainer = document.createElement('div');
+        inputContainer.classList.add('comment-input-container');
+        commentsContainer.appendChild(inputContainer);
+
+        const input = document.createElement('input');
+        input.classList.add('comment-input');
+        input.setAttribute('type', 'text');
+        input.setAttribute('placeholder', 'Write a comment...');
+        inputContainer.appendChild(input);
+
+        const button = document.createElement('button');
+        button.classList.add('comment-button');
+        button.innerHTML = 'Send';
+        inputContainer.appendChild(button);
+
+        const publishComment = async () => {
+            const text = input.value.trim();
+            if (text === '') return;
+
+            fetch('/comment/' + item._id, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.token,
+                },
+                body: JSON.stringify({ text }),
+            }).then(response => {
+                if (response.ok) {
+                    fetchComments(item._id);
+                }
+            }).catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+        }
+
+        button.addEventListener('click', publishComment);
+
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                publishComment();
+            }
+        });
+
+        const closeButton = document.createElement('button');
+        closeButton.classList.add('close-button');
+        closeButton.innerHTML = 'Close';
+
+        closeButton.addEventListener('click', function () {
+            itemContainer.innerHTML = '';
+            itemContainer.classList.add('hidden');
+            document.body.classList.remove('no-scroll');
+        });
+
+        itemContainer.addEventListener('click', function (event) {
+            if (event.target === itemContainer) {
+                itemContainer.innerHTML = '';
+                itemContainer.classList.add('hidden');
+                document.body.classList.remove('no-scroll');
+            }
+        });
+
+        itemContainer.appendChild(closeButton);
+
+    } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+    }
+}
+
 
 fetchNewMessages = async () => {
     var userId = localStorage.getItem('userId');
@@ -853,7 +982,6 @@ fetchNewMessages = async () => {
                     'Authorization': 'Bearer ' + localStorage.token,
                 }
             });
-
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
