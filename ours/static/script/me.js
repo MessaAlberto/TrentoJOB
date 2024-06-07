@@ -23,7 +23,7 @@ function fetchUserProfile() {
 
     const url = "/" + role + "/" + userId;
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true); 
+    xhr.open("GET", url, true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem('token')); // Aggiungiamo l'header di autorizzazione
     xhr.onload = function () {
@@ -47,17 +47,16 @@ function fetchUserProfile() {
                     }
                 }
 
-                document.getElementById('phone').value = user.phone
-                document.getElementById('sex').value = user.sex
-                document.getElementById('taxIdCode').value = user.taxIdCode
-                console.log(user.taxIdCode)
-                document.getElementById('bio').value = user.bio
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('sex').value = user.sex || '';
+                document.getElementById('taxIdCode').value = user.taxIdCode || '';
+                document.getElementById('bio').value = user.bio || '';
             } else {
                 buildOrganisationProfile(container, user);
                 document.getElementById('username').value = user.username;
                 document.getElementById('email').value = user.email;
-                document.getElementById('taxIdCode').value = user.taxIdCode
-                document.getElementById('bio').value = user.bio
+                document.getElementById('taxIdCode').value = user.taxIdCode || '';
+                document.getElementById('bio').value = user.bio || '';
             }
         } else {
             alert("Errore nel caricamento del profilo.");
@@ -70,48 +69,74 @@ function updateProfile() {
     const userId = localStorage.getItem('userId');
     const role = localStorage.getItem('role');
     if (!userId) {
-        alert("Utente non loggato.");
+        alert("User not logged in.");
         window.location.href = "/index.html";
         return;
     }
 
     const url = "/" + role + "/" + userId;
     const xhr = new XMLHttpRequest();
-    xhr.open("PUT", url, true); 
+    xhr.open("PUT", url, true);
     xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem('token')); 
+    xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem('token'));
     xhr.onload = function () {
         if (xhr.status === 200) {
             window.location.href = "/me.html";
-            alert("Profilo aggiornato con successo.");
+            alert("Profile updated successfully.");
         } else {
-            alert("Errore durante l'aggiornamento del profilo.");
+            alert("Error updating profile.");
         }
     };
 
+    const userData = {};
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const bio = document.getElementById('bio').value;
+
     if (role === 'user') {
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
         const birthday = document.getElementById('birthday').value;
         const phone = document.getElementById('phone').value;
         const sex = document.getElementById('sex').value;
         const taxIdCode = document.getElementById('taxIdCode').value;
-        if (!validateTaxIdCode(taxIdCode)) {
-            alert("Codice fiscale non valido.");
+
+        if (taxIdCode !== '' && !validateTaxIdCode(taxIdCode)) {
+            alert("Invalid tax ID code.");
             return;
         }
-        const bio = document.getElementById('bio').value;
-        const dataUser = JSON.stringify({username: username, email: email, birthday: birthday, phone: phone, sex: sex, taxIdCode:taxIdCode, bio: bio});
-        xhr.send(dataUser);
+
+        Object.assign(userData, {
+            username: username,
+            email: email,
+            birthday: birthday,
+            phone: phone,
+            sex: sex,
+            taxIdCode: taxIdCode,
+            bio: bio
+        });
     } else {
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
-        const bio = document.getElementById('bio').value;
-        const dataOrganisation = JSON.stringify({username: username, email: email, bio: bio});
-        xhr.send(dataOrganisation);
+        Object.assign(userData, {
+            username: username,
+            email: email,
+            bio: bio
+        });
     }
-    
+
+    // Remove empty fields from userData
+    for (const key in userData) {
+        if (userData[key] === '') {
+            delete userData[key];
+        }
+    }
+
+    // Send userData if it's not empty
+    if (Object.keys(userData).length > 0) {
+        const data = JSON.stringify(userData);
+        xhr.send(data);
+    } else {
+        console.error("No data to send.");
+    }
 }
+
 
 function logout() {
     localStorage.removeItem('userId');
