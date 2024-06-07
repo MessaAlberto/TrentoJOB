@@ -53,7 +53,7 @@ const Message = new mongoose.Schema({
     },
 });
 
-const chatStatus = new mongoose.Schema({
+const ChatStatus = new mongoose.Schema({
     id: {
         type: String,
         required: true,
@@ -82,11 +82,35 @@ const chatStatus = new mongoose.Schema({
         type: Date,
         required: false,
     },
-})
+});
+
+const CommentSchema = new mongoose.Schema({
+    user: {
+        type: Participant,
+        required: true,
+    },
+    text: {
+        type: String,
+        required: true,
+        maxlength: 1024,
+    },
+    date: {
+        type: Date,
+        required: true,
+        default: Date.now(),
+    },
+});
+
+
+const Comment = mongoose.model('Comment', CommentSchema);
+
+
 
 module.exports = {
     Participant,
     Review,
     Message,
-    chatStatus,
+    ChatStatus,
+    Comment,
+    CommentSchema,
 }

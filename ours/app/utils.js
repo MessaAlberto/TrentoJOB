@@ -78,10 +78,8 @@ const search = async (req, res, model) => {
                 query.maxNumberParticipants = { $lte: Number(query.maxNumberParticipants) };
 
             if (model === Event) {
-                if (query.date){
+                if (query.date)
                     query.date = { $gte: query.date };
-                    console.log(query.date);
-                }
             } else {
                 if (query.daterange) {
                     const [startDateStr, endDateStr] = query.daterange.split(' - ');
@@ -145,13 +143,13 @@ const search = async (req, res, model) => {
 }
 
 const searchById = async (req, res, model) => {
-    let fields = '-password -refresh_token -confirmed -verified -taxIdCode';
+    let fields = '-password -refresh_token -confirmed -verified -taxIdCode -comments -participants';
     try {
         if (!req.user // not guest
             || (req.user.role !== 'admin' // admin
                 && req.user._id !== req.params.id))  // self
             fields += ' -chats';
-
+            
         const output = await model.findById(req.params.id).select(fields);
 
         if (output) {
@@ -181,7 +179,6 @@ const editEntity = async (req, res, model) => {
 
                 if (activity.participants.some(participant => participant.id === req.user._id))
                     return res.status(400).json({ message: 'Already joined' });
-                console.log(req.user.username, req.user._id, req.user.role)
 
                 activity.participants.push({ username: req.user.username, id: req.user._id, role: req.user.role });
                 await activity.save();

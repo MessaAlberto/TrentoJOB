@@ -1,9 +1,9 @@
 // Route to handle requests for /chat
 const router = require('express').Router();
-const { Chat } = require("../models/chatModel");
-const { privateChat, blockGuest } = require("../middleware");
-const { messageValidation } = require("../validation");
-const { Profile } = require("../models/profileModel");
+const {Chat} = require("../models/chatModel");
+const {privateChat, blockGuest} = require("../middleware");
+const {messageValidation} = require("../validation");
+const {Profile} = require("../models/profileModel");
 
 // create chat
 router.post('/:id', blockGuest, async (req, res) => {

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const {Chat} = require("./chatModel");
-const {chatStatus} = require("./subModels");
+const {ChatStatus} = require("./subModels");
 
 const Profile = mongoose.model('Profile', new mongoose.Schema({
     username: {
@@ -42,7 +42,7 @@ const Profile = mongoose.model('Profile', new mongoose.Schema({
         default: 'user',
     },
     chats: [{
-        type: chatStatus,
+        type: ChatStatus,
     }]
 }));
 
