@@ -840,7 +840,7 @@ async function fecthOwner(model, ownerId) {
 async function fetchComments(noticeId) {
     // disable sroll in the body
     document.body.classList.add('no-scroll');
-    const url = '/event/' + noticeId + '/comments';
+    const url = '/comment?eventId=' + noticeId;
 
     try {
         const response = await fetch(url, {
@@ -858,6 +858,7 @@ async function fetchComments(noticeId) {
             throw new Error('Network response was not ok');
         }
         const item = await response.json();
+        console.log(item);
         const itemContainer = document.getElementById('showPopUpObject');
         itemContainer.innerHTML = '';
         itemContainer.classList.remove('hidden');
@@ -873,10 +874,10 @@ async function fetchComments(noticeId) {
 
         const comments = document.createElement('div');
         comments.classList.add('comments-container');
-        if (item.comments.length === 0) {
+        if (item.length === 0) {
             comments.innerHTML = 'No comments';
         } else {
-            item.comments.forEach(item => {
+            item.forEach(item => {
                 const comment = document.createElement('div');
                 comment.classList.add('comment');
                 
@@ -894,6 +895,30 @@ async function fetchComments(noticeId) {
                 date.classList.add('comment-date');
                 date.innerHTML = item.date.split('T')[0] + ' ' + item.date.split('T')[1].split('.')[0].slice(0, 5);
                 comment.appendChild(date);
+
+                if (item.user.id === localStorage.userId) {
+                    const deleteButton = document.createElement('button');
+                    deleteButton.classList.add('delete-button');
+                    deleteButton.innerHTML = 'Delete';
+                    deleteButton.addEventListener('click', function () {
+                        const data = { commentId: item._id, eventId: noticeId };
+                        fetch('/comment/' + localStorage.userId, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + localStorage.token,
+                            }, 
+                            body: JSON.stringify(data),
+                        }).then(response => {
+                            if (response.ok) {
+                                fetchComments(noticeId);
+                            }
+                        }).catch(error => {
+                            console.error('There has been a problem with your fetch operation:', error);
+                        });
+                    });
+                    comment.appendChild(deleteButton);
+                }
 
                 comments.appendChild(comment);
             });

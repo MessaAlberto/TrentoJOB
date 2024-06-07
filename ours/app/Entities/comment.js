@@ -32,6 +32,22 @@ router.post('/:id', blockGuest, commentValidation, async (req, res) => {
     }
 });
 
+router.get('/', blockGuest, async (req, res) => {
+    try {
+        const eventId = req.query.eventId;
+        var fields = 'title comments';
+        const event = await Event.findById(eventId).select(fields);
+
+        if (!event)
+            return res.status(400).json({ message: 'Bad Request' });
+        
+        res.status(200).json(event.comments);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({message: 'Internal Server Error'});
+    }
+});
+
 router.get('/:id', blockGuest, async (req, res) => {
     const eventId = req.params.id;
     try {
@@ -47,27 +63,32 @@ router.get('/:id', blockGuest, async (req, res) => {
 });
 
 router.delete('/:id', privateAccess, async (req, res) => {
-    const commentId = req.params.id;
-    const eventId = req.body.id;
+    const commentId = req.body.commentId;
+    const eventId = req.body.eventId;
     try {
+        console.log('event id: ', eventId);
         const event = await Event.findById(eventId);
+        console.log(event);
         if (!event)
             return res.status(400).json({ message: 'Bad Request' });
 
-        const commentExists = event.comments.some(comment => comment._id.toString() === commentId);
-        if (!commentExists)
-            return res.status(400).json({ message: 'Bad Request' });
+        const originalLength = event.comments.length;
+        console.log(event.comments);
+        event.comments = event.comments.filter(comment => comment._id.toString() !== commentId);
 
-        await Event.findByIdAndUpdate(
-            eventId,
-            {$pull: {comments: {id: commentId}}});
+        console.log(event.comments);
+        if (event.comments.length === originalLength)
+            return res.status(400).json({ message: 'Bad Request' });
+        console.log('saving db');
+        await event.save();
 
         res.status(200).json({ message: 'Comment deleted' });
     } catch (err) {
-        console.log(err);
-        res.status(500).json({message: 'Internal Server Error'});
+        console.error(err);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
 
 
 
