@@ -12,7 +12,7 @@ router.get('/', async (req, res) => search(req, res, Organisation));
 
 router.get('/:id', async (req, res) => searchById(req, res, Organisation));
 
-router.put('/:id', blockGuest(Organisation), async (req, res) => editEntity(req, res, Organisation));
+router.put('/:id', privateAccess, async (req, res) => editEntity(req, res, Organisation));
 
 router.delete('/:id', privateAccess, async (req, res) => erase(req, res, Organisation));
 

@@ -3,6 +3,7 @@ const {Event} = require("./models/eventModel");
 const {Announcement} = require("./models/announcementModel");
 const {hash} = require("bcrypt");
 const mail = require("./nodeMail");
+const {emailConfirm} = require("./mailBody");
 const {sign} = require('jsonwebtoken');
 
 
@@ -17,7 +18,6 @@ const register = async (req, res, model, role) => {
         req.body.password = await hash(req.body.password, 10);
         let user = new model(req.body);
         user.role = role;
-
         // save
         const savedUser = await user.save();
         res.status(201).json({ user: savedUser._id });
@@ -25,11 +25,10 @@ const register = async (req, res, model, role) => {
         // send email confirmation mail
         const email_token = sign({ _id: savedUser._id }, process.env.JWT_SECRET_MAIL, { expiresIn: process.env.JWT_EXPIRE_MAIL });
         const url = `http://localhost:${process.env.PORT}/auth/${email_token}`;
-        const html = `link valid for 48h: <a href="${url}">Click here to confirm</a>`;
+        const html = emailConfirm(savedUser.username, url);
         mail(req.body.email, "Email confirmation", html);
-    } catch (error){
-        console.log(error);
-        res.status(500).json({ message: 'Internal Server Error', error: error});
+    } catch (err) {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
@@ -43,7 +42,7 @@ const newActivity = async (req, res, model) => {
         let activity = new model(req.body);
         activity.owner = {
             username: req.user.username,
-            id: req.user._id, 
+            id: req.user._id,
             role: req.user.role
         };
 
@@ -84,26 +83,26 @@ const search = async (req, res, model) => {
             } else {
                 if (query.daterange) {
                     const [startDateStr, endDateStr] = query.daterange.split(' - ');
-                
+
                     // Function to convert 'DD/MM/YYYY' to 'MM/DD/YYYY'
                     const convertDateFormat = (dateStr) => {
                         const [day, month, year] = dateStr.split('/');
                         return `${month}/${day}/${year}`;
                     };
-                
+
                     const startDate = new Date(convertDateFormat(startDateStr));
                     const endDate = new Date(convertDateFormat(endDateStr));
                     delete query.daterange;
-                
+
                     if (startDate) {
                         query.date_begin = { $gte: startDate };
                     }
-                
+
                     if (endDate) {
                         query.date_stop = { $lte: endDate };
                     }
                 }
-                
+
             }
         }
 
@@ -134,9 +133,6 @@ const search = async (req, res, model) => {
             delete query.sortBy;
         }
 
-        console.log("query: ", query);
-        console.log("sort: ", sort);
-
         // Query the database with the constructed query object, sort criteria, and selected fields
         const output = await model.find(query).sort(sort).select(fields);
 
@@ -147,15 +143,20 @@ const search = async (req, res, model) => {
 }
 
 const searchById = async (req, res, model) => {
-    let fields = '-password -refresh_token -confirmed -verified -taxIdCode';
+    let fields = '-password -refresh_token -confirmed -verified -taxIdCode -comments -participants';
     try {
-        if (  !req.user                         // not guest
-            || (req.user.role !== 'admin'        // admin
-            && req.user._id !== req.params.id))  // self
+        if (!req.user // not guest
+            || (req.user.role !== 'admin' // admin
+                && req.user._id !== req.params.id))  // self
             fields += ' -chats';
-
+            
         const output = await model.findById(req.params.id).select(fields);
+
         if (output) {
+            if (!fields.includes(' -chats') && output.chats) {
+                // Sort chats by last message date
+                output.chats = output.chats.sort((a, b) => new Date(b.lastDate) - new Date(a.lastDate));
+            }
             res.status(200).json(output);
             console.log(output);
         } else {
@@ -164,7 +165,7 @@ const searchById = async (req, res, model) => {
     } catch {
         res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+};
 
 const editEntity = async (req, res, model) => {
     try {
@@ -172,26 +173,27 @@ const editEntity = async (req, res, model) => {
         if (!activity)
             return res.status(404).json({ message: 'Not found' });
 
-        const userIdString = String(req.user._id);
-        console.log("userIdString: ", userIdString);
         if (model === Event || model === Announcement) {
             if (req.body.action === 'join') {
-                if (activity.participants.some(participant => String(participant.id) === userIdString))
+                if (activity.owner.id === req.user._id)
+                    return res.status(400).json({ message: 'Owner cannot join' });
+
+                if (activity.participants.some(participant => participant.id === req.user._id))
                     return res.status(400).json({ message: 'Already joined' });
 
-                activity.participants.push({ username: req.user.username, id: req.user._id, role: req.user.role});
+                activity.participants.push({ username: req.user.username, id: req.user._id, role: req.user.role });
                 await activity.save();
                 return res.status(200).json({ message: 'Joined' });
             } else if (req.body.action === 'leave') {
-                if (!activity.participants.some(participant => String(participant.id) === userIdString))
+                if (!activity.participants.some(participant => participant.id === req.user._id))
                     return res.status(400).json({ message: 'Not joined' });
 
-                activity.participants = activity.participants.filter(participant => String(participant.id) !== userIdString);
+                activity.participants = activity.participants.filter(participant => participant.id !== req.user._id);
                 await activity.save();
                 return res.status(200).json({ message: 'Left' });
             } else {
                 // For other modifications, ensure only authorized users can edit
-                if (req.user.role !== 'admin' && userIdString !== String(activity.owner.id))
+                if (req.user.role !== 'admin' && req.user._id !== activity.owner.id)
                     return res.status(403).json({ message: 'Unauthorized access' });
 
                 for (const key in req.body) {
@@ -203,10 +205,10 @@ const editEntity = async (req, res, model) => {
             }
 
         } else if (model === User || model === Organisation) {
-            // todo
+            
         }
     } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: 'Internal Server Error', error: error });
     }
 }
 

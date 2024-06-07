@@ -4,6 +4,7 @@ const {sign, verify, decode} = require("jsonwebtoken");
 const {Profile} = require("../models/profileModel");
 const mail = require("../nodeMail");
 const {loginValidation} = require("../validation");
+const {emailWelcome, emailVerification} = require("../mailBody");
 
 
 // login
@@ -95,10 +96,12 @@ router.get('/:token', async (req, res) => {
 
         // mail
         if (user.role === 'user') {
-            mail(user.email, "Welcome to TrentoJob", `welcome to our platform, our crew is happy to have you on board. We hope you'll have great opportunities`);
+            const url = `http://localhost:${process.env.PORT}/login.html`;
+            const html = emailWelcome(user.username, url);
+            mail(user.email, "Welcome to TrentoJob", html);
         } else {
-            mail(user.email, "Almost there", "Welcome to TrentoJOB, our crew is verifying your data, we'll notify you when your account is ready");
-            // TODO NOTIFY AMM
+            const html = emailVerification(user.username);
+            mail(user.email, "Almost there", html);
         }
     } catch (err) {
         // delete document since it wasn't verified  before deadline
