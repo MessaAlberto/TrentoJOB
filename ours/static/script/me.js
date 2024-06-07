@@ -53,9 +53,8 @@ function fetchUserProfile() {
                 document.getElementById('bio').value = user.bio || '';
             } else {
                 buildOrganisationProfile(container, user);
-                document.getElementById('username').value = user.username;
-                document.getElementById('email').value = user.email;
                 document.getElementById('taxIdCode').value = user.taxIdCode || '';
+                document.getElementById('phone').value = user.phone || '';
                 document.getElementById('bio').value = user.bio || '';
             }
         } else {
@@ -164,14 +163,14 @@ function buildUserProfile(container, user) {
     container.innerHTML = `
         <h3>Il tuo profilo</h3>
         <form id="profileForm">
-            ${createCommonFields(user)}
+            ${createCommonFields()}
             <div class="form-group">
                 <label for="birthday">Data di nascita:</label>
                 <input type="date" class="form-control" id="birthday" name="birthday" autocomplete="bday">
             </div>
             <div class="form-group">
                 <label for="phone">Telefono:</label>
-                <input type="number" class="form-control" id="phone" name="phone" autocomplete="phone">
+                <input type="text" class="form-control" id="phone" name="phone" autocomplete="phone">
             </div>
             <div class="form-group">
                 <label for="sex">Sesso:</label>
@@ -189,16 +188,23 @@ function buildUserProfile(container, user) {
             <button type="button" class="btn btn-danger" onclick="goToResetPassword">Forgot Password?</button>
         </form>
     `;
+
+    document.getElementById('username').value = user.username;
+    document.getElementById('email').value = user.email;
 }
 
 function buildOrganisationProfile(container, user) {
     container.innerHTML = `
         <h3>Profilo Organizzazione</h3>
         <form id="profileForm">
-            ${createCommonFields(user)}
+            ${createCommonFields()}
             <div class="form-group">
                 <label for="taxIdCode">Codice Fiscale:</label>
                 <input type="text" class="form-control" id="taxIdCode" name="taxIdCode" autocomplete="taxIdCode" disabled>
+            </div>
+            <div class="form-group">
+                <label for="phone">Telefono:</label>
+                <input type="text" class="form-control" id="phone" name="phone" autocomplete="phone">
             </div>
             <div class="form-group">
                 <label for="bio">Descrizione:</label>
@@ -208,17 +214,20 @@ function buildOrganisationProfile(container, user) {
             <button type="button" class="btn btn-danger" onclick="goToResetPassword">Forgot Password?</button>
             </form>
     `;
+
+    document.getElementById('username').value = user.username;
+    document.getElementById('email').value = user.email;
 }
 
-function createCommonFields(user) {
+function createCommonFields() {
     return `
         <div class="form-group">
             <label for="username">Username:</label>
-            <input type="text" class="form-control" id="username" name="username" value="${user.username}" autocomplete="username">
+            <input type="text" class="form-control" id="username" name="username" value="username" autocomplete="username">
         </div>
         <div class="form-group">
             <label for="email">Email:</label>
-            <input type="email" class="form-control" id="email" name="email" value="${user.email}" autocomplete="email">
+            <input type="email" class="form-control" id="email" name="email" value="email" autocomplete="email">
         </div>
     `;
 }
