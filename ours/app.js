@@ -23,6 +23,7 @@ app.use(verifySecretToken);
 
 // Resource routing
 const authURL = require('./app/authentication/auth');
+const passwordURL = require('./app/authentication/password');
 const adminURL = require('./app/Entities/admin');
 const userURL = require('./app/Entities/user');
 const organisationURL = require('./app/Entities/organisation');
@@ -32,6 +33,7 @@ const chatURL = require('./app/Entities/chat');
 const commentURL = require('./app/Entities/comment');
 
 app.use('/auth', authURL);
+app.use('/password', passwordURL);
 app.use('/admin', adminURL);
 app.use('/user', userURL);
 app.use('/organisation', organisationURL);
