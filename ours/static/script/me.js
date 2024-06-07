@@ -90,11 +90,11 @@ function updateProfile() {
     const userData = {};
     const username = document.getElementById('username').value;
     const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
     const bio = document.getElementById('bio').value;
 
     if (role === 'user') {
         const birthday = document.getElementById('birthday').value;
-        const phone = document.getElementById('phone').value;
         const sex = document.getElementById('sex').value;
         const taxIdCode = document.getElementById('taxIdCode').value;
 
@@ -116,6 +116,7 @@ function updateProfile() {
         Object.assign(userData, {
             username: username,
             email: email,
+            phone: phone,
             bio: bio
         });
     }

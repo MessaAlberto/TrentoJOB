@@ -12,6 +12,12 @@ const Profile = mongoose.model('Profile', new mongoose.Schema({
         required: true,
         unique: true,
     },
+    phone: {
+        type: String,
+        required: false,
+        minlength: 3,
+        maxlength: 15,
+    },
     confirmed: {
         type: Boolean,
         required: true,
@@ -45,12 +51,6 @@ const User = Profile.discriminator('User', new mongoose.Schema({
     birthday: {
         type: Date,
         required: false,
-    },
-    phone: {
-        type: String,
-        required: false,
-        minlength: 3,
-        maxlength: 15,
     },
     sex: {
         type: String,
