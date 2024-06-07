@@ -9,6 +9,16 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
     });
 
+    var createNoticeButton = document.getElementById('createNotice');
+
+    // Check if the click was outside the menu and the button
+    document.addEventListener('click', function (event) {
+        if (event.target !== createNoticeButton && event.target !== createNoticeButton.firstElementChild) {
+            var createNoticeMenu = document.getElementById('createNoticeMenu');
+            createNoticeMenu.classList.add('hidden');
+        }
+    });
+
     // show Trento on the map
     map = L.map('map').setView([46.066422, 11.125760], 13);
 
@@ -36,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
     createOrderingOption();
 
     fetchList('event');
+    fetchNewMessages();
 });
 
 
@@ -127,8 +138,6 @@ async function fetchList(model) {
         addInputToQuery();
         addFiltersToQuery();
 
-        console.log(jsonQuery);
-
         const queryString = new URLSearchParams(jsonQuery).toString();
         const url = '/' + model + '?' + queryString;
 
@@ -178,58 +187,48 @@ function addFiltersToQuery() {
             jsonQuery[key] = value;
         }
     });
-    console.log(jsonQuery);
 }
 
 
 function addJoinLeaveButton(item, buttonContainer, elementContainer) {
-    // Only logged in users can join events
     const userId = localStorage.getItem('userId');
     const username = localStorage.getItem('username');
+    const role = localStorage.getItem('role');
 
-    if (userId && username) {
+    // only logged users can join events and announcements
+    if (userId && username && role === 'user') {
         const joinButton = document.createElement('button');
-        joinButton.classList.add('join-leave-button');
+        joinButton.classList.add('bottom-label-button');
 
         const isParticipant = item.participants.some(participant => String(participant.id) === userId);
 
         if (isParticipant) {
-            if (radioButtonsValue === 'event') {
-
-                joinButton.innerHTML = 'Leave';
-                joinButton.addEventListener('click', function () {
-                    fetch('/event/' + item._id, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + localStorage.token,
-                        },
-                        body: JSON.stringify({ userId: userId, username: username, action: 'leave' }),
-                    }).then(response => {
-                        if (response.ok) {
-                            // reload the element
-                            fetch('/event/' + item._id).then(response => response.json()).then(item => {
-                                const newElement = createItemList('event', item);
-                                elementContainer.replaceWith(newElement);
-                            });
-                        }
-                    });
+            joinButton.innerHTML = 'Leave';
+            joinButton.addEventListener('click', function () {
+                fetch('/' + radioButtonsValue + '/' + item._id, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.token,
+                    },
+                    body: JSON.stringify({ userId: userId, username: username, action: 'leave' }),
+                }).then(response => {
+                    if (response.ok) {
+                        // reload the element
+                        fetch('/' + radioButtonsValue + '/' + item._id).then(response => response.json()).then(item => {
+                            const newElement = createItemList(radioButtonsValue, item);
+                            elementContainer.replaceWith(newElement);
+                        });
+                    }
                 });
-            } else {
-                // open chat: todo
-                // for the moment write a button that open alert 'open chat'
-                joinButton.innerHTML = 'Open Chat';
-                joinButton.addEventListener('click', function () {
-                    alert('Open chat');
-                });
-            }
-
+            });
         } else if (item.maxNumberParticipants && item.participants.length >= item.maxNumberParticipants) {
             joinButton.innerHTML = 'Full';
             joinButton.disabled = true;
         } else {
-            radioButtonsValue === 'event' ? joinButton.innerHTML = 'Join' : joinButton.innerHTML = 'Apply';
+            radioButtonsValue === 'event' ? joinButton.innerHTML = 'Join and create chat' : joinButton.innerHTML = 'Apply and create chat';
             joinButton.addEventListener('click', function () {
+                // update the notice
                 fetch('/' + radioButtonsValue + '/' + item._id, {
                     method: 'PUT',
                     headers: {
@@ -245,6 +244,18 @@ function addJoinLeaveButton(item, buttonContainer, elementContainer) {
                             elementContainer.replaceWith(newElement);
                         });
                     }
+                }).catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+                // create a chat
+                fetch('/chat/' + item.owner.id, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.token,
+                    }
+                }).catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
                 });
             });
         }
@@ -264,9 +275,11 @@ function displayCreateButton() {
     }
 }
 
-function createActivity() {
+function createActivityButton() {
     // Check if it is logged in
     var userId = localStorage.getItem('userId');
+    var userRole = localStorage.role;
+
     if (!userId) {
         alert("You must be logged in to create a notice.");
         return;
@@ -274,18 +287,32 @@ function createActivity() {
 
     // Send user to the correct page
     // User --> createAnnouncement
-    // Organisation --> createEvent
-    var userRole = localStorage.role;
+    // Organisation --> createEvent or createAnnouncement
     if (userRole === 'user')
         window.location.href = "/createAnnouncement.html";
-    else if (userRole === 'organisation')
-        window.location.href = "/createEvent.html";
-    else
+    else if (userRole === 'organisation') {
+        toggleCreateNoticeMenu();
+    } else
         alert("You must be logged in to create a notice.");
-
 }
 
+function toggleCreateNoticeMenu() {
+    var createNoticeMenu = document.getElementById('createNoticeMenu');
+    createNoticeMenu.classList.toggle('hidden');
+}
 
+function createActivity(noticeType = '') {
+    var userId = localStorage.getItem('userId');
+    var userRole = localStorage.role;
+    toggleCreateNoticeMenu();
+    if (userId && noticeType === 'event' && userRole === 'organisation') {
+        window.location.href = "/createEvent.html";
+    } else if (userId && noticeType === 'announcement') {
+        window.location.href = "/createAnnouncement.html";
+    } else {
+        alert("You must be logged in as an organisation to create an event.");
+    }
+}
 
 function createItemList(model, item) {
     const elementContainer = document.createElement('div');
@@ -315,9 +342,20 @@ function createItemList(model, item) {
     bodyBox.appendChild(description);
 
     if (model === 'event' || model === 'announcement') {
-        const bottonLabels = document.createElement('div');
-        bottonLabels.classList.add('bottom-labels');
-        bodyBox.appendChild(bottonLabels);
+        const bottomLabels = document.createElement('div');
+        bottomLabels.classList.add('bottom-labels');
+        bodyBox.appendChild(bottomLabels);
+
+        const participants = document.createElement('div');
+        bottomLabels.appendChild(participants);
+        const participantsKey = document.createElement('div');
+        participantsKey.classList.add('key');
+        participantsKey.innerHTML = 'Num participants:';
+        const participantsValue = document.createElement('div');
+        participantsValue.classList.add('value');
+        participantsValue.innerHTML = (item.participants.length + '/' + item.maxNumberParticipants) || 'Unlimited';
+        participants.appendChild(participantsKey);
+        participants.appendChild(participantsValue);
 
         const expiredText = document.createElement('div');
         expiredText.classList.add('expired');
@@ -332,23 +370,12 @@ function createItemList(model, item) {
         description.appendChild(descriptionKey);
         description.appendChild(descriptionValue);
 
-        const comments = document.createElement('div');
-        bottonLabels.appendChild(comments);
-        const commentsKey = document.createElement('div');
-        commentsKey.classList.add('key');
-        commentsKey.innerHTML = 'Comments:';
-        const commentsValue = document.createElement('div');
-        commentsValue.classList.add('value');
-        commentsValue.innerHTML = item.comments || '(?)';
-        comments.appendChild(commentsKey);
-        comments.appendChild(commentsValue);
-
         titleText.innerHTML = item.title || 'No title';
         if (item.expired) {
             expiredText.innerHTML = 'Expired';
 
             const rating = document.createElement('div');
-            bottonLabels.appendChild(rating);
+            bottomLabels.appendChild(rating);
             const ratingKey = document.createElement('div');
             ratingKey.classList.add('key');
             ratingKey.innerHTML = 'Rating:';
@@ -358,7 +385,7 @@ function createItemList(model, item) {
             rating.appendChild(ratingKey);
             rating.appendChild(ratingValue);
         } else {
-            addJoinLeaveButton(item, bottonLabels, elementContainer);
+            addJoinLeaveButton(item, bottomLabels, elementContainer);
         }
 
         const location = document.createElement('div');
@@ -387,7 +414,7 @@ function createItemList(model, item) {
         if (model === 'announcement') {
             ownerValue.addEventListener('click', function (event) {
                 event.preventDefault();
-                fecthObject(item.owner.role, item.owner.id);
+                fecthOwner(item.owner.role, item.owner.id);
             });
 
             if (item.date_begin) {
@@ -439,7 +466,16 @@ function createItemList(model, item) {
         } else {
             ownerValue.addEventListener('click', function (event) {
                 event.preventDefault();
-                fecthObject(item.owner.role, item.owner.id);
+                fecthOwner(item.owner.role, item.owner.id);
+            });
+
+            const comments = document.createElement('button');
+            comments.classList.add('bottom-label-button');
+            comments.innerHTML = 'Comments';
+            bottomLabels.appendChild(comments);
+
+            comments.addEventListener('click', function () {
+                fetchComments(item._id);
             });
 
             const dateBegin = document.createElement('div');
@@ -464,17 +500,6 @@ function createItemList(model, item) {
             hourBegin.appendChild(hourBeginKey);
             hourBegin.appendChild(hourBeginValue);
         }
-
-        const participants = document.createElement('div');
-        mainInfo.appendChild(participants);
-        const participantsKey = document.createElement('div');
-        participantsKey.classList.add('key');
-        participantsKey.innerHTML = 'Num participants:';
-        const participantsValue = document.createElement('div');
-        participantsValue.classList.add('value');
-        participantsValue.innerHTML = (item.participants.length + '/' + item.maxNumberParticipants) || 'Unlimited';
-        participants.appendChild(participantsKey);
-        participants.appendChild(participantsValue);
 
     } else if (model === 'user' || model === 'organisation') {
         titleText.innerHTML = item.username || 'No username';
@@ -772,7 +797,7 @@ function createFilterForm() {
 
 
 
-async function fecthObject(model, ownerId) {
+async function fecthOwner(model, ownerId) {
     const url = '/' + model + '/' + ownerId;
 
     try {
@@ -781,7 +806,7 @@ async function fecthObject(model, ownerId) {
             throw new Error('Network response was not ok');
         }
         const item = await response.json();
-        const itemContainer = document.getElementById('showObject');
+        const itemContainer = document.getElementById('showPopUpObject');
 
         const itemElement = createItemList(model, item);
         itemElement.classList.add('single-item-container');
@@ -806,5 +831,217 @@ async function fecthObject(model, ownerId) {
 
     } catch (error) {
         console.error('There has been a problem with your fetch operation:', error);
+    }
+}
+
+async function fetchComments(noticeId) {
+    // disable sroll in the body
+    document.body.classList.add('no-scroll');
+    const url = '/comment?eventId=' + noticeId;
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.token,
+            }
+        });
+        if (!response.ok) {
+            if (response.status === 403) {
+                alert('You must be logged in to see the comments');
+                document.body.classList.remove('no-scroll');
+            }
+            throw new Error('Network response was not ok');
+        }
+        const item = await response.json();
+        const itemContainer = document.getElementById('showPopUpObject');
+        itemContainer.innerHTML = '';
+        itemContainer.classList.remove('hidden');
+
+        const commentsContainer = document.createElement('div');
+        commentsContainer.classList.add('popUp-comments-container');
+        itemContainer.appendChild(commentsContainer);
+
+        const title = document.createElement('h3');
+        title.classList.add('title-container');
+        title.innerHTML = 'Comment';
+        commentsContainer.appendChild(title);
+
+        const comments = document.createElement('div');
+        comments.classList.add('comments-container');
+        console.log(item);
+        if (item.comments.length === 0) {
+            comments.innerHTML = 'No comments';
+        } else {
+            item.comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.classList.add('comment');
+                
+                const username = document.createElement('div');
+                username.classList.add('comment-username');
+                username.innerHTML = comment.user.username + ': ';
+                commentElement.appendChild(username);
+
+                const text = document.createElement('div');
+                text.classList.add('comment-text');
+                text.innerHTML = comment.text;
+                commentElement.appendChild(text);
+
+                const date = document.createElement('div');
+                date.classList.add('comment-date');
+                date.innerHTML = comment.date.split('T')[0] + ' ' + comment.date.split('T')[1].split('.')[0].slice(0, 5);
+                commentElement.appendChild(date);
+
+                if (comment.user.id === item.owner.id) {
+                    username.innerHTML += ' (Owner)';
+                }
+                
+
+                if (comment.user.id === localStorage.userId) {
+                    const deleteButton = document.createElement('button');
+                    deleteButton.classList.add('delete-button');
+                    deleteButton.innerHTML = 'Delete';
+                    deleteButton.addEventListener('click', function () {
+                        const data = { commentId: comment._id, eventId: noticeId };
+                        fetch('/comment/' + localStorage.userId, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + localStorage.token,
+                            }, 
+                            body: JSON.stringify(data),
+                        }).then(response => {
+                            if (response.ok) {
+                                fetchComments(noticeId);
+                            }
+                        }).catch(error => {
+                            console.error('There has been a problem with your fetch operation:', error);
+                        });
+                    });
+                    commentElement.appendChild(deleteButton);
+                }
+
+                comments.appendChild(commentElement);
+            });
+        }
+        commentsContainer.appendChild(comments);
+
+        const inputContainer = document.createElement('div');
+        inputContainer.classList.add('comment-input-container');
+        commentsContainer.appendChild(inputContainer);
+
+        const input = document.createElement('input');
+        input.classList.add('comment-input');
+        input.setAttribute('type', 'text');
+        input.setAttribute('placeholder', 'Write a comment...');
+        inputContainer.appendChild(input);
+
+        const button = document.createElement('button');
+        button.classList.add('comment-button');
+        button.innerHTML = 'Send';
+        inputContainer.appendChild(button);
+
+        const publishComment = async () => {
+            const text = input.value.trim();
+            if (text === '') return;
+
+            fetch('/comment/' + item._id, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.token,
+                },
+                body: JSON.stringify({ text }),
+            }).then(response => {
+                if (response.ok) {
+                    fetchComments(item._id);
+                }
+            }).catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+        }
+
+        button.addEventListener('click', publishComment);
+
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                publishComment();
+            }
+        });
+
+        const closeButton = document.createElement('button');
+        closeButton.classList.add('close-button');
+        closeButton.innerHTML = 'Close';
+
+        closeButton.addEventListener('click', function () {
+            itemContainer.innerHTML = '';
+            itemContainer.classList.add('hidden');
+            document.body.classList.remove('no-scroll');
+        });
+
+        itemContainer.addEventListener('click', function (event) {
+            if (event.target === itemContainer) {
+                itemContainer.innerHTML = '';
+                itemContainer.classList.add('hidden');
+                document.body.classList.remove('no-scroll');
+            }
+        });
+
+        itemContainer.appendChild(closeButton);
+
+    } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+    }
+}
+
+
+fetchNewMessages = async () => {
+    var userId = localStorage.getItem('userId');
+    if (userId) {
+        const url = '/' + localStorage.getItem('role') + '/' + userId;
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.token,
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const item = await response.json();
+            let contNotifications = 0;
+            item.chats.forEach(item => {
+                if (item.new) {
+                    contNotifications += item.new;
+                }
+            });
+
+            if (contNotifications) {
+                const profileHeader = document.getElementById('profile-icon');
+
+                const notification = document.createElement('div');
+                notification.classList.add('notification');
+                notification.id = 'notification';
+                if (contNotifications == 1) {
+                    notification.innerHTML = contNotifications + ' new message';
+                } else {
+                    notification.innerHTML = contNotifications + ' new messages';
+                }
+                // put it as first element
+                profileHeader.insertBefore(notification, profileHeader.firstChild);
+
+                notification.addEventListener('click', function () {
+                    window.location.href = "/chat.html";
+                });
+            }
+
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
     }
 }

@@ -91,9 +91,14 @@
         </div>
     </div>
 
-    <div id="showObject" class="hidden"></div>
+    <div id="showPopUpObject" class="hidden"></div>
 
-    <button id="createNotice" class="create-notice hidden" onclick="createActivity()">+</button>
+    <button id="createNotice" class="create-notice hidden" onclick="createActivityButton()">+</button>
+    <div id="createNoticeMenu" class="create-notice-menu hidden">
+        <button class="create-notice-button" onclick="createActivity('event')">Create Event</button>
+        <button class="create-notice-button" onclick="createActivity('announcement')">Create Announcement</button>
+    </div>
+        
 
 </body>
 
