@@ -52,27 +52,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function buildUserProfile(container, user, username) {
     container.innerHTML = `
-        <h3>Profilo di ${username}</h3>
+        <h3>Profile of ${username}</h3>
         <form id="profileForm">
             ${createCommonFields(user)}
             <div class="form-group">
-                <label for="birthday">Data di nascita:</label>
+                <label for="birthday">Date of Birth:</label>
                 <input type="date" class="form-control" id="birthday" name="birthday" autocomplete="bday" disabled>
             </div>
             <div class="form-group">
-                <label for="phone">Telefono:</label>
+                <label for="phone">Phone:</label>
                 <input type="number" class="form-control" id="phone" name="phone" autocomplete="phone" disabled>
             </div>
             <div class="form-group">
-                <label for="sex">Sesso:</label>
+                <label for="sex">Sex:</label>
                 <input type="text" class="form-control" id="sex" name="sex" autocomplete="sex" disabled>
             </div>
             <div class="form-group">
-                <label for="taxIdCode">Codice Fiscale:</label>
+                <label for="taxIdCode">Tax ID Code:</label>
                 <input type="text" class="form-control" id="taxIdCode" name="taxIdCode" autocomplete="taxIdCode" disabled>
             </div>
             <div class="form-group">
-                <label for="bio">Descrizione:</label>
+                <label for="bio">Description:</label>
                 <input type="text" class="form-control" id="bio" name="bio" autocomplete="bio" disabled>
             </div>
         </form>
@@ -81,15 +81,15 @@ function buildUserProfile(container, user, username) {
 
 function buildOrganisationProfile(container, user, username) {
     container.innerHTML = `
-        <h3>Profilo di ${username}</h3>
+        <h3>Profile of ${username}</h3>
         <form id="profileForm">
             ${createCommonFields(user)}
             <div class="form-group">
-                <label for="taxIdCode">Codice Fiscale:</label>
+                <label for="taxIdCode">Tax ID Code:</label>
                 <input type="text" class="form-control" id="taxIdCode" name="taxIdCode" autocomplete="taxIdCode" disabled>
             </div>
             <div class="form-group">
-                <label for="bio">Descrizione:</label>
+                <label for="bio">Description:</label>
                 <input type="text" class="form-control" id="bio" name="bio" autocomplete="bio" disabled>
             </div>
             </form>

@@ -334,6 +334,7 @@ function createItemList(model, item) {
     elementContainer.appendChild(titleElement);
 
     const titleText = document.createElement('div');
+    titleText.classList.add('title-text');
     titleElement.appendChild(titleText);
 
     const infoContainer = document.createElement('div');
@@ -382,6 +383,10 @@ function createItemList(model, item) {
         description.appendChild(descriptionValue);
 
         titleText.innerHTML = item.title || 'No title';
+        titleText.addEventListener('click', function () {
+            window.location.href = '/displayEvent-Announcement.html?id=' + item._id + '&model=' + model;
+        });
+        
         if (item.expired) {
             expiredText.innerHTML = 'Expired';
 
@@ -514,6 +519,9 @@ function createItemList(model, item) {
 
     } else if (model === 'user' || model === 'organisation') {
         titleText.innerHTML = item.username || 'No username';
+        titleText.addEventListener('click', function () {
+            window.location.href = '/user.html?id=' + item._id + '&role=' + item.role;
+        });
 
         const email = document.createElement('div');
         mainInfo.appendChild(email);
@@ -881,7 +889,6 @@ async function fetchComments(noticeId) {
 
         const comments = document.createElement('div');
         comments.classList.add('comments-container');
-        console.log(item);
         if (item.comments.length === 0) {
             comments.innerHTML = 'No comments';
         } else {

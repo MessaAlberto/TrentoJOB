@@ -158,7 +158,6 @@ const searchById = async (req, res, model) => {
                 output.chats = output.chats.sort((a, b) => new Date(b.lastDate) - new Date(a.lastDate));
             }
             res.status(200).json(output);
-            console.log(output);
         } else {
             res.status(404).json({ error: 'Not found' });
         }

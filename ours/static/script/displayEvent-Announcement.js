@@ -85,31 +85,31 @@ function buildEventPage(container) {
     container.innerHTML = `
                 <h3 id="title"></h3>
                 <div class="info-group">
-                    <label for="description">Descrizione:</label>
+                    <label for="description">Description:</label>
                     <p id="description"></p>
                 </div>
                 <div class="info-group">
-                    <label for="date">Data:</label>
+                    <label for="date">Date:</label>
                     <p id="date"></p>
                 </div>
                 <div class="info-group">
-                    <label for="location">Luogo:</label>
+                    <label for="location">Location:</label>
                     <p id="location"></p>
                 </div>
                 <div class="info-group">
-                    <label for="expired">Scaduto:</label>
+                    <label for="expired">Expired:</label>
                     <p id="expired"></p>
                 </div>
                 <div class="info-group">
-                    <label for="rating">Valutazione:</label>
+                    <label for="rating">Rating:</label>
                     <p id="rating"></p>
                 </div>
                 <div class="info-group">
-                    <label for="owner">Proprietario:</label>
+                    <label for="owner">Owner:</label>
                     <p id="owner"></p>
                 </div>
                 <div class="info-group">
-                    <label for="maxNumberParticipants">Numero massimo di partecipanti:</label>
+                    <label for="maxNumberParticipants">Max Number of Participants:</label>
                     <p id="maxNumberParticipants"></p>
                 </div>
             `;
@@ -119,31 +119,31 @@ function buildAnnouncementPage(container) {
     container.innerHTML = `
                 <h3 id="title"></h3>
                 <div class="info-group">
-                    <label for="description">Descrizione:</label>
+                    <label for="description">Description:</label>
                     <p id="description"></p>
                 </div>
                 <div class="info-group">
-                    <label for="date_begin">Data inizio:</label>
+                    <label for="date_begin">Start Date:</label>
                     <p id="date_begin"></p>
                 </div>
                 <div class="info-group">
-                    <label for="date_stop">Data fine:</label>
+                    <label for="date_stop">End Date:</label>
                     <p id="date_stop"></p>
                 </div>
                 <div class="info-group">
-                    <label for="location">Luogo:</label>
+                    <label for="location">Location:</label>
                     <p id="location"></p>
                 </div>
                 <div class="info-group">
-                    <label for="rating">Valutazione:</label>
+                    <label for="rating">Rating:</label>
                     <p id="rating"></p>
                 </div>
                 <div class="info-group">
-                    <label for="owner">Proprietario:</label>
+                    <label for="owner">Owner:</label>
                     <p id="owner"></p>
                 </div>
                 <div class="info-group">
-                    <label for="maxNumberParticipants">Numero massimo di partecipanti:</label>
+                    <label for="maxNumberParticipants">Max Number of Participants:</label>
                     <p id="maxNumberParticipants"></p>
                 </div>
             `;
