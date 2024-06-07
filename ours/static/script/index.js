@@ -138,8 +138,6 @@ async function fetchList(model) {
         addInputToQuery();
         addFiltersToQuery();
 
-        console.log(jsonQuery);
-
         const queryString = new URLSearchParams(jsonQuery).toString();
         const url = '/' + model + '?' + queryString;
 
@@ -189,7 +187,6 @@ function addFiltersToQuery() {
             jsonQuery[key] = value;
         }
     });
-    console.log(jsonQuery);
 }
 
 
@@ -858,7 +855,6 @@ async function fetchComments(noticeId) {
             throw new Error('Network response was not ok');
         }
         const item = await response.json();
-        console.log(item);
         const itemContainer = document.getElementById('showPopUpObject');
         itemContainer.innerHTML = '';
         itemContainer.classList.remove('hidden');
@@ -874,34 +870,40 @@ async function fetchComments(noticeId) {
 
         const comments = document.createElement('div');
         comments.classList.add('comments-container');
-        if (item.length === 0) {
+        console.log(item);
+        if (item.comments.length === 0) {
             comments.innerHTML = 'No comments';
         } else {
-            item.forEach(item => {
-                const comment = document.createElement('div');
-                comment.classList.add('comment');
+            item.comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.classList.add('comment');
                 
                 const username = document.createElement('div');
                 username.classList.add('comment-username');
-                username.innerHTML = item.user.username + ': ';
-                comment.appendChild(username);
+                username.innerHTML = comment.user.username + ': ';
+                commentElement.appendChild(username);
 
                 const text = document.createElement('div');
                 text.classList.add('comment-text');
-                text.innerHTML = item.text;
-                comment.appendChild(text);
+                text.innerHTML = comment.text;
+                commentElement.appendChild(text);
 
                 const date = document.createElement('div');
                 date.classList.add('comment-date');
-                date.innerHTML = item.date.split('T')[0] + ' ' + item.date.split('T')[1].split('.')[0].slice(0, 5);
-                comment.appendChild(date);
+                date.innerHTML = comment.date.split('T')[0] + ' ' + comment.date.split('T')[1].split('.')[0].slice(0, 5);
+                commentElement.appendChild(date);
 
-                if (item.user.id === localStorage.userId) {
+                if (comment.user.id === item.owner.id) {
+                    username.innerHTML += ' (Owner)';
+                }
+                
+
+                if (comment.user.id === localStorage.userId) {
                     const deleteButton = document.createElement('button');
                     deleteButton.classList.add('delete-button');
                     deleteButton.innerHTML = 'Delete';
                     deleteButton.addEventListener('click', function () {
-                        const data = { commentId: item._id, eventId: noticeId };
+                        const data = { commentId: comment._id, eventId: noticeId };
                         fetch('/comment/' + localStorage.userId, {
                             method: 'DELETE',
                             headers: {
@@ -917,10 +919,10 @@ async function fetchComments(noticeId) {
                             console.error('There has been a problem with your fetch operation:', error);
                         });
                     });
-                    comment.appendChild(deleteButton);
+                    commentElement.appendChild(deleteButton);
                 }
 
-                comments.appendChild(comment);
+                comments.appendChild(commentElement);
             });
         }
         commentsContainer.appendChild(comments);
