@@ -31,19 +31,14 @@ function createAnnouncement() {
         maxNumberParticipants: document.getElementById('max-participants').value
     };
 
-    // Create a new XMLHttpRequest
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/announcement", true);
     xhr.setRequestHeader("Content-Type", "application/json");
-    // Add Authorization header
     xhr.setRequestHeader("Authorization", "Bearer " + localStorage.token);
     
-    // Manage the response
     xhr.onload = function () {
         if (xhr.status === 201) {
-            // Parse the response JSON
-            //var response = JSON.parse(xhr.responseText);
-            window.location.href = "/me.html";
+            window.location.href = "/index.html";
         } else {
             alert("An error occurred during announcement creation.");
         }

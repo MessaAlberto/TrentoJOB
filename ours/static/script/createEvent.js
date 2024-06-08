@@ -28,15 +28,11 @@ function createEvent() {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/event", true);
     xhr.setRequestHeader("Content-Type", "application/json");
-    // Add Authorization header
     xhr.setRequestHeader("Authorization", "Bearer " + localStorage.token);
 
-    // Manage the response
     xhr.onload = function () {
         if (xhr.status === 201) {
-            // Parse the response JSON
-            var response = JSON.parse(xhr.responseText);
-            window.location.href = "/me.html";
+            window.location.href = "/index.html";
         } else {
             alert("An error occurred during event creation.");
         }

@@ -6,7 +6,7 @@ const Event = mongoose.model('Event', new mongoose.Schema({
         type: String,
         required: true,
         minlength: 3,
-        maxlength: 20,
+        maxlength: 50,
     },
     description: {
         type: String,

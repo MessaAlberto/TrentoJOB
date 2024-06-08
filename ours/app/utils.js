@@ -49,13 +49,14 @@ const newActivity = async (req, res, model) => {
         // save in db
         const activityResult = await activity.save();
         res.status(201).json({ activity_id: activityResult._id });
-    } catch {
+    } catch (err) {
+        console.log(err)
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
 const search = async (req, res, model) => {
-    const fields = '-password -refresh_token -confirmed -verified -chats -taxIdCode';
+    const fields = '-password -refresh_token -confirmed -verified -chats -taxIdCode -comments -subscribedEventsId -subscribedExpiredEventsId -activeAnnouncementsId -expiredAnnouncementsId -followersId -activeEventsId -expiredEventsId';
     try {
         let query = { ...req.query };
         let sort = {};
@@ -143,7 +144,7 @@ const search = async (req, res, model) => {
 }
 
 const searchById = async (req, res, model) => {
-    let fields = '-password -refresh_token -confirmed -verified -taxIdCode -comments -participants';
+    let fields = '-password -refresh_token -confirmed -verified -comments';
     try {
         if (!req.user // not guest
             || (req.user.role !== 'admin' // admin
@@ -204,7 +205,14 @@ const editEntity = async (req, res, model) => {
             }
 
         } else if (model === User || model === Organisation) {
-            
+            for (const key in req.body) {
+                if (!['role', 'password', 'refresh_token'].includes(key)) {
+                    activity[key] = req.body[key];
+                }
+            }
+
+            await activity.save();
+            return res.status(200).json({ message: 'Updated', activity });
         }
     } catch (error) {
         res.status(500).json({ message: 'Internal Server Error', error: error });

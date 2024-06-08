@@ -914,7 +914,6 @@ async function fetchComments(noticeId) {
                 if (comment.user.id === item.owner.id) {
                     username.innerHTML += ' (Owner)';
                 }
-                
 
                 if (comment.user.id === localStorage.userId) {
                     const deleteButton = document.createElement('button');
@@ -939,8 +938,8 @@ async function fetchComments(noticeId) {
                     });
                     commentElement.appendChild(deleteButton);
                 }
-
-                comments.appendChild(commentElement);
+                // add the comment to the top of the list
+                comments.insertBefore(commentElement, comments.firstChild);
             });
         }
         commentsContainer.appendChild(comments);

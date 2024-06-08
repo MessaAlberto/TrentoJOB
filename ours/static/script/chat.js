@@ -46,19 +46,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // wait a second before activate a listener
     setTimeout(() => {
         document.getElementById('homeTitle').addEventListener('click', function () {
-            clearNewMessageOnOpenChat();
+            clearNewMessageOnOpenChat('index');
         });
 
         document.getElementById('usernameLabel').addEventListener('click', function () {
-            clearNewMessageOnOpenChat();
+            clearNewMessageOnOpenChat('me');
         });
 
         document.getElementById('mePage').addEventListener('click', function () {
-            clearNewMessageOnOpenChat();
+            clearNewMessageOnOpenChat('me');
         });
 
-        function clearNewMessageOnOpenChat() {
-            if (!openedChatId) return;
+        function clearNewMessageOnOpenChat(page) {
+            if (!openedChatId) window.location.href = '/' + page + '.html';
 
             fetch('/chat/' + openedChatId, {
                 method: 'GET',
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }).then(async response => {
                 if (response.ok) {
-                    window.location.href = '/index.html';
+                    window.location.href = '/' + page + '.html';
                 } else {
                     throw new Error('Failed to fetch');
                 }
