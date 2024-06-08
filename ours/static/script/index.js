@@ -66,7 +66,7 @@ async function getCoordinatesFromLocation(location) {
 
 async function displayItemsOnMap(model, items) {
     try {
-        // clean the map
+        // Clean the map
         map.eachLayer(function (layer) {
             if (layer instanceof L.Marker) {
                 map.removeLayer(layer);
@@ -86,8 +86,9 @@ async function displayItemsOnMap(model, items) {
                 markerColor: 'green',
                 prefix: 'fa'
             });
-        } else
+        } else {
             return;
+        }
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -95,18 +96,28 @@ async function displayItemsOnMap(model, items) {
 
         items.forEach(async item => {
             const location = item.location;
+            const user = item.owner.id;
+            const role = item.owner.role;
+            const title = item.title;
+            const owner = item.owner;
             const coordinates = await getCoordinatesFromLocation(location);
             if (coordinates) {
                 const [longitude, latitude] = coordinates;
-                const { title } = item;
-                L.marker([latitude, longitude], { icon }).addTo(map).bindPopup(title);
+                const titleLink = `<a href="/displayEvent-Announcement.html?id=${item._id}&model=${model}" class="title-link">${title}</a>`;
+                const ownerLink = `<a href="/user.html?id=${user}&role=${role}" class="owner-link">${owner.username || 'Unknown owner'}</a>`;
+                const popupContent = `
+                    <div>
+                        <h3>${titleLink}</h3>
+                        <h6><strong>Location:</strong> ${location}</h6>
+                        <h6><strong>Owner:</strong> ${ownerLink}</h6>
+                    </div>`;
+                L.marker([latitude, longitude], { icon }).addTo(map).bindPopup(popupContent);
             }
         });
-    } catch (error) {
-        console.error('Error during items fetch:', error);
+    } catch (err) {
+        console.error('Error during items fetch:', err);
     }
 }
-
 
 
 function searchInputBar(event) {
@@ -323,6 +334,7 @@ function createItemList(model, item) {
     elementContainer.appendChild(titleElement);
 
     const titleText = document.createElement('div');
+    titleText.classList.add('title-text');
     titleElement.appendChild(titleText);
 
     const infoContainer = document.createElement('div');
@@ -371,6 +383,10 @@ function createItemList(model, item) {
         description.appendChild(descriptionValue);
 
         titleText.innerHTML = item.title || 'No title';
+        titleText.addEventListener('click', function () {
+            window.location.href = '/displayEvent-Announcement.html?id=' + item._id + '&model=' + model;
+        });
+        
         if (item.expired) {
             expiredText.innerHTML = 'Expired';
 
@@ -503,6 +519,9 @@ function createItemList(model, item) {
 
     } else if (model === 'user' || model === 'organisation') {
         titleText.innerHTML = item.username || 'No username';
+        titleText.addEventListener('click', function () {
+            window.location.href = '/user.html?id=' + item._id + '&role=' + item.role;
+        });
 
         const email = document.createElement('div');
         mainInfo.appendChild(email);
@@ -870,7 +889,6 @@ async function fetchComments(noticeId) {
 
         const comments = document.createElement('div');
         comments.classList.add('comments-container');
-        console.log(item);
         if (item.comments.length === 0) {
             comments.innerHTML = 'No comments';
         } else {

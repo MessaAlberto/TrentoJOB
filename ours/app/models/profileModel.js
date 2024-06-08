@@ -56,7 +56,7 @@ const User = Profile.discriminator('User', new mongoose.Schema({
         type: String,
         required: false,
         maxlength: 15,
-        default: '',
+        default: '3461234567',
     },
     sex: {
         type: String,
@@ -82,7 +82,6 @@ const User = Profile.discriminator('User', new mongoose.Schema({
         type: [String],
         required: false,
     },
-    // TODO REVIEW
     activeAnnouncementsId: {
         type: [String],
         required: false,

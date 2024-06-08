@@ -314,6 +314,10 @@ input:not(:checked)+label:hover {
     margin-top: 0px;
 }   
 
+.title-text {
+    cursor: pointer;
+}
+
 .expired {
     color: red;
 }
