@@ -51,7 +51,7 @@ function signUp() {
 }
 
 function login() {
-    window.location.href = "/login.html";
+    window.location.href = "/logIn.html";
 }
 
 function logout() {
