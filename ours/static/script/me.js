@@ -155,7 +155,7 @@ function logout() {
 }
 
 function goToResetPassword() {
-    window.location.href = "./resetPassword.html";
+    window.location.href = "./forgot_password.html";
 }
 
 function buildUserProfile(container, user) {
@@ -188,7 +188,7 @@ function buildUserProfile(container, user) {
                 <input type="text" class="form-control" id="bio" name="bio" autocomplete="bio">
             </div>
             <button type="button" class="btn btn-primary" onclick="updateProfile('user')">Update</button>
-            <button type="button" class="btn btn-danger" onclick="goToResetPassword()">Forgot Password?</button>
+            <button type="button" class="btn btn-danger" onclick="goToResetPassword()">Change Password</button>
         </form>
     `;
 
@@ -214,7 +214,7 @@ function buildOrganisationProfile(container, user) {
                 <input type="text" class="form-control" id="bio" name="bio" autocomplete="bio">
             </div>
             <button type="button" class="btn btn-primary" onclick="updateProfile('user')">Update</button>
-            <button type="button" class="btn btn-danger" onclick="goToResetPassword()">Forgot Password?</button>
+            <button type="button" class="btn btn-danger" onclick="goToResetPassword()">Change Password</button>
         </form>
     `;
 
