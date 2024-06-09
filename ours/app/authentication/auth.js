@@ -96,7 +96,7 @@ router.get('/:token', async (req, res) => {
 
         // mail
         if (user.role === 'user') {
-            const url = `http://localhost:${process.env.PORT}/login.html`;
+            const url = `http://localhost:${process.env.PORT}/logIn.html`;
             const html = emailWelcome(user.username, url);
             mail(user.email, "Welcome to TrentoJob", html);
         } else {

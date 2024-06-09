@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
-                    window.location.href = './login.html';
+                    window.location.href = './logIn.html';
                     alert('Password changed successfully');
                 } else {
 

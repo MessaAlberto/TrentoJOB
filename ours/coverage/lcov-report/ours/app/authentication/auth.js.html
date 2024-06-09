@@ -411,7 +411,7 @@ router.get('/:token', <span class="fstat-no" title="function not covered" >as</s
 &nbsp;
         // mail
 <span class="cstat-no" title="statement not covered" >        if (user.role === 'user') {</span>
-            const url = <span class="cstat-no" title="statement not covered" >`http://localhost:${process.env.PORT}/login.html`;</span>
+            const url = <span class="cstat-no" title="statement not covered" >`http://localhost:${process.env.PORT}/logIn.html`;</span>
             const html = <span class="cstat-no" title="statement not covered" >emailWelcome(user.username, url);</span>
 <span class="cstat-no" title="statement not covered" >            mail(user.email, "Welcome to TrentoJob", html);</span>
         } else {
