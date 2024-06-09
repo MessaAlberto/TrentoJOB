@@ -1,10 +1,10 @@
 const request = require('supertest');
 const express = require('express');
-const { User } = require('../app/models/profileModel');
-const userRouter = require('../app/Entities/user');
-const authRouter = require('../app/authentication/auth');
-const { verifySecretToken } = require('../app/middleware');
-const { connect, disconnect } = require('./db');
+const { User } = require('../../app/models/profileModel');
+const userRouter = require('../../app/Entities/user');
+const authRouter = require('../../app/authentication/auth');
+const { verifySecretToken } = require('../../app/middleware');
+const { connect, disconnect } = require('../db');
 
 const app = express();
 app.use(express.json());
