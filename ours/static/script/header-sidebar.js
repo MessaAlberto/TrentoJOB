@@ -47,11 +47,11 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function signUp() {
-    window.location.href = "registration.html";
+    window.location.href = "/registration.html";
 }
 
 function login() {
-    window.location.href = "login.html";
+    window.location.href = "/login.html";
 }
 
 function logout() {
