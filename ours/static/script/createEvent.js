@@ -16,6 +16,8 @@ function createEvent() {
     var isoDateString = date + "T" + time;
     var dateObject = new Date(isoDateString);
 
+    dateObject.setHours(dateObject.getHours() + 2);
+
     var formData = {
         title: document.getElementById('title').value,
         description: document.getElementById('description').value,

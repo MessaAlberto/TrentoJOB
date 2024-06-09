@@ -386,7 +386,7 @@ function createItemList(model, item) {
         titleText.addEventListener('click', function () {
             window.location.href = '/displayEvent-Announcement.html?id=' + item._id + '&model=' + model;
         });
-        
+
         if (item.expired) {
             expiredText.innerHTML = 'Expired';
 
@@ -433,52 +433,52 @@ function createItemList(model, item) {
                 fecthOwner(item.owner.role, item.owner.id);
             });
 
-            if (item.date_begin) {
-                const dateBegin = document.createElement('div');
-                mainInfo.appendChild(dateBegin);
-                const dateBeginKey = document.createElement('div');
-                dateBeginKey.classList.add('key');
-                dateBeginKey.innerHTML = 'Starts:';
-                const dateBeginValue = document.createElement('div');
-                dateBeginValue.classList.add('value');
-                dateBeginValue.innerHTML = item.date_begin.split('T')[0];
-                dateBegin.appendChild(dateBeginKey);
-                dateBegin.appendChild(dateBeginValue);
 
-                const hourBegin = document.createElement('div');
-                mainInfo.appendChild(hourBegin);
-                const hourBeginKey = document.createElement('div');
-                hourBeginKey.classList.add('key');
-                hourBeginKey.innerHTML = 'At:';
-                const hourBeginValue = document.createElement('div');
-                hourBeginValue.classList.add('value');
-                hourBeginValue.innerHTML = item.date_begin.split('T')[1].split('.')[0].slice(0, 5);
-                hourBegin.appendChild(hourBeginKey);
-                hourBegin.appendChild(hourBeginValue);
-            }
-            if (item.date_stop) {
-                const dateEnd = document.createElement('div');
-                mainInfo.appendChild(dateEnd);
-                const dateEndKey = document.createElement('div');
-                dateEndKey.classList.add('key');
-                dateEndKey.innerHTML = 'Ends:';
-                const dateEndValue = document.createElement('div');
-                dateEndValue.classList.add('value');
-                dateEndValue.innerHTML = item.date_stop.split('T')[0];
-                dateEnd.appendChild(dateEndKey);
-                dateEnd.appendChild(dateEndValue);
+            const dateBegin = document.createElement('div');
+            const dateBeginKey = document.createElement('div');
+            dateBeginKey.classList.add('key');
+            dateBeginKey.innerHTML = 'Starts:';
+            const dateBeginValue = document.createElement('div');
+            dateBeginValue.classList.add('value');
+            dateBeginValue.innerHTML = item.date_begin.split('T')[0];
+            dateBegin.appendChild(dateBeginKey);
+            dateBegin.appendChild(dateBeginValue);
 
-                const hourEnd = document.createElement('div');
-                mainInfo.appendChild(hourEnd);
-                const hourEndKey = document.createElement('div');
-                hourEndKey.classList.add('key');
-                hourEndKey.innerHTML = 'At:';
-                const hourEndValue = document.createElement('div');
-                hourEndValue.classList.add('value');
-                hourEndValue.innerHTML = item.date_stop.split('T')[1].split('.')[0].slice(0, 5);
-                hourEnd.appendChild(hourEndKey);
-                hourEnd.appendChild(hourEndValue);
-            }
+            const hourBegin = document.createElement('div');
+            const hourBeginKey = document.createElement('div');
+            hourBeginKey.classList.add('key');
+            hourBeginKey.innerHTML = 'At:';
+            const hourBeginValue = document.createElement('div');
+            hourBeginValue.classList.add('value');
+            hourBeginValue.innerHTML = item.date_begin.split('T')[1].split('.')[0].slice(0, 5);
+            hourBegin.appendChild(hourBeginKey);
+            hourBegin.appendChild(hourBeginValue);
+
+
+            const dateEnd = document.createElement('div');
+            const dateEndKey = document.createElement('div');
+            dateEndKey.classList.add('key');
+            dateEndKey.innerHTML = 'Ends:';
+            const dateEndValue = document.createElement('div');
+            dateEndValue.classList.add('value');
+            dateEndValue.innerHTML = item.date_stop.split('T')[0];
+            dateEnd.appendChild(dateEndKey);
+            dateEnd.appendChild(dateEndValue);
+
+            const hourEnd = document.createElement('div');
+            const hourEndKey = document.createElement('div');
+            hourEndKey.classList.add('key');
+            hourEndKey.innerHTML = 'At:';
+            const hourEndValue = document.createElement('div');
+            hourEndValue.classList.add('value');
+            hourEndValue.innerHTML = item.date_stop.split('T')[1].split('.')[0].slice(0, 5);
+            hourEnd.appendChild(hourEndKey);
+            hourEnd.appendChild(hourEndValue);
+
+            mainInfo.appendChild(dateBegin);
+            mainInfo.appendChild(dateEnd);
+            mainInfo.appendChild(hourBegin);
+            mainInfo.appendChild(hourEnd);
         } else {
             ownerValue.addEventListener('click', function (event) {
                 event.preventDefault();
@@ -895,7 +895,7 @@ async function fetchComments(noticeId) {
             item.comments.forEach(comment => {
                 const commentElement = document.createElement('div');
                 commentElement.classList.add('comment');
-                
+
                 const username = document.createElement('div');
                 username.classList.add('comment-username');
                 username.innerHTML = comment.user.username + ': ';
@@ -926,7 +926,7 @@ async function fetchComments(noticeId) {
                             headers: {
                                 'Content-Type': 'application/json',
                                 'Authorization': 'Bearer ' + localStorage.token,
-                            }, 
+                            },
                             body: JSON.stringify(data),
                         }).then(response => {
                             if (response.ok) {
