@@ -57,23 +57,23 @@ function buildUserProfile(container, user, username) {
             ${createCommonFields(user)}
             <div class="form-group">
                 <label for="birthday">Date of Birth:</label>
-                <input type="date" class="form-control" id="birthday" name="birthday" autocomplete="bday" disabled>
+                <input type="date" class="form-control" id="birthday" name="birthday" value="${user.birthday}" autocomplete="birthday" disabled>
             </div>
             <div class="form-group">
                 <label for="phone">Phone:</label>
-                <input type="number" class="form-control" id="phone" name="phone" autocomplete="phone" disabled>
+                <input type="number" class="form-control" id="phone" name="phone" value="${user.phone}" autocomplete="phone" disabled>
             </div>
             <div class="form-group">
                 <label for="sex">Sex:</label>
-                <input type="text" class="form-control" id="sex" name="sex" autocomplete="sex" disabled>
+                <input type="text" class="form-control" id="sex" name="sex" value="${user.sex}" autocomplete="sex" disabled>
             </div>
             <div class="form-group">
                 <label for="taxIdCode">Tax ID Code:</label>
-                <input type="text" class="form-control" id="taxIdCode" name="taxIdCode" autocomplete="taxIdCode" disabled>
+                <input type="text" class="form-control" id="taxIdCode" name="taxIdCode" value="${user.taxIdCode}" autocomplete="taxIdCode" disabled>
             </div>
             <div class="form-group">
                 <label for="bio">Description:</label>
-                <input type="text" class="form-control" id="bio" name="bio" autocomplete="bio" disabled>
+                <input type="text" class="form-control" id="bio" name="bio" value="${user.bio}" autocomplete="bio" disabled>
             </div>
         </form>
     `;
@@ -86,11 +86,11 @@ function buildOrganisationProfile(container, user, username) {
             ${createCommonFields(user)}
             <div class="form-group">
                 <label for="taxIdCode">Tax ID Code:</label>
-                <input type="text" class="form-control" id="taxIdCode" name="taxIdCode" autocomplete="taxIdCode" disabled>
+                <input type="text" class="form-control" id="taxIdCode" name="taxIdCode" value="${user.taxIdCode}" autocomplete="taxIdCode" disabled>
             </div>
             <div class="form-group">
                 <label for="bio">Description:</label>
-                <input type="text" class="form-control" id="bio" name="bio" autocomplete="bio" disabled>
+                <input type="text" class="form-control" id="bio" name="bio" value="${user.bio}" autocomplete="bio" disabled>
             </div>
             </form>
     `;
