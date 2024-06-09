@@ -47,6 +47,10 @@ const schemas = {
     }),
 
     comment: Joi.object({
+        text: Joi.string().min(1).max(256).required(),
+    }),
+
+    message: Joi.object({
         text: Joi.string().min(1).max(1024).required(),
     }),
 };
@@ -61,4 +65,5 @@ module.exports = {
     resetEmailValidation: validateRequest(schemas.resetEmail),
     resetPasswordValidation: validateRequest(schemas.resetPassword),
     commentValidation: validateRequest(schemas.comment),
+    messageValidation: validateRequest(schemas.message),
 };

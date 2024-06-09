@@ -11,9 +11,9 @@ router.get('/', async (req, res) => search(req, res, Event));
 
 router.get('/:id', async (req, res) => searchById(req, res, Event));
 
-router.put('/:id', blockGuest(Event), async (req, res) => editEntity(req, res, Event));
+router.put('/:id', blockGuest, async (req, res) => editEntity(req, res, Event));
 
-router.delete('/:id', blockGuest(Event), async (req, res) => erase(req, res, Event));
+router.delete('/:id', blockGuest, async (req, res) => erase(req, res, Event));
 
 const commentURL = require('./comment');
 

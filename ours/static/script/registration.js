@@ -39,9 +39,10 @@ function signUp(role) {
         var email = document.getElementById('org-email').value;
         var password = document.getElementById('org-password').value;
         var repeatPassword = document.getElementById('org-repeat-password').value;
+        var taxIdCode = document.getElementById('tax-id').value;
     }
 
-    if (username === '' || email === '' || password === '' || repeatPassword === '') {
+    if (username === '' || email === '' || password === '' || repeatPassword === '' || (role === 'organisation' && taxIdCode === '')) {
         alert("Please fill in all fields.");
         return;
     }
@@ -56,6 +57,10 @@ function signUp(role) {
         email: email,
         password: password
     };
+
+    if (role === 'organisation') {
+        formData.taxIdCode = taxIdCode;
+    }
 
     // Make a new XMLHttpRequest
     var xhr = new XMLHttpRequest();
