@@ -75,7 +75,8 @@ body {
 .event-element,
 .announcement-element,
 .user-element,
-.organisation-element {
+.organisation-element,
+.verification-element {
     display: flex;
     flex-direction: column;
     width: 100%;

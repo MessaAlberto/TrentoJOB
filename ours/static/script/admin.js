@@ -1,4 +1,4 @@
-let clickedMenu = 'events';
+let clickedMenu = 'event';
 let searchContainerHidden = true;
 // back page array of pair <backUrl, id>
 let backPage = [];
@@ -68,16 +68,16 @@ async function searchButtonFunction() {
     const searchInput = document.getElementById('searchInput').value;
     try {
         switch (clickedMenu) {
-            case 'events':
+            case 'event':
                 await fetchEvents(searchInput);
                 break;
-            case 'announcements':
+            case 'announcement':
                 await fetchAnnouncements(searchInput);
                 break;
-            case 'users':
+            case 'user':
                 await fetchUsers(searchInput);
                 break;
-            case 'organisations':
+            case 'organisation':
                 await fetchOrganisations(searchInput);
                 break;
             default:
@@ -95,24 +95,24 @@ function backButtonFunction() {
     const [backUrl, backId] = backPage.pop();
 
     switch (backUrl) {
-        case 'events':
+        case 'event':
             fetchEvents();
             break;
-        case 'announcements':
+        case 'announcement':
             fetchAnnouncements();
             break;
         case 'users':
             fetchUsers();
             break;
-        case 'organisations':
+        case 'organisation':
             fetchOrganisations();
             break;
-        case 'eventById':
-            fetchEventById(backId);
-            break;
-        case 'announcementsById':
-            fetchAnnouncementById(backId);
-            break;
+        // case 'eventById':
+        //     fetchEventById(backId);
+        //     break;
+        // case 'announcementsById':
+        //     fetchAnnouncementById(backId);
+        //     break;
         case 'userById':
             fetchUserById(backId);
             break;
@@ -138,20 +138,7 @@ function createKeyValueElement(keyText, valueText) {
 }
 
 
-async function createKeyValueClickableElement(keyText, valueText, baseURL, backUrl, backId) {
-    const listIdUsername = [];
-    if (baseURL === 'organisations' || baseURL === 'users') {
-        for (const id of valueText) {
-            const idUsername = await fetchIdUsername(baseURL, id);
-            listIdUsername.push({ id: idUsername.id, username: idUsername.username });
-        }
-    } else if (baseURL === 'events' || baseURL === 'announcements') {
-        for (const id of valueText) {
-            const idUsername = await fetchIdTitle(baseURL, id);
-            listIdUsername.push({ id: idUsername.id, username: idUsername.title });
-        }
-    }
-
+async function createKeyValueClickableElement(keyText, profileList, baseURL, backUrl, backId) {
     const paragraph = document.createElement('p');
     const keySpan = document.createElement('span');
     keySpan.textContent = `${keyText}:`;
@@ -159,7 +146,7 @@ async function createKeyValueClickableElement(keyText, valueText, baseURL, backU
 
     const valueSpan = document.createElement('span');
     valueSpan.classList.add('value');
-    listIdUsername.forEach(idUsername => {
+    profileList.forEach(idUsername => {
         const span = document.createElement('span');
         span.textContent = idUsername.username;
 
@@ -169,18 +156,18 @@ async function createKeyValueClickableElement(keyText, valueText, baseURL, backU
             // Push the current page to the backPage array
             backPage.push([backUrl, backId]);
             switch (baseURL) {
-                case 'organisations':
+                case 'organisation':
                     fetchOrganisationById(idUsername.id);
                     break;
-                case 'users':
+                case 'user':
                     fetchUserById(idUsername.id);
                     break;
-                case 'events':
-                    fetchEventById(idUsername.id);
-                    break;
-                case 'announcements':
-                    fetchAnnouncementById(idUsername.id);
-                    break;
+                // case 'eventById':
+                //     fetchEventById(idUsername.id);
+                //     break;
+                // case 'announcementById':
+                //     fetchAnnouncementById(idUsername.id);
+                //     break;
                 default:
                     console.error('Invalid action.');
             }
@@ -189,7 +176,7 @@ async function createKeyValueClickableElement(keyText, valueText, baseURL, backU
         valueSpan.appendChild(span);
 
         // Add a comma after each username except the last one
-        if (idUsername !== listIdUsername[listIdUsername.length - 1]) {
+        if (idUsername !== profileList[profileList.length - 1]) {
             valueSpan.appendChild(document.createTextNode(', '));
         }
     });
@@ -201,10 +188,16 @@ async function createKeyValueClickableElement(keyText, valueText, baseURL, backU
 // Fetch events from the server
 async function fetchEvents(title = '') {
     // Construct the URL with optional query parameters
-    const url = `../events${title ? `?title=${title}` : ''}`;
+    const url = `../event${title ? `?title=${title}` : ''}`;
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch events');
         }
@@ -227,17 +220,17 @@ async function fetchEvents(title = '') {
             eventElement.appendChild(createKeyValueElement('Time', event.time));
             eventElement.appendChild(createKeyValueElement('Location', event.location));
             eventElement.appendChild(createKeyValueElement('Expired', event.expired));
-            eventElement.appendChild(await createKeyValueClickableElement('Organizer', [event.organizerId], 'organisations', 'events'));
+            eventElement.appendChild(await createKeyValueClickableElement('Organizer', [event.owner], 'organisation', 'event'));
             eventElement.appendChild(createKeyValueElement('Max Participants', event.maxNumberParticipants));
-            if (event.participantsId.length !== 0) {
-                eventElement.appendChild(await createKeyValueClickableElement('Participants', event.participantsId, 'users', 'events'));
+            if (event.participants.length !== 0) {
+                eventElement.appendChild(await createKeyValueClickableElement('Participants', event.participants, 'user', 'event'));
             } else
                 eventElement.appendChild(createKeyValueElement('Participants', ''));
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
             deleteButton.addEventListener('click', () => {
-                fetchDeleteButton('/events', event._id);
+                fetchDeleteButton('/event', event._id);
             });
 
             const buttonList = document.createElement('div');
@@ -260,10 +253,16 @@ async function fetchEvents(title = '') {
 
 async function fetchAnnouncements(title = '') {
     // Construct the URL with optional query parameters
-    const url = `../announcements${title ? `?title=${title}` : ''}`;
+    const url = `../announcement${title ? `?title=${title}` : ''}`;
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch announcements');
         }
@@ -286,17 +285,17 @@ async function fetchAnnouncements(title = '') {
             announcementElement.appendChild(createKeyValueElement('Time Begin', announcement.time_begin));
             announcementElement.appendChild(createKeyValueElement('Time Stop', announcement.time_stop));
             announcementElement.appendChild(createKeyValueElement('Location', announcement.location));
-            announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcement.ownerId], 'organisations', 'announcements'));
+            announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcement.owner], 'organisation', 'announcement'));
             announcementElement.appendChild(createKeyValueElement('Max Participants', announcement.maxNumberParticipants));
-            if (announcement.participantsID.length !== 0)
-                announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcement.participantsID, 'users', 'announcements'));
+            if (announcement.participants.length !== 0)
+                announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcement.participants, 'user', 'announcement'));
             else
                 announcementElement.appendChild(createKeyValueElement('Participants', ''));
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
             deleteButton.addEventListener('click', () => {
-                fetchDeleteButton('/announcements', announcement._id);
+                fetchDeleteButton('/announcement', announcement._id);
             });
 
             const buttonList = document.createElement('div');
@@ -319,10 +318,16 @@ async function fetchAnnouncements(title = '') {
 
 async function fetchUsers(username = '') {
     // Construct the URL with optional query parameters
-    const url = `../users${username ? `?username=${username}` : ''}`;
+    const url = `../user${username ? `?username=${username}` : ''}`;
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch users');
         }
@@ -342,38 +347,17 @@ async function fetchUsers(username = '') {
             userElement.appendChild(usernameElement);
 
             userElement.appendChild(createKeyValueElement('Email', user.email));
-            userElement.appendChild(createKeyValueElement('Password', user.password));
             userElement.appendChild(createKeyValueElement('Role', user.role));
             userElement.appendChild(createKeyValueElement('Birthday', new Date(user.birthday).toLocaleDateString()));
             userElement.appendChild(createKeyValueElement('Phone', user.phone));
             userElement.appendChild(createKeyValueElement('Sex', user.sex));
             userElement.appendChild(createKeyValueElement('Tax ID Code', user.taxIdCode));
             userElement.appendChild(createKeyValueElement('Bio', user.bio));
-            if (user.subscribedEventsId.length !== 0)
-                userElement.appendChild(await createKeyValueClickableElement('Subscribed Events', user.subscribedEventsId, 'events', 'users'));
-            else
-                userElement.appendChild(createKeyValueElement('Subscribed Events', ''));
-
-            if (user.subscribedExpiredEventsId.length !== 0)
-                userElement.appendChild(await createKeyValueClickableElement('Subscribed Expired Events', user.subscribedExpiredEventsId, 'events', 'users'));
-            else
-                userElement.appendChild(createKeyValueElement('Subscribed Expired Events', ''));
-
-            if (user.activeAnnouncementsId.length !== 0)
-                userElement.appendChild(await createKeyValueClickableElement('Active Announcements', user.activeAnnouncementsId, 'announcements', 'users'));
-            else
-                userElement.appendChild(createKeyValueElement('Active Announcements', ''));
-
-            if (user.expiredAnnouncementsId.length !== 0)
-                userElement.appendChild(await createKeyValueClickableElement('Expired Announcements', user.expiredAnnouncementsId, 'announcements', 'users'));
-            else
-                userElement.appendChild(createKeyValueElement('Expired Announcements', ''));
-
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
             deleteButton.addEventListener('click', () => {
-                fetchDeleteButton('/users', user._id);
+                fetchDeleteButton('/user', user._id);
             });
 
             const buttonList = document.createElement('div');
@@ -396,10 +380,16 @@ async function fetchUsers(username = '') {
 
 async function fetchOrganisations(username = '') {
     // Construct the URL with optional query parameters
-    const url = `../organisations${username ? `?username=${username}` : ''}`;
+    const url = `../organisation${username ? `?username=${username}` : ''}`;
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch organisations');
         }
@@ -417,25 +407,14 @@ async function fetchOrganisations(username = '') {
             organisationElement.appendChild(usernameElement);
 
             organisationElement.appendChild(createKeyValueElement('Email', organisation.email));
-            organisationElement.appendChild(createKeyValueElement('Password', organisation.password));
             organisationElement.appendChild(createKeyValueElement('Role', organisation.role));
             organisationElement.appendChild(createKeyValueElement('Tax ID Code', organisation.taxIdCode));
             organisationElement.appendChild(createKeyValueElement('Bio', organisation.bio));
-            if (organisation.activeEventsId.length !== 0)
-                organisationElement.appendChild(await createKeyValueClickableElement('Active Events', organisation.activeEventsId, 'events', 'organisations'));
-            else
-                organisationElement.appendChild(createKeyValueElement('Active Events', ''));
-
-            if (organisation.expiredEventsId.length !== 0)
-                organisationElement.appendChild(await createKeyValueClickableElement('Expired Events', organisation.expiredEventsId, 'events', 'organisations'));
-            else
-                organisationElement.appendChild(createKeyValueElement('Expired Events', ''));
-
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
             deleteButton.addEventListener('click', () => {
-                fetchDeleteButton('/organisations', organisation._id);
+                fetchDeleteButton('/organisation', organisation._id);
             });
 
             const buttonList = document.createElement('div');
@@ -456,13 +435,102 @@ async function fetchOrganisations(username = '') {
     }
 }
 
+async function fetchVerification() {
+    try {
+        const response = await fetch('/verification/', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch verification requests');
+        }
+        const verificationRequests = await response.json();
+
+        const verificationContainer = document.getElementById('listContainer');
+        verificationContainer.innerHTML = '';
+
+        for (const verification of verificationRequests) {
+            const verificationElement = document.createElement('div');
+            verificationElement.classList.add('verification-element');
+
+            const usernameElement = document.createElement('h2');
+            usernameElement.textContent = verification.organisation.username;
+            verificationElement.appendChild(usernameElement);
+
+            verificationElement.appendChild(createKeyValueElement('Date', new Date(verification.date).toLocaleDateString()));
+
+            const acceptButton = document.createElement('button');
+            acceptButton.textContent = 'Accept';
+            acceptButton.addEventListener('click', () => {
+                fetch('/verification/' + verification._id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.token}`
+                    },
+                    body: JSON.stringify({ action: 'accept' })
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to accept verification');
+                    }
+                    console.log('Accepted verification');
+                    fetchVerification();
+                }).catch(error => {
+                    console.error('Error accepting verification:', error);
+                });
+            });
+
+            const rejectButton = document.createElement('button');
+            rejectButton.textContent = 'Reject';
+            rejectButton.addEventListener('click', () => {
+                fetch('/verification/' + verification._id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.token}`
+                    },
+                    body: JSON.stringify({ action: 'reject' })
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to reject verification');
+                    }
+                    console.log('Rejected verification');
+                    fetchVerification();
+                }).catch(error => {
+                    console.error('Error rejecting verification:', error);
+                });
+            });
+
+            const buttonList = document.createElement('div');
+            buttonList.classList.add('button-list');
+            buttonList.appendChild(acceptButton);
+            buttonList.appendChild(rejectButton);
+
+            const container = document.createElement('span');
+            container.classList.add('container');
+            container.appendChild(verificationElement);
+            container.appendChild(buttonList);
+
+            verificationContainer.appendChild(container);
+        }
+    } catch (error) {
+        console.error('Error fetching verification requests:', error);
+    }
+}
+
+
+
 
 // baseURL is the URL to send the DELETE request to
 function fetchDeleteButton(baseURL, objectId) {
     fetch(`${baseURL}/${objectId}`, {
         method: 'DELETE',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.token}`
         },
         body: JSON.stringify({ objectId: objectId })
     })
@@ -480,7 +548,13 @@ function fetchDeleteButton(baseURL, objectId) {
 
 async function fetchIdUsername(baseUrl, userID) {
     try {
-        const response = await fetch(`../${baseUrl}/${userID}`);
+        const response = await fetch(`../${baseUrl}/${userID}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch username');
         }
@@ -494,7 +568,13 @@ async function fetchIdUsername(baseUrl, userID) {
 
 async function fetchIdTitle(baseURL, userID) {
     try {
-        const response = await fetch(`../${baseURL}/${userID}`);
+        const response = await fetch(`../${baseURL}/${userID}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch title');
         }
@@ -507,135 +587,153 @@ async function fetchIdTitle(baseURL, userID) {
 }
 
 
-async function fetchEventById(eventId) {
-    try {
-        const response = await fetch(`../events/${eventId}`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch event');
-        }
+// async function fetchEventById(eventId) {
+//     try {
+//         const response = await fetch(`../event/${eventId}`, {
+//             method: 'GET',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${localStorage.token}`
+//             }
+//         });
+//         if (!response.ok) {
+//             throw new Error('Failed to fetch event');
+//         }
 
-        // Call toggleSearchContainer() function to hide the search container
-        searchContainerHidden = true;
-        toggleSearchContainer();
+//         // Call toggleSearchContainer() function to hide the search container
+//         searchContainerHidden = true;
+//         toggleSearchContainer();
 
-        const eventData = await response.json();
-        const eventContainer = document.getElementById('listContainer');
-        eventContainer.innerHTML = '';
+//         const eventData = await response.json();
+//         const eventContainer = document.getElementById('listContainer');
+//         eventContainer.innerHTML = '';
 
-        const eventElement = document.createElement('div');
-        eventElement.classList.add('event-element');
+//         const eventElement = document.createElement('div');
+//         eventElement.classList.add('event-element');
 
-        const titleElement = document.createElement('h2');
-        titleElement.textContent = eventData.title;
-        eventElement.appendChild(titleElement);
+//         const titleElement = document.createElement('h2');
+//         titleElement.textContent = eventData.title;
+//         eventElement.appendChild(titleElement);
 
-        eventElement.appendChild(createKeyValueElement('Description', eventData.description));
-        eventElement.appendChild(createKeyValueElement('Date', new Date(eventData.date).toLocaleDateString()));
-        eventElement.appendChild(createKeyValueElement('Time', eventData.time));
-        eventElement.appendChild(createKeyValueElement('Location', eventData.location));
-        eventElement.appendChild(createKeyValueElement('Expired', eventData.expired));
-        eventElement.appendChild(await createKeyValueClickableElement('Organizer', [eventData.organizerId], 'organisations', 'eventById', eventId));
-        eventElement.appendChild(createKeyValueElement('Max Participants', eventData.maxNumberParticipants));
-        if (eventData.participantsId.length !== 0)
-            eventElement.appendChild(await createKeyValueClickableElement('Participants', eventData.participantsId, 'users', 'eventById', eventId));
-        else
-            eventElement.appendChild(createKeyValueElement('Participants', ''));
+//         eventElement.appendChild(createKeyValueElement('Description', eventData.description));
+//         eventElement.appendChild(createKeyValueElement('Date', new Date(eventData.date).toLocaleDateString()));
+//         eventElement.appendChild(createKeyValueElement('Time', eventData.time));
+//         eventElement.appendChild(createKeyValueElement('Location', eventData.location));
+//         eventElement.appendChild(createKeyValueElement('Expired', eventData.expired));
+//         eventElement.appendChild(await createKeyValueClickableElement('Organizer', [eventData.organizerId], 'organisation', 'eventById', eventId));
+//         eventElement.appendChild(createKeyValueElement('Max Participants', eventData.maxNumberParticipants));
+//         if (eventData.participants.length !== 0)
+//             eventElement.appendChild(await createKeyValueClickableElement('Participants', eventData.participants, 'user', 'eventById', eventId));
+//         else
+//             eventElement.appendChild(createKeyValueElement('Participants', ''));
 
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.addEventListener('click', () => {
-            fetchDeleteButton('/events', eventData._id);
-        });
+//         const deleteButton = document.createElement('button');
+//         deleteButton.textContent = 'Delete';
+//         deleteButton.addEventListener('click', () => {
+//             fetchDeleteButton('/event', eventData._id);
+//         });
 
-        const backButton = document.createElement('button');
-        backButton.textContent = 'Back';
-        backButton.addEventListener('click', () => {
-            backButtonFunction();
-        });
+//         const backButton = document.createElement('button');
+//         backButton.textContent = 'Back';
+//         backButton.addEventListener('click', () => {
+//             backButtonFunction();
+//         });
 
-        const buttonList = document.createElement('div');
-        buttonList.classList.add('button-list');
-        buttonList.appendChild(deleteButton);
-        buttonList.appendChild(backButton);
+//         const buttonList = document.createElement('div');
+//         buttonList.classList.add('button-list');
+//         buttonList.appendChild(deleteButton);
+//         buttonList.appendChild(backButton);
 
-        const container = document.createElement('span');
-        container.classList.add('container');
-        container.appendChild(eventElement);
-        container.appendChild(buttonList);
-        eventContainer.appendChild(container);
-    } catch (error) {
-        console.error('Error fetching event:', error);
-    }
-}
+//         const container = document.createElement('span');
+//         container.classList.add('container');
+//         container.appendChild(eventElement);
+//         container.appendChild(buttonList);
+//         eventContainer.appendChild(container);
+//     } catch (error) {
+//         console.error('Error fetching event:', error);
+//     }
+// }
 
-async function fetchAnnouncementById(announcementId) {
-    try {
-        const response = await fetch(`../announcements/${announcementId}`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch announcement');
-        }
+// async function fetchAnnouncementById(announcementId) {
+//     try {
+//         const response = await fetch(`../announcement/${announcementId}`, {
+//             method: 'GET',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${localStorage.token}`
+//             }
+//         });
+//         if (!response.ok) {
+//             throw new Error('Failed to fetch announcement');
+//         }
 
-        // Call toggleSearchContainer() function to hide the search container
-        searchContainerHidden = true;
-        toggleSearchContainer();
+//         // Call toggleSearchContainer() function to hide the search container
+//         searchContainerHidden = true;
+//         toggleSearchContainer();
 
-        const announcementData = await response.json();
-        const announcementContainer = document.getElementById('listContainer');
-        announcementContainer.innerHTML = '';
+//         const announcementData = await response.json();
+//         const announcementContainer = document.getElementById('listContainer');
+//         announcementContainer.innerHTML = '';
 
-        const announcementElement = document.createElement('div');
-        announcementElement.classList.add('announcement-element');
+//         const announcementElement = document.createElement('div');
+//         announcementElement.classList.add('announcement-element');
 
-        const titleElement = document.createElement('h2');
-        titleElement.textContent = announcementData.title;
-        announcementElement.appendChild(titleElement);
+//         const titleElement = document.createElement('h2');
+//         titleElement.textContent = announcementData.title;
+//         announcementElement.appendChild(titleElement);
 
-        announcementElement.appendChild(createKeyValueElement('Description', announcementData.description));
-        announcementElement.appendChild(createKeyValueElement('Date Begin', new Date(announcementData.date_begin).toLocaleDateString()));
-        announcementElement.appendChild(createKeyValueElement('Date Stop', new Date(announcementData.date_stop).toLocaleDateString()));
-        announcementElement.appendChild(createKeyValueElement('Time Begin', announcementData.time_begin));
-        announcementElement.appendChild(createKeyValueElement('Time Stop', announcementData.time_stop));
-        announcementElement.appendChild(createKeyValueElement('Location', announcementData.location));
-        announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcementData.ownerId], 'organisations', 'announcementById', announcementId));
-        announcementElement.appendChild(createKeyValueElement('Max Participants', announcementData.maxNumberParticipants));
-        if (announcementData.participantsID.length !== 0)
-            announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcementData.participantsID, 'users', 'announcementById', announcementId));
-        else
-            announcementElement.appendChild(createKeyValueElement('Participants', ''));
+//         announcementElement.appendChild(createKeyValueElement('Description', announcementData.description));
+//         announcementElement.appendChild(createKeyValueElement('Date Begin', new Date(announcementData.date_begin).toLocaleDateString()));
+//         announcementElement.appendChild(createKeyValueElement('Date Stop', new Date(announcementData.date_stop).toLocaleDateString()));
+//         announcementElement.appendChild(createKeyValueElement('Time Begin', announcementData.time_begin));
+//         announcementElement.appendChild(createKeyValueElement('Time Stop', announcementData.time_stop));
+//         announcementElement.appendChild(createKeyValueElement('Location', announcementData.location));
+//         announcementElement.appendChild(await createKeyValueClickableElement('Owner', [announcementData.owner], 'organisation', 'announcementById', announcementId));
+//         announcementElement.appendChild(createKeyValueElement('Max Participants', announcementData.maxNumberParticipants));
+//         if (announcementData.participants.length !== 0)
+//             announcementElement.appendChild(await createKeyValueClickableElement('Participants', announcementData.participants, 'user', 'announcementById', announcementId));
+//         else
+//             announcementElement.appendChild(createKeyValueElement('Participants', ''));
 
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.addEventListener('click', () => {
-            fetchDeleteButton('/announcements', announcementData._id);
-        });
+//         const deleteButton = document.createElement('button');
+//         deleteButton.textContent = 'Delete';
+//         deleteButton.addEventListener('click', () => {
+//             fetchDeleteButton('/announcement', announcementData._id);
+//         });
 
-        const backButton = document.createElement('button');
-        backButton.textContent = 'Back';
-        backButton.addEventListener('click', () => {
-            backButtonFunction();
-        });
+//         const backButton = document.createElement('button');
+//         backButton.textContent = 'Back';
+//         backButton.addEventListener('click', () => {
+//             backButtonFunction();
+//         });
 
-        const buttonList = document.createElement('div');
-        buttonList.classList.add('button-list');
-        buttonList.appendChild(deleteButton);
-        buttonList.appendChild(backButton);
+//         const buttonList = document.createElement('div');
+//         buttonList.classList.add('button-list');
+//         buttonList.appendChild(deleteButton);
+//         buttonList.appendChild(backButton);
 
-        const container = document.createElement('span');
-        container.classList.add('container');
-        container.appendChild(announcementElement);
-        container.appendChild(buttonList);
-        announcementContainer.appendChild(container);
+//         const container = document.createElement('span');
+//         container.classList.add('container');
+//         container.appendChild(announcementElement);
+//         container.appendChild(buttonList);
+//         announcementContainer.appendChild(container);
 
-    } catch (error) {
-        console.error('Error fetching announcement:', error);
-    }
-}
+//     } catch (error) {
+//         console.error('Error fetching announcement:', error);
+//     }
+// }
 
 
 // Function to fetch organization by ID
 async function fetchOrganisationById(organizationId) {
     try {
-        const response = await fetch(`../organisations/${organizationId}`);
+        const response = await fetch(`../organisation/${organizationId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch organization');
         }
@@ -656,25 +754,14 @@ async function fetchOrganisationById(organizationId) {
         organisationElement.appendChild(usernameElement);
 
         organisationElement.appendChild(createKeyValueElement('Email', organisationData.email));
-        organisationElement.appendChild(createKeyValueElement('Password', organisationData.password));
         organisationElement.appendChild(createKeyValueElement('Role', organisationData.role));
         organisationElement.appendChild(createKeyValueElement('Tax ID Code', organisationData.taxIdCode));
         organisationElement.appendChild(createKeyValueElement('Bio', organisationData.bio));
-        if (organisationData.activeEventsId.length !== 0)
-            organisationElement.appendChild(await createKeyValueClickableElement('Active Events', organisationData.activeEventsId, 'events', 'organisationById', organizationId));
-        else
-            organisationElement.appendChild(createKeyValueElement('Active Events', ''));
-
-        if (organisationData.expiredEventsId.length !== 0)
-            organisationElement.appendChild(await createKeyValueClickableElement('Expired Events', organisationData.expiredEventsId, 'events', 'organisationById', organizationId));
-        else
-            organisationElement.appendChild(createKeyValueElement('Expired Events', ''));
-
 
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
         deleteButton.addEventListener('click', () => {
-            fetchDeleteButton('/organisations', organisationData._id);
+            fetchDeleteButton('/organisation', organisationData._id);
         });
 
         const backButton = document.createElement('button');
@@ -701,7 +788,13 @@ async function fetchOrganisationById(organizationId) {
 
 async function fetchUserById(userId) {
     try {
-        const response = await fetch(`../users/${userId}`);
+        const response = await fetch(`../user/${userId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch user');
         }
@@ -722,38 +815,17 @@ async function fetchUserById(userId) {
         userElement.appendChild(usernameElement);
 
         userElement.appendChild(createKeyValueElement('Email', userData.email));
-        userElement.appendChild(createKeyValueElement('Password', userData.password));
         userElement.appendChild(createKeyValueElement('Role', userData.role));
         userElement.appendChild(createKeyValueElement('Birthday', new Date(userData.birthday).toLocaleDateString()));
         userElement.appendChild(createKeyValueElement('Phone', userData.phone));
         userElement.appendChild(createKeyValueElement('Sex', userData.sex));
         userElement.appendChild(createKeyValueElement('Tax ID Code', userData.taxIdCode));
         userElement.appendChild(createKeyValueElement('Bio', userData.bio));
-        if (userData.subscribedEventsId.length !== 0)
-            userElement.appendChild(await createKeyValueClickableElement('Subscribed Events', userData.subscribedEventsId, 'events', 'userById', userId));
-        else
-            userElement.appendChild(createKeyValueElement('Subscribed Events', ''));
-
-        if (userData.subscribedExpiredEventsId.length !== 0)
-            userElement.appendChild(await createKeyValueClickableElement('Subscribed Expired Events', userData.subscribedExpiredEventsId, 'events', 'userById', userId));
-        else
-            userElement.appendChild(createKeyValueElement('Subscribed Expired Events', ''));
-
-        if (userData.activeAnnouncementsId.length !== 0)
-            userElement.appendChild(await createKeyValueClickableElement('Active Announcements', userData.activeAnnouncementsId, 'announcements', 'userById', userId));
-        else
-            userElement.appendChild(createKeyValueElement('Active Announcements', ''));
-
-        if (userData.expiredAnnouncementsId.length !== 0)
-            userElement.appendChild(await createKeyValueClickableElement('Expired Announcements', userData.expiredAnnouncementsId, 'announcements', 'userById', userId));
-        else
-            userElement.appendChild(createKeyValueElement('Expired Announcements', ''));
-
 
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
         deleteButton.addEventListener('click', () => {
-            fetchDeleteButton('/users', userData._id);
+            fetchDeleteButton('/user', userData._id);
         });
 
         const backButton = document.createElement('button');
