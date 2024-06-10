@@ -1,7 +1,7 @@
 // Route to handle requests for /comment
 const router = require('express').Router();
 const {commentValidation} = require("../validation");
-const {privateAccess, blockGuest} = require("../middleware");
+const {privateComment, blockGuest} = require("../middleware");
 const {Event} = require("../models/eventModel");
 const {Comment} = require("../models/subModels");
 
@@ -62,25 +62,17 @@ router.get('/:id', blockGuest, async (req, res) => {
     }
 });
 
-router.delete('/:id', privateAccess, async (req, res) => {
+router.delete('/:id', privateComment, async (req, res) => {
     const commentId = req.body.commentId;
     const eventId = req.body.eventId;
     try {
-        console.log('event id: ', eventId);
         const event = await Event.findById(eventId);
-        console.log(event);
         if (!event)
             return res.status(400).json({ message: 'Bad Request' });
 
-        const originalLength = event.comments.length;
-        console.log(event.comments);
-        event.comments = event.comments.filter(comment => comment._id.toString() !== commentId);
-
-        console.log(event.comments);
-        if (event.comments.length === originalLength)
-            return res.status(400).json({ message: 'Bad Request' });
-        console.log('saving db');
-        await event.save();
+        await Event.findByIdAndUpdate(
+            eventId,
+            {$pull: {comments: {id: req.params.id}}});
 
         res.status(200).json({ message: 'Comment deleted' });
     } catch (err) {
@@ -88,7 +80,6 @@ router.delete('/:id', privateAccess, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
 
 
 

@@ -1,6 +1,7 @@
 const {verify} = require("jsonwebtoken");
 const {Profile} = require("./models/profileModel");
 const {Chat} = require("./models/chatModel");
+const {Event} = require("./models/eventModel");
 
 // print method and url
 const printf = (req, res, next) => {
@@ -42,9 +43,8 @@ const verifySecretToken = (req, res, next) => {
 const privateAccess = (req, res, next) => {
     // if logged in and admin or owner --> access
     if (req.user && (req.user.role === 'admin' || String(req.user._id) === String(req.params.id)))
-        next();
-    else
-        res.status(403).json({ message: 'Unauthorized access' });
+        return next();
+    res.status(403).json({ message: 'Unauthorized access' });
 }
 
 const blockGuest = async (req, res, next) => {
@@ -67,6 +67,22 @@ const privateChat = async (req, res, next) => {
     }
 };
 
+const privateComment = async (req, res, next) => {
+    try {
+        const event = await Event.findById(req.body.eventId);
+        if (!event)
+            return res.status(400).json({message: 'Bad Request'});
+
+        if (req.user.role === 'admin' || event.comments.some(elem => String(elem.user.id) === String(req.user._id)))
+            return next();
+
+        return res.status(403).json({ message: 'Unauthorized comment' });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: 'Internal Server Error'});
+    }
+}
+
 const checkRole = (role) => (req, res, next) => {
     if (!req.user || req.user.role !== role)
         return res.status(403).json({ message: 'Unauthorized access' });
@@ -80,4 +96,5 @@ module.exports = {
     blockGuest,
     privateChat,
     checkRole,
+    privateComment,
 }
