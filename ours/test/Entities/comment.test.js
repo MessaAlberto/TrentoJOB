@@ -61,6 +61,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    await Profile.deleteMany({});
+    await Event.deleteMany({});
     await disconnect();
 });
 

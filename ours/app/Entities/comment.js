@@ -32,22 +32,6 @@ router.post('/:id', blockGuest, commentValidation, async (req, res) => {
     }
 });
 
-router.get('/', blockGuest, async (req, res) => {
-    try {
-        const eventId = req.query.eventId;
-        var fields = 'owner comments';
-        const event = await Event.findById(eventId).select(fields);
-
-        if (!event)
-            return res.status(400).json({ message: 'Bad Request' });
-        
-        res.status(200).json(event);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({message: 'Internal Server Error'});
-    }
-});
-
 router.get('/:id', blockGuest, async (req, res) => {
     const eventId = req.params.id;
     try {
