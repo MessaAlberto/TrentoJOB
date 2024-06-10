@@ -1,7 +1,6 @@
 const request = require('supertest');
 const express = require('express');
 const { User, Organisation } = require('../../app/models/profileModel');
-const { Event } = require('../../app/models/eventModel');
 const userRouter = require('../../app/Entities/user');
 const organisationRouter = require('../../app/Entities/organisation');
 const announcementRouter = require('../../app/Entities/announcement');
@@ -18,6 +17,9 @@ app.use('/organisation', organisationRouter);
 app.use('/announcement', announcementRouter);
 app.use('/auth', authRouter);
 
+let orgToken, orgId;
+let userToken, userId;
+
 beforeAll(async () => {
     await connect();
 
@@ -33,15 +35,35 @@ beforeAll(async () => {
     });
     await organisation.save();
 
-    // Login to get the token
-    const response = await request(app)
+    // password is the hash of 'password123'
+    const user = new User({
+        username: 'testuser',
+        email: 'user@example.com',
+        password: '$2b$10$4WkB/FUdhtsydVmSpH8uSeFUQtPOscIbVN3k6fjL82C/QDAM8.lAq',
+        role: 'user',
+        confirmed: true,
+    });
+    await user.save();
+
+    // Login as organization to get the token
+    let response = await request(app)
         .post('/auth')
         .send({
             email: 'org@example.com',
             password: 'password123',
         });
-    token = response.body.token;
+    orgToken = response.body.token;
     orgId = response.body.userId;
+
+    // Login as user to get the token
+    response = await request(app)
+        .post('/auth')
+        .send({
+            email: 'user@example.com',
+            password: 'password123',
+        });
+    userToken = response.body.token;
+    userId = response.body.userId;
 });
 
 afterAll(async () => {
@@ -53,7 +75,7 @@ afterEach(async () => {
 });
 
 describe('Announcement Routes', () => {
-    it('should create a new announcement', async () => {
+    it('should create a new announcement as an organization', async () => {
         const newAnnouncement = {
             title: 'test announcement',
             description: 'test description',
@@ -67,7 +89,27 @@ describe('Announcement Routes', () => {
             .post('/announcement')
             .send(newAnnouncement)
             .set('Content-Type', 'application/json')
-            .set('Authorization', `Bearer ${token}`);
+            .set('Authorization', `Bearer ${orgToken}`);
+
+        expect(response.status).toBe(201);
+        expect(response.body.activity_id).toBeDefined();
+    });
+
+    it('should create a new announcement as a user', async () => {
+        const newAnnouncement = {
+            title: 'test announcement',
+            description: 'test description',
+            date_begin: '2024-06-09T17:36:00.000+00:00',
+            date_stop: '2024-06-09T17:36:00.000+00:00',
+            location: 'test location',
+            maxNumberParticipants: 10,
+        };
+
+        const response = await request(app)
+            .post('/announcement')
+            .send(newAnnouncement)
+            .set('Content-Type', 'application/json')
+            .set('Authorization', `Bearer ${userToken}`);
 
         expect(response.status).toBe(201);
         expect(response.body.activity_id).toBeDefined();
@@ -105,7 +147,7 @@ describe('Announcement Routes', () => {
             .post('/announcement')
             .send(newAnnouncement)
             .set('Content-Type', 'application/json')
-            .set('Authorization', `Bearer ${token}`);
+            .set('Authorization', `Bearer ${orgToken}`);
 
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('Validation error');
@@ -125,7 +167,7 @@ describe('Announcement Routes', () => {
             .post('/announcement')
             .send(newAnnouncement)
             .set('Content-Type', 'application/json')
-            .set('Authorization', `Bearer ${token}`);
+            .set('Authorization', `Bearer ${orgToken}`);
 
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('Validation error');
@@ -158,7 +200,7 @@ describe('Announcement Routes', () => {
                 role: 'organisation',
             }
         });
-        
+
         await announcement1.save();
         await announcement2.save();
 
@@ -188,7 +230,7 @@ describe('Announcement Routes', () => {
         expect(response.body.title).toBe('test announcement');
     });
 
-    it('should delete an announcement', async () => {
+    it('should delete an announcement as an organization', async () => {
         const announcement = new Announcement({
             title: 'test announcement',
             description: 'description1',
@@ -202,11 +244,33 @@ describe('Announcement Routes', () => {
                 role: 'organisation',
             }
         });
-        await announcement.save();
+        const saved = await announcement.save();
 
         const response = await request(app)
-            .delete(`/announcement/${announcement._id}`)
-            .set('Authorization', `Bearer ${token}`);
+            .delete(`/announcement/${saved._id}`)
+            .set('Authorization', `Bearer ${orgToken}`);
+        expect(response.status).toBe(200);
+    });
+
+    it('should delete an announcement as a user', async () => {
+        const announcement = new Announcement({
+            title: 'test announcement',
+            description: 'description1',
+            date_begin: '2024-06-09T17:36:00.000+00:00',
+            date_stop: '2024-06-09T17:36:00.000+00:00',
+            location: 'location1',
+            maxNumberParticipants: 10,
+            owner: {
+                username: 'testuser',
+                id: userId,
+                role: 'user',
+            }
+        });
+        const saved = await announcement.save();
+
+        const response = await request(app)
+            .delete(`/announcement/${saved._id}`)
+            .set('Authorization', `Bearer ${userToken}`);
         expect(response.status).toBe(200);
     });
 });

@@ -1,6 +1,6 @@
 const request = require('supertest');
 const express = require('express');
-const { User, Organisation } = require('../../app/models/profileModel');
+const {Organisation} = require('../../app/models/profileModel');
 const organisationRouter = require('../../app/Entities/organisation');
 const authRouter = require('../../app/authentication/auth');
 const { verifySecretToken } = require('../../app/middleware');

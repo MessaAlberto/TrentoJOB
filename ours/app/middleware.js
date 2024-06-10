@@ -57,7 +57,7 @@ const privateChat = async (req, res, next) => {
     try {
         const chat = await Chat.findById(req.params.id);
 
-        if (!chat || (chat.memberA.id !== req.user._id && chat.memberB.id !== req.user._id))
+        if (!chat || (chat.memberA.id.toString() !== req.user._id.toString() && chat.memberB.id.toString() !== req.user._id.toString()))
             return res.status(403).json({ message: 'Unauthorized access' });
         next();
 
