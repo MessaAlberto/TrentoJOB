@@ -31,6 +31,7 @@ const eventURL = require('./app/Entities/event');
 const announcementURL = require('./app/Entities/announcement');
 const chatURL = require('./app/Entities/chat');
 const commentURL = require('./app/Entities/comment');
+const verificationURL = require('./app/Entities/verification');
 
 app.use('/auth', authURL);
 app.use('/password', passwordURL);
@@ -41,6 +42,7 @@ app.use('/event', eventURL);
 app.use('/announcement', announcementURL);
 app.use('/chat', chatURL);
 app.use('/comment', commentURL);
+app.use('/verification', verificationURL);
 
 // Default 404 handler
 app.use((req, res) => {

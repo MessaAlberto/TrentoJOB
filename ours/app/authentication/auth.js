@@ -1,10 +1,12 @@
 const router = require("express").Router();
 const {compare} = require("bcrypt");
 const {sign, verify, decode} = require("jsonwebtoken");
-const {Profile} = require("../models/profileModel");
+const {Profile, Organisation} = require("../models/profileModel");
+const {Verification} = require("../models/verificationModel");
 const mail = require("../nodeMail");
 const {loginValidation} = require("../validation");
 const {emailWelcome, emailVerification} = require("../mailBody");
+const { date } = require("joi");
 
 
 // login
@@ -15,12 +17,13 @@ router.post('/', loginValidation, async (req, res) => {
 
         // If user doesn't exist or password is wrong
         if (!user || !(await compare(req.body.password, user.password))) {
+            console.log('Error: ' + req.body.email + ' ' + req.body.password);
             return res.status(400).json({message: 'Email or password is wrong'});
 
         }
 
-        // If email is not confirmed
-        if (!user.confirmed)
+        // If email is not confirmed or are admin
+        if (!user.confirmed && user.role !== 'admin')
             return res.status(401).json({message: 'Email was not confirmed'});
 
         // if organization require verification by admin
@@ -92,7 +95,6 @@ router.get('/:token', async (req, res) => {
     try {
         const data = verify(token, process.env.JWT_SECRET_MAIL);
         const user = await Profile.findByIdAndUpdate(data._id, {confirmed: true});
-        res.status(200).json({message: 'You have been verified'});
 
         // mail
         if (user.role === 'user') {
@@ -100,9 +102,15 @@ router.get('/:token', async (req, res) => {
             const html = emailWelcome(user.username, url);
             mail(user.email, "Welcome to TrentoJob", html);
         } else {
+            console.log('organisation');
+            // create a new verification on db
+            const verification = new Verification({organisation: {id: user._id, username: user.username, role: user.role}, date: new Date()});
+            await verification.save();
+
             const html = emailVerification(user.username);
             mail(user.email, "Almost there", html);
         }
+        res.status(200).json({message: 'You have been verified'});
     } catch (err) {
         // delete document since it wasn't verified  before deadline
         if (err === 'TokenExpiredError') {
