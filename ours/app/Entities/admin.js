@@ -6,7 +6,7 @@ const {hash} = require("bcrypt");
 const {editEntity, searchById, search, erase} = require("../utils");
 
 // create
-router.post('/',registerValidation, privateAccess, async (req,res) => {
+router.post('/', registerValidation, privateAccess, async (req,res) => {
     try {
         // check if email already exists
         const emailExists = await Profile.findOne({email: req.body.email})
@@ -14,7 +14,7 @@ router.post('/',registerValidation, privateAccess, async (req,res) => {
             return res.status(400).json({message: 'Email already exists'});
 
         // hashing
-        req.password = await hash(req.password, 10);
+        req.body.password = await hash(req.body.password, 10);
         let user = new Admin(req.body);
         user.role = 'admin';
         user.confirmed = true;
@@ -23,7 +23,8 @@ router.post('/',registerValidation, privateAccess, async (req,res) => {
         const savedUser = await user.save();
         res.status(201).json({user: savedUser._id});
 
-    } catch {
+    } catch (err) {
+        console.log(err);
         res.status(500).json({message: 'Internal Server Error'});
     }
 });

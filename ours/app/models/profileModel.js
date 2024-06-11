@@ -126,15 +126,11 @@ const Admin = Profile.discriminator('Admin', new mongoose.Schema({
     // some joke fields
     beautifulnessLevel: {
         type: Number,
-        required: true,
+        required: false,
     },
     coolnessLevel: {
         type: Number,
-        required: true,
-    },
-    cm: {
-        type: Number,
-        required: true,
+        required: false,
     }
 }));
 

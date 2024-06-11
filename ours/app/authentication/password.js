@@ -11,7 +11,8 @@ router.post('/', async (req, res) => {
         const user = await Profile.findOne({ email: req.body.email });
         if (!user)
             return res.status(404).json({ message: 'User not found' });
-    
+
+        console.log('making mail');
         // send email
         const email_token = sign({ userId: user._id }, process.env.JWT_SECRET_MAIL, { expiresIn: process.env.JWT_EXPIRE_MAIL });
         const html =
@@ -30,7 +31,7 @@ router.post('/', async (req, res) => {
             </body>
             </html>`;
         mail(user.email, 'Password Reset', html);
-    
+
         console.log('Received reset request for email:', user.email);
     
         res.status(200).json({ message: 'A reset link has been sent to your email address' });

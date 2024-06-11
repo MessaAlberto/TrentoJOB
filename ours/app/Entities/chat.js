@@ -52,11 +52,11 @@ router.post('/:id', blockGuest, async (req, res) => {
                 { $push: { chats: statusB } });
 
             res.status(200).json({ chat_id: chatId });
-            console.log('done ' + chatId);
         } else {
             res.status(200).json({ message: "Chat already exists" });
         }
     } catch (err) {
+        console.log('ciao');
         console.log(err);
         res.status(500).json({ message: 'Internal Server Error' });
     }

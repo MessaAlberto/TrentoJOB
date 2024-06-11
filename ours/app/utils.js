@@ -1,4 +1,4 @@
-const {Profile, User, Organisation } = require("./models/profileModel");
+const {Profile, User, Organisation, Admin} = require("./models/profileModel");
 const {Event} = require("./models/eventModel");
 const {Announcement} = require("./models/announcementModel");
 const {hash} = require("bcrypt");
@@ -169,52 +169,53 @@ const searchById = async (req, res, model) => {
 
 const editEntity = async (req, res, model) => {
     try {
-        const activity = await model.findById(req.params.id);
-        if (!activity)
+        const entity = await model.findById(req.params.id);
+        if (!entity)
             return res.status(404).json({ message: 'Not found' });
 
         if (model === Event || model === Announcement) {
             if (req.body.action === 'join') {
-                if (activity.owner.id === req.user._id)
+                if (entity.owner.id === req.user._id)
                     return res.status(400).json({ message: 'Owner cannot join' });
 
-                if (activity.participants.some(participant => participant.id === req.user._id))
+                if (entity.participants.some(participant => participant.id === req.user._id))
                     return res.status(400).json({ message: 'Already joined' });
 
-                activity.participants.push({ username: req.user.username, id: req.user._id, role: req.user.role });
-                await activity.save();
+                entity.participants.push({ username: req.user.username, id: req.user._id, role: req.user.role });
+                await entity.save();
                 return res.status(200).json({ message: 'Joined' });
             } else if (req.body.action === 'leave') {
-                if (!activity.participants.some(participant => participant.id === req.user._id))
+                if (!entity.participants.some(participant => participant.id === req.user._id))
                     return res.status(400).json({ message: 'Not joined' });
 
-                activity.participants = activity.participants.filter(participant => participant.id !== req.user._id);
-                await activity.save();
+                entity.participants = entity.participants.filter(participant => participant.id !== req.user._id);
+                await entity.save();
                 return res.status(200).json({ message: 'Left' });
             } else {
                 // For other modifications, ensure only authorized users can edit
-                if (req.user.role !== 'admin' && req.user._id !== activity.owner.id)
+                if (req.user.role !== 'admin' && req.user._id !== entity.owner.id)
                     return res.status(403).json({ message: 'Unauthorized access' });
 
                 for (const key in req.body) {
-                    activity[key] = req.body[key];
+                    entity[key] = req.body[key];
                 }
 
-                await activity.save();
+                await entity.save();
                 return res.status(200).json({ message: 'Updated' });
             }
 
-        } else if (model === User || model === Organisation) {
+        } else if (model === User || model === Organisation || model === Admin) {
             for (const key in req.body) {
                 if (!['role', 'password', 'refresh_token'].includes(key)) {
-                    activity[key] = req.body[key];
+                    entity[key] = req.body[key];
                 }
             }
 
-            await activity.save();
-            return res.status(200).json({ message: 'Updated', activity });
+            await entity.save();
+            return res.status(200).json({ message: 'Updated', entity: entity });
         }
-    } catch (error) {
+    } catch (err) {
+        console.log(err);
         res.status(500).json({ message: 'Internal Server Error', error: error });
     }
 }
