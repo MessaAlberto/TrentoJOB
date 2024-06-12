@@ -1,10 +1,10 @@
 openapi: 3.0.0
 info:
-  title: Authentication and Authorization API
-  description:  This API provides secure authentication and authorization services for user accounts, including functionalities for login, registration, password management, and role-based access control. Additionally, the API supports event management, announcements, organization handling, and user profile management.
+  title: TrentoJOB
+  description:  sito per la ricerca e pubblicazione di annunci e eventi rivolti al pubblico o al privato con ampia secelta tra filtri e personalizzazione
   version: 1.0.0
 servers:
-  - url: http://localhost:8080
+  - url: https://trentojob.onrender.com
 tags:
   - name: AUTENTICAZIONE
     description: gestione acesso
