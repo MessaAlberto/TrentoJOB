@@ -42,7 +42,7 @@ router.delete('/:id', async (req, res) => {
             await verification.deleteOne();
 
             // send email
-            const url = `http://localhost:${process.env.PORT}/logIn.html`;
+            const url = `http://trentojob.onrender.com/logIn.html`;
             const html = emailVerified(user.username, url);
             mail(user.email, 'Account Verification', html);
 

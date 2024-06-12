@@ -24,7 +24,7 @@ const register = async (req, res, model, role) => {
 
         // send email confirmation mail
         const email_token = sign({ _id: savedUser._id }, process.env.JWT_SECRET_MAIL, { expiresIn: process.env.JWT_EXPIRE_MAIL });
-        const url = `http://localhost:${process.env.PORT}/auth/${email_token}`;
+        const url = `http://trentojob.onrender.com/auth/${email_token}`;
         const html = emailConfirm(savedUser.username, url);
         mail(req.body.email, "Email confirmation", html);
     } catch (err) {
