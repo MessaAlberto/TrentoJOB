@@ -4,7 +4,6 @@ var openedChatId = '';
 var canvas = '';
 
 document.addEventListener('DOMContentLoaded', () => {
-
     // Handle receiving messages
     socket.on("receiveMessage", (message) => {
         // Add new message to chat body
@@ -43,40 +42,52 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchList();
     }, 10000);
 
-    // wait a second before activate a listener
-    setTimeout(() => {
-        document.getElementById('homeTitle').addEventListener('click', function () {
-            clearNewMessageOnOpenChat('index');
-        });
+    // wait for the #header-container creation
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            if (mutation.type === 'childList') {
+                const homeTitle = document.getElementById('homeTitle');
+                if (homeTitle) {
+                    observer.disconnect(); // Stop observing once the element is found
 
-        document.getElementById('usernameLabel').addEventListener('click', function () {
-            clearNewMessageOnOpenChat('me');
-        });
+                    document.getElementById('homeTitle').addEventListener('click', function () {
+                        clearNewMessageOnOpenChat('index');
+                    });
 
-        document.getElementById('mePage').addEventListener('click', function () {
-            clearNewMessageOnOpenChat('me');
-        });
+                    document.getElementById('usernameLabel').addEventListener('click', function () {
+                        clearNewMessageOnOpenChat('me');
+                    });
 
-        function clearNewMessageOnOpenChat(page) {
-            if (!openedChatId) window.location.href = '/' + page + '.html';
+                    document.getElementById('mePage').addEventListener('click', function () {
+                        clearNewMessageOnOpenChat('me');
+                    });
 
-            fetch('/chat/' + openedChatId, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.token,
+                    function clearNewMessageOnOpenChat(page) {
+                        if (!openedChatId) window.location.href = '/' + page + '.html';
+
+                        fetch('/chat/' + openedChatId, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + localStorage.token,
+                            }
+                        }).then(async response => {
+                            if (response.ok) {
+                                window.location.href = '/' + page + '.html';
+                            } else {
+                                throw new Error('Failed to fetch');
+                            }
+                        }).catch(error => {
+                            console.error('Error:', error);
+                        });
+                    }
                 }
-            }).then(async response => {
-                if (response.ok) {
-                    window.location.href = '/' + page + '.html';
-                } else {
-                    throw new Error('Failed to fetch');
-                }
-            }).catch(error => {
-                console.error('Error:', error);
-            });
+            }
         }
-    }, 100);
+    });
+
+    // Start observing the #header-container for child elements being added
+    observer.observe(document.getElementById('header-container'), { childList: true, subtree: true });
 });
 
 
