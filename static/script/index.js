@@ -856,7 +856,7 @@ async function fecthOwner(model, ownerId) {
 async function fetchComments(noticeId) {
     // disable sroll in the body
     document.body.classList.add('no-scroll');
-    const url = '/comment?eventId=' + noticeId;
+    const url = '/comment/' + noticeId;
 
     try {
         const response = await fetch(url, {
@@ -874,6 +874,7 @@ async function fetchComments(noticeId) {
             throw new Error('Network response was not ok');
         }
         const item = await response.json();
+        console.log(item);
         const itemContainer = document.getElementById('showPopUpObject');
         itemContainer.innerHTML = '';
         itemContainer.classList.remove('hidden');
@@ -920,8 +921,8 @@ async function fetchComments(noticeId) {
                     deleteButton.classList.add('delete-button');
                     deleteButton.innerHTML = 'Delete';
                     deleteButton.addEventListener('click', function () {
-                        const data = { commentId: comment._id, eventId: noticeId };
-                        fetch('/comment/' + localStorage.userId, {
+                        const data = { eventId: noticeId };
+                        fetch('/comment/' + comment._id, {
                             method: 'DELETE',
                             headers: {
                                 'Content-Type': 'application/json',

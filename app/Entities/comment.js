@@ -35,11 +35,12 @@ router.post('/:id', blockGuest, commentValidation, async (req, res) => {
 router.get('/:id', blockGuest, async (req, res) => {
     const eventId = req.params.id;
     try {
-        const event = await Event.findById(eventId);
+        const fields = 'owner comments';
+        const event = await Event.findById(eventId).select(fields);
         if (!event)
             return res.status(400).json({ message: 'Bad Request' });
 
-        res.status(200).json(event.comments);
+        res.status(200).json(event);
     } catch (err) {
         console.error(err);
         res.status(500).json({message: 'Internal Server Error'});
@@ -47,16 +48,15 @@ router.get('/:id', blockGuest, async (req, res) => {
 });
 
 router.delete('/:id', privateComment, async (req, res) => {
-    const commentId = req.body.commentId;
     const eventId = req.body.eventId;
     try {
         const event = await Event.findById(eventId);
         if (!event)
             return res.status(400).json({ message: 'Bad Request' });
 
-        await Event.findByIdAndUpdate(
-            eventId,
-            {$pull: {comments: {id: req.params.id}}});
+        event.comments = event.comments.filter(comment => comment._id != req.params.id);
+
+        await event.save();
 
         res.status(200).json({ message: 'Comment deleted' });
     } catch (err) {
